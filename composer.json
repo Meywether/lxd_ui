@@ -27,7 +27,7 @@
     },
     "scripts": {
         "build": "cd .nuxt/ && npm run generate && cd ../",
-        "push": "cd .nuxt/ && npm run generate && cd ../ && git add -A ./ && git commit -a -m '.' && git push origin $(git branch | sed --quiet 's\/* \\(.*\\)\/\u0001\/p')",
+        "push": "cd .nuxt/ && npm run generate && cd ../ && git add -A ./ && git commit -a -m '.' && git push origin $(git branch | sed --quiet 's/* \\(.*\\)/\\1/p')",
         "push_docs": "sudo mkdocs gh-deploy && rm site/ -Rf",
         "post-create-project-cmd": "bash ./.api/files/setup.sh",
         "setup": "bash ./.api/files/setup.sh"
