@@ -33,7 +33,7 @@
     <v-dialog v-model="dialog" max-width="700px" scrollable :hide-overlay="linkedItem !== null">
       <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 104px);">
         <v-toolbar card dark color="light-blue darken-3">
-          <v-btn icon @click.native="close('preview')" dark>
+          <v-btn icon @click.native="close()" dark>
             <v-icon>close</v-icon>
           </v-btn>
           <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Nic Device</v-toolbar-title>
