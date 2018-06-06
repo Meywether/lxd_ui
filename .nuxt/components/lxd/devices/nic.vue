@@ -36,7 +36,7 @@
           <v-btn icon @click.native="close('preview')" dark>
             <v-icon>close</v-icon>
           </v-btn>
-          <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Nic</v-toolbar-title>
+          <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Nic Device</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
             <v-btn dark flat @click.native="saveItem()">Save</v-btn>
