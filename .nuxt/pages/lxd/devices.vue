@@ -18,7 +18,7 @@
                   {{ error }}
                 </v-alert>
                 <v-tabs v-model="activeTab" show-arrows class="elevation-1">
-                  <!--<v-tab ripple :href="`#blocker`">Blocker</v-tab>-->
+                  <v-tab ripple :href="`#none`">None</v-tab>
                   <v-tab ripple :href="`#nic`">Nic</v-tab>
                   <v-tab ripple :href="`#disk`">Disk</v-tab>
                   <!--<v-tab ripple :href="`#unix-char`">Unix-char</v-tab>-->
@@ -30,6 +30,9 @@
                   <v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>
                   
                   <!--<v-tab-item :id="`blocker`">blocker</v-tab-item>-->
+                  <v-tab-item :id="`none`">
+                    <none @snackbar="setSnackbar" ref="none"></none>
+                  </v-tab-item>
                   <v-tab-item :id="`nic`">
                     <nic @snackbar="setSnackbar" ref="nic"></nic>
                   </v-tab-item>
@@ -60,6 +63,7 @@
 
 <script>
   // components
+  import none from '~/components/lxd/devices/none.vue'
   import nic from '~/components/lxd/devices/nic.vue'
   import disk from '~/components/lxd/devices/disk.vue'
   import proxy from '~/components/lxd/devices/proxy.vue'
@@ -67,11 +71,11 @@
 
   export default {
     components: {
-      nic, disk, proxy, infiniband
+      none, nic, disk, proxy, infiniband
     },
     data: () => ({
       error: '',
-      activeTab: 'nic',
+      activeTab: 'none',
       snackbar: false,
       snackbarColor: 'green',
       snackbarText: '',

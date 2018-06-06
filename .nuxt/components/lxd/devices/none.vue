@@ -11,11 +11,6 @@
             <span v-if="linkedItem.devices">{{ props.item.name }}</span>
             <span v-else><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.name }}</a></span>
           </td>
-          <td>{{ props.item.dict.nictype ? ucfirst(props.item.dict.nictype) : '-' }}</td>
-          <td>{{ props.item.dict.name ? props.item.dict.name : '-' }}</td>
-          <td>{{ props.item.dict.parent ? props.item.dict.parent : '-' }}</td>
-          <td v-if="!linkedItem.devices">{{ props.item.dict.hwaddr ? props.item.dict.hwaddr : '-' }}</td>
-          <td v-if="!linkedItem.devices">{{ props.item.dict.mtu ? props.item.dict.mtu : '-' }}</td>
           <td>
             <span v-if="linkedItem.devices">
               <v-btn depressed small @click="attachItem(props.item)" v-if="!linkedItem.devices[props.item.name]">Attach</v-btn>
@@ -31,7 +26,7 @@
         </tr>
       </template>
       <template slot="no-data">
-        {{ tableLoading ? 'Fetching data, please wait...' : 'There are currently no infiniband devices.' }}
+        {{ tableLoading ? 'Fetching data, please wait...' : 'There are currently no none devices.' }}
       </template>
     </v-data-table>
 
@@ -42,7 +37,7 @@
           <v-btn icon @click.native="close('preview')" dark>
             <v-icon>close</v-icon>
           </v-btn>
-          <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} InfiniBand Device</v-toolbar-title>
+          <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} None Device</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
             <v-btn dark flat @click.native="saveItem()">Save</v-btn>
@@ -53,17 +48,8 @@
             <v-alert type="error" :value="error">
               {{ error }}
             </v-alert>
-            <h3>General</h3>
-
-            <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the proxy device."></v-text-field>
-
-            <h3>InfiniBand Settings</h3>
-            <v-select :items="['physical','sriov']" v-model="editingItem.dict.nictype" label="Nic Type:" persistent-hint hint="Device type, one of physical or sriov."></v-select>
-            <v-select :items="networks" v-model="editingItem.dict.parent" :rules="parentRule" required label="Parent:"></v-select>
-            <v-text-field v-model="editingItem.dict.name" label="Name:" placeholder="" hint="Name of the interface inside the container."></v-text-field>
-            <v-text-field v-model="editingItem.dict.hwaddr" label="MAC Address:" :rules="macRule" placeholder="" hint="MAC address of the new interface."></v-text-field>
-            <v-text-field v-model="editingItem.dict.mtu" label="MTU:" :rules="mtuRule" placeholder="" hint="The MTU of the new interface."></v-text-field>
-
+            <h3>Device Name</h3>
+            <v-text-field v-model="editingItem.dict.name" :rules="nameRule" label="Device Name:" placeholder="" required hint="The name of the device to block from profile."></v-text-field>
           </v-form>
         </v-card-text>
         <div style="flex: 1 1 auto;"></div>
@@ -92,19 +78,11 @@
         if (this.linked) {
           return [
             { text: 'Name', value: 'name' },
-            { text: 'Nic Type', value: 'nictype' },
-            { text: 'Device Name', value: 'devname' },
-            { text: 'Parent', value: 'parent' },
             { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'100px' }
           ]
         } else {
           return [
             { text: 'Name', value: 'name' },
-            { text: 'Nic Type', value: 'nictype' },
-            { text: 'Device Name', value: 'devname' },
-            { text: 'Parent', value: 'parent' },
-            { text: 'MAC Address', value: 'hwaddr' },
-            { text: 'MTU', value: 'mtu' },
             { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'100px' }
           ]
         }
@@ -119,30 +97,21 @@
       tableLoading: true,
 
       items: [],
-      networks: [],
       editingIndex: -1,
       editingItem: {
         id: -1,
-        type: "infiniband",
+        type: "none",
         name: "",
         dict: {
-          "nictype": "physical",
-          "name": "",
-          "hwaddr": "",
-          "mtu": "",
-          "parent": ""
+          "name": ""
         }
       },
       defaultItem: {
         id: -1,
-        type: "infiniband",
+        type: "none",
         name: "",
         dict: {
-          "nictype": "physical",
-          "name": "",
-          "hwaddr": "",
-          "mtu": "",
-          "parent": ""
+          "name": ""
         }
       },
 
@@ -153,15 +122,6 @@
       nameRule: [
         v => !!v || 'Name is required',
         v => (v && v.length <= 100) || 'Name must be less than 100 characters'
-      ],
-      parentRule: [
-        v => !!v || 'Parent device is required'
-      ],
-      mtuRule: [
-        v => (!v || !isNaN(v)) || 'MTU must be numeric'
-      ],
-      macRule: [
-        v => (!v || /^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$/.test(v)) || 'Invalid MAC address'
       ]
     }),
     beforeDestroy: function() {},
@@ -181,46 +141,20 @@
       async initialize () {
         try {
           //
-          const response = await axios.get(this.loggedUser.sub + '/api/lxd/devices/infiniband')
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/devices/none')
           this.items = response.data.data
-          
-          if (!this.linked) {
-            this.getNetworks()
-          }
         } catch (error) {
           this.error = 'Could not fetch data from server.';
         }
         this.tableLoading = false
-      },
-      
-      async getNetworks () {
-        //
-        try {
-          if (!this.loggedUser) {
-            this.$router.replace('/servers')
-          }
-
-          //
-          const response = await axios.get(this.loggedUser.sub + '/api/lxd/networks')
-          
-          this.networks = []
-          response.data.data.forEach(item => {
-            if (item.managed) {
-              this.networks.push(item.name);
-            }
-          });
-        } catch (error) {
-          this.networks = [];
-        }
       },
 
       async attachItem(item) {
         this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
         this.linkedItem.devices  = Object.assign({}, this.linkedItem.devices)
 
-        this.$set(this.linkedItem.devices, item.name, {
-          "type": item.type,
-          ...item.dict
+        this.$set(this.linkedItem.devices, item.dict.name, {
+          "type": item.type
         })
 
         //
@@ -260,6 +194,8 @@
       editItem (item) {
         this.editingIndex = this.items.indexOf(item)
         this.editingItem = JSON.parse(JSON.stringify(item));
+        
+        this.editingItem.name = this.editingItem.dict.name
 
         this.dialog = true
       },
@@ -267,6 +203,8 @@
       // save
       async saveItem () {
         if (this.$refs.form.validate()) {
+          
+          this.editingItem.name = this.editingItem.dict.name
 
           // remote
           try {
@@ -276,29 +214,25 @@
               type: this.editingItem.type,
               name: this.editingItem.name,
               dict: {
-                "nictype": this.editingItem.dict.nictype,
-                "name": this.editingItem.dict.name,
-                "hwaddr": this.editingItem.dict.hwaddr,
-                "mtu": this.editingItem.dict.mtu,
-                "parent": this.editingItem.dict.parent
+                name: this.editingItem.dict.name
               }
             };
 
             // edit
             if (this.editingIndex > -1) {
-              var response = await axios.put(this.loggedUser.sub + '/api/lxd/devices/infiniband/'+this.editingItem.id, body)
+              var response = await axios.put(this.loggedUser.sub + '/api/lxd/devices/none/'+this.editingItem.id, body)
             }
             // add
             else {
-              var response = await axios.post(this.loggedUser.sub + '/api/lxd/devices/infiniband', body)
+              var response = await axios.post(this.loggedUser.sub + '/api/lxd/devices/none', body)
             }
 
             if (response.data.error) {
-              if (response.data.error.parent) {
-                this.error = response.data.error.parent
+              if (response.data.error.name) {
+                this.error = response.data.error.name
               }
-              if (response.data.error.nictype) {
-                this.error = response.data.error.nictype
+              if (response.data.error.dict.name) {
+                this.error = response.data.error.dict.name
               }
             } else {
               //
@@ -338,7 +272,7 @@
                 // remote
                 try {
                   //
-                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/devices/infiniband/'+item.id)
+                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/devices/none/'+item.id)
 
                   //
                   this.$emit('snackbar', 'Device successfully deleted.')
