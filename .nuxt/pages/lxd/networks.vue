@@ -74,7 +74,7 @@
                 <v-alert type="error" :value="error.editing">
                   {{ error.editing }}
                 </v-alert>
-                <v-alert type="warning" :value="editingItem.used_by.length > 0" outline color="warning" icon="priority_high">
+                <v-alert type="info" :value="editingItem.used_by.length > 0" outline color="warning" icon="priority_high">
                   This network is used by {{ editingItem.used_by.length }} container{{ editingItem.used_by.length > 1 ? 's' : '' }}.
                 </v-alert>
 

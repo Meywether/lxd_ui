@@ -15,14 +15,14 @@
               </v-flex>
               <v-flex>
                 <p v-if="activeTab === 'none'">A none device type doesn't create anything inside the container. It's purpose it to stop inheritance of devices coming from profiles.</p>
-                <p v-if="activeTab === 'nic'">LXD supports different kind of network devices. From straight physical device passthroughs from the host to virtual device pairs and bridges.</p>
+                <p v-if="activeTab === 'nic'">LXD supports different kind of network devices. From straight physical device pass-through from the host to virtual device pairs and bridges.</p>
                 <p v-if="activeTab === 'disk'">Disk entries are mountpoints inside the container. They can either be a bind-mount of an existing file or directory on the host, or if the source is a block device, a regular mount.</p>
                 <p v-if="activeTab === 'unix-char'">Unix character device entries allow character devices to appear in container's /dev and allow read/write operations to it.</p>
                 <p v-if="activeTab === 'unix-block'">Unix block device entries allow block devices to appear in the container's /dev and allow read/write operations to it.</p>
                 <p v-if="activeTab === 'usb'">USB device entries allow USB devices to appear in the container.</p>
                 <p v-if="activeTab === 'gpu'">GPU device allow GPU devices to appear in the container.</p>
                 <p v-if="activeTab === 'proxy'">Proxy devices allow port forwarding network connections between host and container.</p>
-                <p v-if="activeTab === 'infiniband'">LXD supports two different kind of network types for infiniband devices, Straight physical device passthrough from the host and virtual function of an SR-IOV.</p>
+                <p v-if="activeTab === 'infiniband'">LXD supports two different kind of network types for infiniband devices, Straight physical device pass-through from the host and virtual function of an SR-IOV.</p>
                 
                 <v-alert type="error" :value="error">
                   {{ error }}
