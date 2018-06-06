@@ -37,7 +37,7 @@
                       </td>
                       <td>{{ props.item.type ? ucfirst(props.item.type) : '-' }}</td>
                       <td>{{ props.item.used_by ? props.item.used_by.length : '0' }}</td>
-                      <td>{{ props.item.managed ? ucfirst(props.item.managed) : '-' }}</td>
+                      <td>{{ props.item.managed ? 'Yes' : 'No' }}</td>
                       <td>
                         <v-btn icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)" :disabled="!props.item.managed">
                           <v-icon color="pink">delete</v-icon>
