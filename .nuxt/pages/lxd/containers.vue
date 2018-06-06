@@ -209,7 +209,7 @@
                     <!--<v-tab ripple :href="`#unix-char`">Unix-char</v-tab>-->
                     <!--<v-tab ripple :href="`#unix-block`">Unix-block</v-tab>-->
                     <!--<v-tab ripple :href="`#usb`">USB</v-tab>-->
-                    <!--<v-tab ripple :href="`#gpu`">GPU</v-tab>-->
+                    <v-tab ripple :href="`#gpu`">GPU</v-tab>
                     <!--<v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>-->
                     <v-tab ripple :href="`#proxy`">Proxy</v-tab>
                     <v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>
@@ -222,6 +222,9 @@
                     </v-tab-item>
                     <v-tab-item :id="`disk`" v-if="container.info">
                       <disk @snackbar="setSnackbar" ref="disk" :linked="container.info"></disk>
+                    </v-tab-item>
+                    <v-tab-item :id="`gpu`" v-if="container.info">
+                      <gpu @snackbar="setSnackbar" ref="gpu" :linked="container.info"></gpu>
                     </v-tab-item>
                     <!--<v-tab-item :id="`disk`">disk</v-tab-item>-->
                     <!--<v-tab-item :id="`unix-char`">unix-char</v-tab-item>-->
@@ -259,6 +262,7 @@
   import disk from '~/components/lxd/devices/disk.vue'
   import proxy from '~/components/lxd/devices/proxy.vue'
   import infiniband from '~/components/lxd/devices/infiniband.vue'
+  import gpu from '~/components/lxd/devices/gpu.vue'
 
   import { Terminal } from 'xterm'
   import * as fit from 'xterm/lib/addons/fit/fit'
@@ -274,7 +278,7 @@
       'authenticated'
     ],
     components: {
-      snapshots, none, nic, disk, proxy, infiniband
+      snapshots, none, nic, disk, proxy, infiniband, gpu
     },
     computed: {
       ...mapGetters({
