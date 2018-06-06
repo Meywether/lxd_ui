@@ -35,7 +35,7 @@
 
     <!-- Dialog -->
     <v-dialog v-model="dialog" max-width="700px" scrollable :hide-overlay="linkedItem !== null">
-      <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 104px);">
+      <v-card flat style="overflow-x:hidden; overflow-y: auto; min-height:calc(100vh - 400px);">
         <v-toolbar card dark color="light-blue darken-3">
           <v-btn icon @click.native="close()" dark>
             <v-icon>close</v-icon>
@@ -55,7 +55,7 @@
 
             <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the proxy device."></v-text-field>
 
-            <h3>Proxy Settings</h3>
+            <h3>Device Settings</h3>
             <v-text-field v-model="editingItem.dict['listen']" :rules="listenRule" label="Listen:" placeholder="" required hint="The address and port to bind and listen."></v-text-field>
             <v-text-field v-model="editingItem.dict['connect']" :rules="connectRule" label="Connect:" placeholder="" required hint="The address and port to connect to."></v-text-field>
             <v-select :items="['host','container']" v-model="editingItem.dict['bind']" label="Bind:" persistent-hint hint="Which side to bind on."></v-select>

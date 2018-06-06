@@ -37,7 +37,7 @@
 
     <!-- Dialog -->
     <v-dialog v-model="dialog" max-width="700px" scrollable :hide-overlay="linkedItem !== null">
-      <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 104px);">
+      <v-card flat style="overflow-x:hidden; overflow-y: auto; min-height:calc(100vh - 400px);">
         <v-toolbar card dark color="light-blue darken-3">
           <v-btn icon @click.native="close()" dark>
             <v-icon>close</v-icon>
@@ -57,7 +57,7 @@
 
             <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the proxy device."></v-text-field>
 
-            <h3>InfiniBand Settings</h3>
+            <h3>Device Settings</h3>
             <v-select :items="['physical','sriov']" v-model="editingItem.dict.nictype" label="Nic Type:" persistent-hint hint="Device type, one of physical or sriov."></v-select>
             <v-select :items="networks" v-model="editingItem.dict.parent" :rules="parentRule" required label="Parent:"></v-select>
             <v-text-field v-model="editingItem.dict.name" label="Name:" placeholder="" hint="Name of the interface inside the container."></v-text-field>

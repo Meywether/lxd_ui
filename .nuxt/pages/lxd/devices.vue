@@ -34,13 +34,11 @@
                   <v-tab ripple :href="`#disk`">Disk</v-tab>
                   <!--<v-tab ripple :href="`#unix-char`">Unix-char</v-tab>-->
                   <!--<v-tab ripple :href="`#unix-block`">Unix-block</v-tab>-->
-                  <!--<v-tab ripple :href="`#usb`">USB</v-tab>-->
+                  <v-tab ripple :href="`#usb`">USB</v-tab>
                   <v-tab ripple :href="`#gpu`">GPU</v-tab>
-                  
                   <v-tab ripple :href="`#proxy`">Proxy</v-tab>
                   <v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>
-                  
-                  <!--<v-tab-item :id="`blocker`">blocker</v-tab-item>-->
+
                   <v-tab-item :id="`none`">
                     <none @snackbar="setSnackbar" ref="none"></none>
                   </v-tab-item>
@@ -50,21 +48,18 @@
                   <v-tab-item :id="`disk`">
                     <disk @snackbar="setSnackbar" ref="disk"></disk>
                   </v-tab-item>
+                  <v-tab-item :id="`usb`">
+                    <usb @snackbar="setSnackbar" ref="usb"></usb>
+                  </v-tab-item>
                   <v-tab-item :id="`gpu`">
                     <gpu @snackbar="setSnackbar" ref="gpu"></gpu>
                   </v-tab-item>
-                  <!--<v-tab-item :id="`unix-char`">unix-char</v-tab-item>-->
-                  <!--<v-tab-item :id="`unix-block`">unix-block</v-tab-item>-->
-                  <!--<v-tab-item :id="`usb`">usb</v-tab-item>-->
-                  <!--<v-tab-item :id="`gpu`">gpu</v-tab-item>-->
-                  <!--<v-tab-item :id="`infiniband`">infiniband</v-tab-item>-->
                   <v-tab-item :id="`proxy`">
                     <proxy @snackbar="setSnackbar" ref="proxy"></proxy>
                   </v-tab-item>
                   <v-tab-item :id="`infiniband`">
                     <infiniband @snackbar="setSnackbar" ref="infiniband"></infiniband>
                   </v-tab-item>
-                  <!--<v-tab-item :id="`proxy`">proxy</v-tab-item>-->
                 </v-tabs>
               </v-flex>
             </v-layout>
@@ -83,10 +78,11 @@
   import proxy from '~/components/lxd/devices/proxy.vue'
   import infiniband from '~/components/lxd/devices/infiniband.vue'
   import gpu from '~/components/lxd/devices/gpu.vue'
+  import usb from '~/components/lxd/devices/usb.vue'
 
   export default {
     components: {
-      none, nic, disk, proxy, infiniband, gpu
+      none, nic, disk, proxy, infiniband, gpu, usb
     },
     data: () => ({
       error: '',
