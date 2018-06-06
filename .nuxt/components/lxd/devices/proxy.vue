@@ -1,15 +1,19 @@
 <template>
   <div>
+    <v-alert type="error" :value="attachError">
+      {{ attachError }}
+    </v-alert>
     <v-data-table :headers="tableHeaders" :items="items" hide-actions :loading="tableLoading">
       <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
       <template slot="items" slot-scope="props">
         <tr>
           <td>
-            <span v-if="linkedItem.devices">{{ props.item.dict.name }}</span>
-            <span v-else><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.dict.name }}</a></span>
+            <span v-if="linkedItem.devices">{{ props.item.name }}</span>
+            <span v-else><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.name }}</a></span>
           </td>
-          <td>{{ ucfirst(props.item.dict.nictype) }}</td>
-          <td>{{ props.item.dict.parent }}</td>
+          <td>{{ props.item.dict.listen ? props.item.dict.listen.substring(props.item.dict.listen.indexOf(":") + 1) : '-' }}</td>
+          <td>{{ props.item.dict.connect ? props.item.dict.connect.substring(props.item.dict.connect.indexOf(":") + 1) : '-' }}</td>
+          <td>{{ props.item.dict.bind ? props.item.dict.bind : '-' }}</td>
           <td>
             <span v-if="linkedItem.devices">
               <v-btn depressed small @click="attachItem(props.item)" v-if="!linkedItem.devices[props.item.name]">Attach</v-btn>
@@ -25,7 +29,7 @@
         </tr>
       </template>
       <template slot="no-data">
-        {{ tableLoading ? 'Fetching data, please wait...' : 'There are currently no nic devices.' }}
+        {{ tableLoading ? 'Fetching data, please wait...' : 'There are currently no proxy devices.' }}
       </template>
     </v-data-table>
 
@@ -36,7 +40,7 @@
           <v-btn icon @click.native="close('preview')" dark>
             <v-icon>close</v-icon>
           </v-btn>
-          <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Nic</v-toolbar-title>
+          <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Proxy</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
             <v-btn dark flat @click.native="saveItem()">Save</v-btn>
@@ -48,59 +52,13 @@
               {{ error }}
             </v-alert>
             <h3>General</h3>
-            <v-text-field v-model="editingItem.dict.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the nic device."></v-text-field>
-            <v-select :items="['bridged','macvlan','p2p','physical','sriov']" v-model="editingItem.dict.nictype" label="NIC Type:"></v-select>
-            <div v-if="['bridged','macvlan', 'p2p', 'sriov'].includes(editingItem.dict.nictype)">
-              <v-select :items="networks" v-model="editingItem.dict.parent" label="Parent:"></v-select>
-              <v-text-field v-model="editingItem.dict['host_name']" label="Hostname:" placeholder="" hint="Hostname of the interface inside the host."></v-text-field>
-            </div>
-            <v-layout row wrap>
-              <v-flex xs6>
-                <v-text-field v-model="editingItem.dict.hwaddr" label="MAC address:" placeholder="" hint="MAC address of the interface."></v-text-field>
-              </v-flex>
-              <v-flex xs6>
-                <v-text-field v-model="editingItem.dict.mtu" label="MTU:" placeholder="" hint="MTU of the interface."></v-text-field>
-              </v-flex>
-            </v-layout>
-            <div v-if="['bridged', 'p2p'].includes(editingItem.dict.nictype)">
-              <h3>Limits</h3>
-              <v-layout row wrap>
-                <v-flex xs6>
-                  <v-text-field v-model="editingItem.dict['limits.ingress']" label="Ingress:" placeholder="" hint="I/O limit in bit/s (supports kbit, Mbit, Gbit suffixes)."></v-text-field>
-                </v-flex>
-                <v-flex xs6>
-                  <v-text-field v-model="editingItem.dict['limits.egress']" label="Egress:" placeholder="" hint="I/O limit in bit/s (supports kbit, Mbit, Gbit suffixes)."></v-text-field>
-                </v-flex>
-              </v-layout>
-            </div>
-            <div v-if="['bridged'].includes(editingItem.dict.nictype)">
-              <h3>DHCP</h3>
-              <v-layout row wrap>
-                <v-flex xs6>
-                  <v-text-field v-model="editingItem.dict['ipv4.address']" label="IPv4 Address:" placeholder="" hint="An IPv4 address to assign to the container through DHCP."></v-text-field>
-                </v-flex>
-                <v-flex xs6>
-                  <v-text-field v-model="editingItem.dict['ipv6.address']" label="IPv6 Address:" placeholder="" hint="An IPv6 address to assign to the container through DHCP."></v-text-field>
-                </v-flex>
-              </v-layout>
-              <h4>MAC Filtering</h4>
-              <v-switch color="success" v-model="editingItem.dict['security.mac_filtering']"></v-switch>
-            </div>
-            <div v-if="['macvlan','physical'].includes(editingItem.dict.nictype)">
-              <h3>VLAN</h3>
-              <v-text-field v-model="editingItem.dict['vlan']" label="VLAN:" placeholder="" hint="VLAN ID to attach to."></v-text-field>
-            </div>
-            <div v-if="['bridged','macvlan', 'p2p', 'sriov'].includes(editingItem.dict.nictype)">
-              <h3>MAAS</h3>
-              <v-layout row wrap>
-                <v-flex xs6>
-                  <v-text-field v-model="editingItem.dict['maas.subnet.ipv4']" label="MAAS IPv4:" placeholder="" hint="MAAS IPv4 subnet to register the container in."></v-text-field>
-                </v-flex>
-                <v-flex xs6>
-                  <v-text-field v-model="editingItem.dict['maas.subnet.ipv6']" label="MAAS IPv6:" placeholder="" hint="MAAS IPv6 subnet to register the container in."></v-text-field>
-                </v-flex>
-              </v-layout>
-            </div>
+            
+            <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the proxy device."></v-text-field>
+            
+            <h3>Proxy Settings</h3>
+            <v-text-field v-model="editingItem.dict['listen']" :rules="listenRule" label="Listen:" placeholder="" required hint="The address and port to bind and listen."></v-text-field>
+            <v-text-field v-model="editingItem.dict['connect']" :rules="connectRule" label="Connect:" placeholder="" required hint="The address and port to connect to."></v-text-field>
+            <v-select :items="['host','container']" v-model="editingItem.dict['bind']" label="Bind:" persistent-hint hint="Which side to bind on."></v-select>
           </v-form>
         </v-card-text>
         <div style="flex: 1 1 auto;"></div>
@@ -129,72 +87,50 @@
         if (this.linked) {
           return [
             { text: 'Name', value: 'name' },
-            { text: 'Type', value: 'nictype' },
-            { text: 'Parent', value: 'parent' },
+            { text: 'Listen', value: 'listen' },
+            { text: 'Connect', value: 'connect' },
+            { text: 'Bind', value: 'bind' },
             { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'100px' }
           ]
         } else {
           return [
             { text: 'Name', value: 'name' },
-            { text: 'Type', value: 'nictype' },
-            { text: 'Parent', value: 'parent' },
+            { text: 'Listen', value: 'listen' },
+            { text: 'Connect', value: 'connect' },
+            { text: 'Bind', value: 'bind' },
             { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'100px' }
           ]
         }
       }
     },
     data: () => ({
-      error: '',
+      error: false,
+      attachError: false,
       valid: true,
       dialog: false,
 
       tableLoading: true,
 
-      networks: [],
       items: [],
       editingIndex: -1,
       editingItem: {
         id: -1,
-        type: "nic",
+        type: "proxy",
         name: "",
         dict: {
-          "nictype": "bridged",
-          "limits.ingress": "",
-          "limits.egress": "",
-          "limits.max": "",
-          "name": "",
-          "host_name": "",
-          "hwaddr": "",
-          "mtu": "",
-          "vlan": "",
-          "ipv4.address": "",
-          "ipv6.address": "",
-          "security.mac_filtering": "",
-          "maas.subnet.ipv4": "",
-          "maas.subnet.ipv6": "",
-          "parent": "lxdbr0"
+          "listen": "",
+          "connect": "",
+          "bind": "host"
         }
       },
       defaultItem: {
         id: -1,
-        type: "nic",
+        type: "proxy",
         name: "",
         dict: {
-          "nictype": "bridged",
-          "limits.ingress": "",
-          "limits.egress": "",
-          "limits.max": "",
-          "name": "",
-          "host_name": "",
-          "hwaddr": "",
-          "mtu": "",
-          "vlan": "",
-          "ipv4.address": "",
-          "ipv6.address": "",
-          "security.mac_filtering": "",
-          "maas.subnet.ipv4": "",
-          "maas.subnet.ipv6": "",
-          "parent": "lxdbr0"
+          "listen": "",
+          "connect": "",
+          "bind": "host"
         }
       },
 
@@ -205,6 +141,14 @@
       nameRule: [
         v => !!v || 'Name is required',
         v => (v && v.length <= 100) || 'Name must be less than 100 characters'
+      ],
+      listenRule: [
+        v => !!v || 'Listen address is required',
+        v => (v && v.length <= 100) || 'Listen address must be less than 100 characters'
+      ],
+      connectRule: [
+        v => !!v || 'Connect address is required',
+        v => (v && v.length <= 100) || 'Connect address must be less than 100 characters'
       ]
     }),
     beforeDestroy: function() {},
@@ -224,12 +168,8 @@
       async initialize () {
         try {
           //
-          const response = await axios.get(this.loggedUser.sub + '/api/lxd/devices/nic')
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/devices/proxy')
           this.items = response.data.data
-          
-          if (!this.linked) {
-            this.getNetworks()
-          }
         } catch (error) {
           this.error = 'Could not fetch data from server.';
         }
@@ -237,21 +177,33 @@
       },
 
       async attachItem(item) {
+        this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
         this.linkedItem.devices  = Object.assign({}, this.linkedItem.devices)
+
         this.$set(this.linkedItem.devices, item.name, {
           "type": item.type,
           ...item.dict
         })
+
         //
         const response = await axios.patch(this.loggedUser.sub + '/api/lxd/containers/' + this.linkedItem.name, {
+          // config: this.linkedItem.config,
           devices: this.linkedItem.devices
         })
+        
+        if (response.data.error) {
+          this.attachError = response.data.error
+        }
       },
 
       async detachItem(item) {
+        this.attachError = false;
+        
+        // remove from linked item
         this.$delete(this.linkedItem.devices, item.name)
         
         this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
+
         //
         const response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + this.linkedItem.name, {
           config: this.linkedItem.config,
@@ -260,26 +212,9 @@
           stateful: this.linkedItem.stateful,
           profiles: this.linkedItem.profiles
         })
-      },
-      
-      async getNetworks () {
-        //
-        try {
-          if (!this.loggedUser) {
-            this.$router.replace('/servers')
-          }
-
-          //
-          const response = await axios.get(this.loggedUser.sub + '/api/lxd/networks')
-          
-          this.networks = []
-          response.data.data.forEach(item => {
-            if (item.managed) {
-              this.networks.push(item.name);
-            }
-          });
-        } catch (error) {
-          this.networks = [];
+        
+        if (response.data.error) {
+          this.attachError = response.data.error
         }
       },
 
@@ -287,9 +222,10 @@
       editItem (item) {
         this.editingIndex = this.items.indexOf(item)
         this.editingItem = JSON.parse(JSON.stringify(item));
-
-        // set name
-        this.editingItem.name = this.editingItem.dict.name
+        
+        // remove connection type
+        this.editingItem.dict.listen = this.editingItem.dict.listen.substring(this.editingItem.dict.listen.indexOf(":") + 1)
+        this.editingItem.dict.connect = this.editingItem.dict.connect.substring(this.editingItem.dict.connect.indexOf(":") + 1)
 
         this.dialog = true
       },
@@ -297,40 +233,41 @@
       // save
       async saveItem () {
         if (this.$refs.form.validate()) {
-          
-          // set name
-          this.editingItem.name = this.editingItem.dict.name
 
           // remote
           try {
+            
+            var body = {
+              id: this.editingItem.id,
+              type: this.editingItem.type,
+              name: this.editingItem.name,
+              dict: {
+                listen: 'tcp:' + this.editingItem.dict.listen,
+                connect: 'tcp:' + this.editingItem.dict.connect,
+                bind: this.editingItem.dict.bind
+              }
+            };
 
             // edit
             if (this.editingIndex > -1) {
-              var response = await axios.put(this.loggedUser.sub + '/api/lxd/devices/nic/'+this.editingItem.id, this.editingItem)
+              var response = await axios.put(this.loggedUser.sub + '/api/lxd/devices/proxy/'+this.editingItem.id, body)
             } 
             // add
             else {
-              var response = await axios.post(this.loggedUser.sub + '/api/lxd/devices/nic', this.editingItem)
+              var response = await axios.post(this.loggedUser.sub + '/api/lxd/devices/proxy', body)
             }
 
             if (response.data.error) {
-              if (response.data.error.name) {
-                this.error = response.data.error.name
+              if (response.data.error.listen) {
+                this.error = response.data.error.listen
               }
-              if (response.data.error.parent) {
-                this.error = response.data.error.parent
+              if (response.data.error.connect) {
+                this.error = response.data.error.connect
               }
             } else {
               //
               this.$emit('snackbar', 'Device successfully saved.')
-              
-              // local
-              if (this.editingIndex > -1) {
-                Object.assign(this.items[this.editingIndex], this.editingItem)
-              } else {
-                this.items.push(Object.assign({}, this.editingItem))
-              }
-    
+
               if (this.editingIndex === -1) {
                 this.close()
               }
@@ -365,7 +302,7 @@
                 // remote
                 try {
                   //
-                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/devices/nic/'+item.id)
+                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/devices/proxy/'+item.id)
 
                   //
                   this.$emit('snackbar', 'Device successfully deleted.')

@@ -53,12 +53,9 @@
               {{ error }}
             </v-alert>
             <h3>General</h3>
-            
             <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the disk device."></v-text-field>
-            
             <v-text-field v-model="editingItem.dict['path']" label="Path:" placeholder="" required hint="Path inside the container where the disk will be mounted."></v-text-field>
             <v-text-field v-model="editingItem.dict['source']" label="Source:" placeholder="" required hint="Path on the host, either to a file/directory or to a block device."></v-text-field>
-
             <h3>Limits</h3>
             <v-layout row wrap>
               <v-flex xs6>
@@ -68,9 +65,7 @@
                 <v-text-field v-model="editingItem.dict['limits.write']" label="Write:" placeholder="" hint="I/O limit in byte/s (supports kB, MB, GB, TB, PB and EB suffixes) or in iops (must be suffixed with 'iops')."></v-text-field>
               </v-flex>
             </v-layout>
-            
             <v-text-field v-model="editingItem.dict['size']" label="Size:" placeholder="" hint="Disk size in bytes (supports kB, MB, GB, TB, PB and EB suffixes). This is only supported for the rootfs (/)."></v-text-field>
-            
             <v-layout row wrap>
               <v-flex xs4>
                 <h4>Optional</h4>
@@ -85,10 +80,8 @@
                 <v-switch color="success" v-model="editingItem.dict['recursive']" persistent-hint hint="Whether or not to recursively mount the source path."></v-switch>
               </v-flex>
             </v-layout>
-
             <v-select :items="['None','default']" v-model="editingItem.dict.pool" label="Pool:" persistent-hint hint="Storage pool the disk device belongs to. This is only applicable for storage volumes managed by LXD."></v-select>
             <v-select :items="['None','private','shared','slave','unbindable','rshared','rslave','runbindable','rprivate']" v-model="editingItem.dict.propagation" label="Propagation:" persistent-hint hint="Controls how a bind-mount is shared between the container and the host."></v-select>
-
           </v-form>
         </v-card-text>
         <div style="flex: 1 1 auto;"></div>
@@ -142,7 +135,6 @@
 
       tableLoading: true,
 
-      networks: [],
       items: [],
       editingIndex: -1,
       editingItem: {
@@ -206,8 +198,6 @@
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/devices/disk')
           this.items = response.data.data
-          
-          this.getNetworks()
         } catch (error) {
           this.error = 'Could not fetch data from server.';
         }
@@ -254,7 +244,7 @@
         this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
         
         // remove root of host to root of container
-        delete this.linkedItem.config["raw.idmap"];
+        // delete this.linkedItem.config["raw.idmap"];
         
         //
         const response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + this.linkedItem.name, {
@@ -269,32 +259,11 @@
           this.attachError = response.data.error
         }
       },
-      
-      async getNetworks () {
-        //
-        try {
-          if (!this.loggedUser) {
-            this.$router.replace('/servers')
-          }
-
-          //
-          const response = await axios.get(this.loggedUser.sub + '/api/lxd/networks')
-          
-          this.networks = []
-          response.data.data.forEach(item => {
-            if (item.managed) {
-              this.networks.push(item.name);
-            }
-          });
-        } catch (error) {
-          this.networks = [];
-        }
-      },
 
       // create or edit item
       editItem (item) {
         this.editingIndex = this.items.indexOf(item)
-        this.editingItem = Object.assign({}, this.defaultItem, item)
+        this.editingItem = JSON.parse(JSON.stringify(item));
 
         this.dialog = true
       },

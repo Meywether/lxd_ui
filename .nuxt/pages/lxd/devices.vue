@@ -26,7 +26,7 @@
                   <!--<v-tab ripple :href="`#usb`">USB</v-tab>-->
                   <!--<v-tab ripple :href="`#gpu`">GPU</v-tab>-->
                   <!--<v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>-->
-                  <!--<v-tab ripple :href="`#proxy`">Proxy</v-tab>-->
+                  <v-tab ripple :href="`#proxy`">Proxy</v-tab>
                   
                   <!--<v-tab-item :id="`blocker`">blocker</v-tab-item>-->
                   <v-tab-item :id="`nic`">
@@ -40,6 +40,9 @@
                   <!--<v-tab-item :id="`usb`">usb</v-tab-item>-->
                   <!--<v-tab-item :id="`gpu`">gpu</v-tab-item>-->
                   <!--<v-tab-item :id="`infiniband`">infiniband</v-tab-item>-->
+                  <v-tab-item :id="`proxy`">
+                    <proxy @snackbar="setSnackbar" ref="proxy"></proxy>
+                  </v-tab-item>
                   <!--<v-tab-item :id="`proxy`">proxy</v-tab-item>-->
                 </v-tabs>
               </v-flex>
@@ -55,10 +58,11 @@
   // components
   import nic from '~/components/lxd/devices/nic.vue'
   import disk from '~/components/lxd/devices/disk.vue'
+  import proxy from '~/components/lxd/devices/proxy.vue'
 
   export default {
     components: {
-      nic, disk
+      nic, disk, proxy
     },
     data: () => ({
       error: '',
