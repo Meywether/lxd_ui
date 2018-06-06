@@ -26,7 +26,7 @@
                       <td><a href="javascript:void(0)" @click.stop="editContainer(props.item)">{{ props.item.name }}</a></td>
                       <td>
                         <span v-if="check_started_with_ip(props.item)">{{ props.item.network && props.item.network.eth0.addresses[0].address ? props.item.network.eth0.addresses[0].address : '-' }}</span>
-                        <span v-if="props.item.network && props.item.status === 'Running' && (props.item.network.eth0.addresses.length === 0 || isIP4(props.item.network.eth0.addresses[0].address) === false)">
+                        <span v-if="props.item.network && props.item.status === 'Running' && (!props.item.network.eth0 || props.item.network.eth0.addresses.length === 0 || isIP4(props.item.network.eth0.addresses[0].address) === false)">
                           <v-icon size="15" @click="initialize()" color="orange darken-2">fa fa-refresh</v-icon>
                         </span>
                         <span v-if="props.item.status === 'Stopped'">-</span>
@@ -203,7 +203,7 @@
               <v-tab-item :id="`tab-devices`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <v-tabs v-model="activeDeviceTab" show-arrows>
-                    <!--<v-tab ripple :href="`#blocker`">Blocker</v-tab>-->
+                    <v-tab ripple :href="`#none`">None</v-tab>
                     <v-tab ripple :href="`#nic`">Nic</v-tab>
                     <v-tab ripple :href="`#disk`">Disk</v-tab>
                     <!--<v-tab ripple :href="`#unix-char`">Unix-char</v-tab>-->
@@ -214,7 +214,9 @@
                     <v-tab ripple :href="`#proxy`">Proxy</v-tab>
                     <v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>
 
-                    <!--<v-tab-item :id="`blocker`">blocker</v-tab-item>-->
+                    <v-tab-item :id="`none`" v-if="container.info">
+                      <none @snackbar="setSnackbar" ref="none" :linked="container.info"></none>
+                    </v-tab-item>
                     <v-tab-item :id="`nic`" v-if="container.info">
                       <nic @snackbar="setSnackbar" ref="nic" :linked="container.info"></nic>
                     </v-tab-item>
@@ -252,6 +254,7 @@
   // components
   import snapshots from '~/components/lxd/snapshots.vue'
   // devices components
+  import none from '~/components/lxd/devices/none.vue'
   import nic from '~/components/lxd/devices/nic.vue'
   import disk from '~/components/lxd/devices/disk.vue'
   import proxy from '~/components/lxd/devices/proxy.vue'
@@ -271,7 +274,7 @@
       'authenticated'
     ],
     components: {
-      snapshots, nic, disk, proxy, infiniband
+      snapshots, none, nic, disk, proxy, infiniband
     },
     computed: {
       ...mapGetters({
@@ -355,7 +358,7 @@
 
       // tab
       activeTab: 'tab-configuration',
-      activeDeviceTab: 'nic',
+      activeDeviceTab: 'none',
 
       dialog: false,
       consoleDialog: false,
@@ -567,6 +570,7 @@
       check_started_with_ip (container) {
         return (
           container.network &&
+          container.network.eth0 &&
           container.network.eth0.addresses.length > 0 &&
           container.status === 'Running' &&
           this.isIP4(container.network.eth0.addresses[0].address)

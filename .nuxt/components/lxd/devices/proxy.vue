@@ -144,11 +144,11 @@
       ],
       listenRule: [
         v => !!v || 'Listen address is required',
-        v => (v && v.length <= 100) || 'Listen address must be less than 100 characters'
+        v => (v && /^(?!0)(?!\.)((^|\.)([1-9]?\d|1\d\d|2(5[0-5]|[0-4]\d))){4}:\d+$/gm.test(v)) || 'Invalid IP address and port'
       ],
       connectRule: [
         v => !!v || 'Connect address is required',
-        v => (v && v.length <= 100) || 'Connect address must be less than 100 characters'
+        v => (v && /^(?!0)(?!\.)((^|\.)([1-9]?\d|1\d\d|2(5[0-5]|[0-4]\d))){4}:\d+$/gm.test(v)) || 'Invalid IP address and port'
       ]
     }),
     beforeDestroy: function() {},
@@ -289,7 +289,7 @@
             closable: false,
           },
           title: 'Delete device?',
-          text: 'Are you sure you want to delete the <b>'+item.name+'</b> device?',
+          text: 'Are you sure you want to delete the <b>'+item.name+'</b> device?<p class="text-md-center red--text"><br><b>Devices are not removed from containers!</b></p>',
           buttons: [
             {
               title: 'Yes',
