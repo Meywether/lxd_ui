@@ -39,7 +39,7 @@
 
     <!-- Dialog -->
     <v-dialog v-model="dialog" max-width="700px" scrollable :hide-overlay="linkedItem !== null">
-      <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 104px);">
+      <v-card flat style="overflow-x:hidden; overflow-y: auto; min-height:calc(100vh - 400px);">
         <v-toolbar card dark color="light-blue darken-3">
           <v-btn icon @click.native="close()" dark>
             <v-icon>close</v-icon>
@@ -57,9 +57,9 @@
             </v-alert>
             <h3>General</h3>
 
-            <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the proxy device."></v-text-field>
+            <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the GPU device."></v-text-field>
             
-            <h3>GPU Settings</h3>
+            <h3>Device Settings</h3>
             <v-text-field v-model="editingItem.dict.vendorid" label="Vendor ID:" placeholder="" hint="The vendor id of the GPU device."></v-text-field>
             <v-text-field v-model="editingItem.dict.productid" label="Product ID:" placeholder="" hint="The product id of the GPU device."></v-text-field>
             <v-text-field v-model="editingItem.dict.id" label="Card ID:" placeholder="" hint="The card id of the GPU device."></v-text-field>

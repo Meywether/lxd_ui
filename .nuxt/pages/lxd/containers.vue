@@ -208,12 +208,10 @@
                     <v-tab ripple :href="`#disk`">Disk</v-tab>
                     <!--<v-tab ripple :href="`#unix-char`">Unix-char</v-tab>-->
                     <!--<v-tab ripple :href="`#unix-block`">Unix-block</v-tab>-->
-                    <!--<v-tab ripple :href="`#usb`">USB</v-tab>-->
+                    <v-tab ripple :href="`#usb`">USB</v-tab>
                     <v-tab ripple :href="`#gpu`">GPU</v-tab>
-                    <!--<v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>-->
                     <v-tab ripple :href="`#proxy`">Proxy</v-tab>
                     <v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>
-
                     <v-tab-item :id="`none`" v-if="container.info">
                       <none @snackbar="setSnackbar" ref="none" :linked="container.info"></none>
                     </v-tab-item>
@@ -223,15 +221,12 @@
                     <v-tab-item :id="`disk`" v-if="container.info">
                       <disk @snackbar="setSnackbar" ref="disk" :linked="container.info"></disk>
                     </v-tab-item>
+                    <v-tab-item :id="`usb`" v-if="container.info">
+                      <usb @snackbar="setSnackbar" ref="usb" :linked="container.info"></usb>
+                    </v-tab-item>
                     <v-tab-item :id="`gpu`" v-if="container.info">
                       <gpu @snackbar="setSnackbar" ref="gpu" :linked="container.info"></gpu>
                     </v-tab-item>
-                    <!--<v-tab-item :id="`disk`">disk</v-tab-item>-->
-                    <!--<v-tab-item :id="`unix-char`">unix-char</v-tab-item>-->
-                    <!--<v-tab-item :id="`unix-block`">unix-block</v-tab-item>-->
-                    <!--<v-tab-item :id="`usb`">usb</v-tab-item>-->
-                    <!--<v-tab-item :id="`gpu`">gpu</v-tab-item>-->
-                    <!--<v-tab-item :id="`infiniband`">infiniband</v-tab-item>-->
                     <v-tab-item :id="`proxy`" v-if="container.info">
                       <proxy @snackbar="setSnackbar" ref="proxy" :linked="container.info"></proxy>
                     </v-tab-item>
@@ -263,6 +258,7 @@
   import proxy from '~/components/lxd/devices/proxy.vue'
   import infiniband from '~/components/lxd/devices/infiniband.vue'
   import gpu from '~/components/lxd/devices/gpu.vue'
+  import usb from '~/components/lxd/devices/usb.vue'
 
   import { Terminal } from 'xterm'
   import * as fit from 'xterm/lib/addons/fit/fit'
@@ -278,7 +274,7 @@
       'authenticated'
     ],
     components: {
-      snapshots, none, nic, disk, proxy, infiniband, gpu
+      snapshots, none, nic, disk, proxy, infiniband, gpu, usb
     },
     computed: {
       ...mapGetters({

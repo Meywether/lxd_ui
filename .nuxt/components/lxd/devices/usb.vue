@@ -11,10 +11,12 @@
             <span v-if="linkedItem.devices">{{ props.item.name }}</span>
             <span v-else><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.name }}</a></span>
           </td>
-          <td>{{ props.item.dict.source ? props.item.dict.source : '-' }}</td>
-          <td>{{ props.item.dict.path ? props.item.dict.path : '-' }}</td>
-          <td>{{ props.item.dict.size ? props.item.dict.size : '-' }}</td>
-          <td v-if="!linkedItem.devices">{{ (props.item.dict['limits.read'] ? props.item.dict['limits.read'] : '-') + '/' + (props.item.dict['limits.write'] ? props.item.dict['limits.write'] : '-') }}</td>
+          <td>{{ props.item.dict.vendorid ? props.item.dict.vendorid : '-' }}</td>
+          <td>{{ props.item.dict.productid ? props.item.dict.productid : '-' }}</td>
+          <td>{{ props.item.dict.required ? 'Yes' : 'No' }}</td>
+          <td v-if="!linkedItem.devices">{{ props.item.dict.uid ? props.item.dict.uid : '-' }}</td>
+          <td v-if="!linkedItem.devices">{{ props.item.dict.gid ? props.item.dict.gid : '-' }}</td>
+          <td v-if="!linkedItem.devices">{{ props.item.dict.mode ? props.item.dict.mode : '-' }}</td>
           <td>
             <span v-if="linkedItem.devices">
               <v-btn depressed small @click="attachItem(props.item)" v-if="!linkedItem.devices[props.item.name]">Attach</v-btn>
@@ -30,7 +32,7 @@
         </tr>
       </template>
       <template slot="no-data">
-        {{ tableLoading ? 'Fetching data, please wait...' : 'There are currently no disk devices.' }}
+        {{ tableLoading ? 'Fetching data, please wait...' : 'There are currently no USB devices.' }}
       </template>
     </v-data-table>
 
@@ -41,7 +43,7 @@
           <v-btn icon @click.native="close()" dark>
             <v-icon>close</v-icon>
           </v-btn>
-          <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Disk Device</v-toolbar-title>
+          <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} USB Device</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
             <v-btn dark flat @click.native="saveItem()">Save</v-btn>
@@ -53,35 +55,17 @@
               {{ error }}
             </v-alert>
             <h3>General</h3>
-            <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the disk device."></v-text-field>
-            <v-text-field v-model="editingItem.dict['path']" label="Path:" placeholder="" required hint="Path inside the container where the disk will be mounted."></v-text-field>
-            <v-text-field v-model="editingItem.dict['source']" label="Source:" placeholder="" required hint="Path on the host, either to a file/directory or to a block device."></v-text-field>
-            <h3>Limits</h3>
-            <v-layout row wrap>
-              <v-flex xs6>
-                <v-text-field v-model="editingItem.dict['limits.read']" label="Read:" placeholder="" hint="I/O limit in byte/s (supports kB, MB, GB, TB, PB and EB suffixes) or in iops (must be suffixed with 'iops')."></v-text-field>
-              </v-flex>
-              <v-flex xs6>
-                <v-text-field v-model="editingItem.dict['limits.write']" label="Write:" placeholder="" hint="I/O limit in byte/s (supports kB, MB, GB, TB, PB and EB suffixes) or in iops (must be suffixed with 'iops')."></v-text-field>
-              </v-flex>
-            </v-layout>
-            <v-text-field v-model="editingItem.dict['size']" label="Size:" placeholder="" hint="Disk size in bytes (supports kB, MB, GB, TB, PB and EB suffixes). This is only supported for the rootfs (/)."></v-text-field>
-            <v-layout row wrap>
-              <v-flex xs4>
-                <h4>Optional</h4>
-                <v-switch color="success" v-model="editingItem.dict['optional']" persistent-hint hint="Controls whether to fail if the source doesn't exist."></v-switch>
-              </v-flex>
-              <v-flex xs4>
-                <h4>Readonly</h4>
-                <v-switch color="success" v-model="editingItem.dict['readonly']" persistent-hint hint="Controls whether to make the mount read-only."></v-switch>
-              </v-flex>
-              <v-flex xs4>
-                <h4>Recursive</h4>
-                <v-switch color="success" v-model="editingItem.dict['recursive']" persistent-hint hint="Whether or not to recursively mount the source path."></v-switch>
-              </v-flex>
-            </v-layout>
-            <v-select :items="['None','default']" v-model="editingItem.dict.pool" label="Pool:" persistent-hint hint="Storage pool the disk device belongs to. This is only applicable for storage volumes managed by LXD."></v-select>
-            <v-select :items="['None','private','shared','slave','unbindable','rshared','rslave','runbindable','rprivate']" v-model="editingItem.dict.propagation" label="Propagation:" persistent-hint hint="Controls how a bind-mount is shared between the container and the host."></v-select>
+
+            <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the USB device."></v-text-field>
+            
+            <h3>Device Settings</h3>
+            <v-text-field v-model="editingItem.dict.vendorid" required :rules="vendorRule" label="Vendor ID:" placeholder="" hint="The vendor id of the USB device."></v-text-field>
+            <v-text-field v-model="editingItem.dict.productid" :rules="productRule"  label="Product ID:" placeholder="" hint="The product id of the USB device."></v-text-field>
+            <v-text-field v-model="editingItem.dict.uid" label="UID:" :rules="uidRule" placeholder="" hint="UID of the device owner in the container."></v-text-field>
+            <v-text-field v-model="editingItem.dict.gid" label="GID:" :rules="gidRule" placeholder="" hint="GID of the device owner in the container."></v-text-field>
+            <v-text-field v-model="editingItem.dict.mode" label="Mode:" :rules="modeRule" placeholder="" hint="Mode of the device in the container."></v-text-field>
+            <h4>Required</h4>
+            <v-switch color="success" v-model="editingItem.dict.required" persistent-hint hint="Whether or not this device is required to start the container."></v-switch>
           </v-form>
         </v-card-text>
         <div style="flex: 1 1 auto;"></div>
@@ -93,7 +77,7 @@
 <script>
   import { mapGetters } from 'vuex'
   import axios from 'axios'
-  
+
   const container = require('~/components/lxd/container')
 
   export default {
@@ -110,18 +94,20 @@
         if (this.linked) {
           return [
             { text: 'Name', value: 'name' },
-            { text: 'Source', value: 'source' },
-            { text: 'Path', value: 'path' },
-            { text: 'Size', value: 'size' },
+            { text: 'Vendor ID', value: 'vendorid' },
+            { text: 'Product ID', value: 'productid' },
+            { text: 'Required', value: 'required' },
             { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'100px' }
           ]
         } else {
           return [
             { text: 'Name', value: 'name' },
-            { text: 'Source', value: 'source' },
-            { text: 'Path', value: 'path' },
-            { text: 'Size', value: 'size' },
-            { text: 'Limits (Read/Write)', value: 'limits' },
+            { text: 'Vendor ID', value: 'vendorid' },
+            { text: 'Product ID', value: 'productid' },
+            { text: 'Required', value: 'required' },
+            { text: 'UID', value: 'uid' },
+            { text: 'GUI', value: 'gid' },
+            { text: 'Mode', value: 'mode' },
             { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'100px' }
           ]
         }
@@ -139,34 +125,28 @@
       editingIndex: -1,
       editingItem: {
         id: -1,
-        type: "disk",
+        type: "usb",
         name: "",
         dict: {
-          "limits.read": "",
-          "limits.write": "",
-          "path": "",
-          "source": "",
-          "readonly": false,
-          "size": "",
-          "recursive": false,
-          "pool": "None",
-          "propagation": "None"
+          vendorid: "",
+          productid: "",
+          uid: "0",
+          gid: "0",
+          mode: "0660",
+          required: false
         }
       },
       defaultItem: {
         id: -1,
-        type: "disk",
+        type: "usb",
         name: "",
         dict: {
-          "limits.read": "",
-          "limits.write": "",
-          "path": "",
-          "source": "",
-          "readonly": false,
-          "size": "",
-          "recursive": false,
-          "pool": "None",
-          "propagation": "None"
+          vendorid: "",
+          productid: "",
+          uid: "0",
+          gid: "0",
+          mode: "0660",
+          required: false
         }
       },
 
@@ -177,6 +157,22 @@
       nameRule: [
         v => !!v || 'Name is required',
         v => (v && v.length <= 100) || 'Name must be less than 100 characters'
+      ],
+      vendorRule: [
+        v => !!v || 'Vendor ID is required',
+        v => (v && v.length <= 4) || 'Vendor ID is 4 characters'
+      ],
+      productRule: [
+        v => (!v || v.length <= 4) || 'Product ID is 4 characters'
+      ],
+      uidRule: [
+        v => (!v || !isNaN(v)) || 'UID must be numeric'
+      ],
+      gidRule: [
+        v => (!v || !isNaN(v)) || 'GID must be numeric'
+      ],
+      modeRule: [
+        v => (!v || !isNaN(v)) || 'Most must be numeric'
       ]
     }),
     beforeDestroy: function() {},
@@ -196,7 +192,7 @@
       async initialize () {
         try {
           //
-          const response = await axios.get(this.loggedUser.sub + '/api/lxd/devices/disk')
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/devices/usb')
           this.items = response.data.data
         } catch (error) {
           this.error = 'Could not fetch data from server.';
@@ -207,29 +203,17 @@
       async attachItem(item) {
         this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
         this.linkedItem.devices  = Object.assign({}, this.linkedItem.devices)
-        
-        if (item.dict['propagation'] === 'None') {
-          delete item.dict['propagation']
-        }
-        
-        if (item.dict['pool'] === 'None') {
-          delete item.dict['pool']
-        }
-        
+
         this.$set(this.linkedItem.devices, item.name, {
           "type": item.type,
           ...item.dict
         })
-        
-        // attach root of host to root of container (else it be nobody)
-        //this.$set(this.linkedItem.config, "raw.idmap", "both 0 1000")
 
         //
         const response = await axios.patch(this.loggedUser.sub + '/api/lxd/containers/' + this.linkedItem.name, {
-          // config: this.linkedItem.config,
           devices: this.linkedItem.devices
         })
-        
+
         if (response.data.error) {
           this.attachError = response.data.error
         }
@@ -237,15 +221,12 @@
 
       async detachItem(item) {
         this.attachError = false;
-        
+
         // remove from linked item
         this.$delete(this.linkedItem.devices, item.name)
-        
+
         this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
-        
-        // remove root of host to root of container
-        // delete this.linkedItem.config["raw.idmap"];
-        
+
         //
         const response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + this.linkedItem.name, {
           config: this.linkedItem.config,
@@ -254,7 +235,7 @@
           stateful: this.linkedItem.stateful,
           profiles: this.linkedItem.profiles
         })
-        
+
         if (response.data.error) {
           this.attachError = response.data.error
         }
@@ -275,37 +256,44 @@
           // remote
           try {
 
+            var body = {
+              id: this.editingItem.id,
+              type: this.editingItem.type,
+              name: this.editingItem.name,
+              dict: {
+                vendorid: this.editingItem.dict.vendorid,
+                productid: this.editingItem.dict.productid,
+                required: this.editingItem.dict.required,
+                uid: this.editingItem.dict.uid,
+                gid: this.editingItem.dict.gid,
+                mode: this.editingItem.dict.mode
+              }
+            };
+
             // edit
             if (this.editingIndex > -1) {
-              var response = await axios.put(this.loggedUser.sub + '/api/lxd/devices/disk/'+this.editingItem.id, this.editingItem)
-            } 
+              var response = await axios.put(this.loggedUser.sub + '/api/lxd/devices/usb/'+this.editingItem.id, body)
+            }
             // add
             else {
-              var response = await axios.post(this.loggedUser.sub + '/api/lxd/devices/disk', this.editingItem)
+              var response = await axios.post(this.loggedUser.sub + '/api/lxd/devices/usb', body)
             }
 
             if (response.data.error) {
-              if (response.data.error.path) {
-                this.error = response.data.error.path
+              if (response.data.error.name) {
+                this.error = response.data.error.name
               }
-              if (response.data.error.source) {
-                this.error = response.data.error.source
+              if (response.data.error.dict.vendorid) {
+                this.error = response.data.error.dict.vendorid
               }
             } else {
               //
               this.$emit('snackbar', 'Device successfully saved.')
-              
-              // local
-              if (this.editingIndex > -1) {
-                Object.assign(this.items[this.editingIndex], this.editingItem)
-              } else {
-                this.items.push(Object.assign({}, this.editingItem))
-              }
-    
+
               if (this.editingIndex === -1) {
                 this.close()
               }
-    
+
               this.initialize()
             }
           } catch (error) {
@@ -328,7 +316,7 @@
             {
               title: 'Yes',
               color: 'success',
-              handler: async () => { 
+              handler: async () => {
                 // local
                 const index = this.items.indexOf(item)
                 this.items.splice(index, 1)
@@ -336,7 +324,7 @@
                 // remote
                 try {
                   //
-                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/devices/disk/'+item.id)
+                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/devices/usb/'+item.id)
 
                   //
                   this.$emit('snackbar', 'Device successfully deleted.')
@@ -366,7 +354,7 @@
           this.editingIndex = -1
         }, 300)
       },
-            
+
       ucfirst(str) {
           return String(str).charAt(0).toUpperCase() + String(str).slice(1);
       }
