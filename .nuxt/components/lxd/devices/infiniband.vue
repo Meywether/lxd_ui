@@ -11,9 +11,11 @@
             <span v-if="linkedItem.devices">{{ props.item.name }}</span>
             <span v-else><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.name }}</a></span>
           </td>
-          <td>{{ props.item.dict.listen ? props.item.dict.listen.substring(props.item.dict.listen.indexOf(":") + 1) : '-' }}</td>
-          <td>{{ props.item.dict.connect ? props.item.dict.connect.substring(props.item.dict.connect.indexOf(":") + 1) : '-' }}</td>
-          <td>{{ props.item.dict.bind ? ucfirst(props.item.dict.bind) : '-' }}</td>
+          <td>{{ props.item.dict.nictype ? ucfirst(props.item.dict.nictype) : '-' }}</td>
+          <td>{{ props.item.dict.name ? props.item.dict.name : '-' }}</td>
+          <td>{{ props.item.dict.parent ? props.item.dict.parent : '-' }}</td>
+          <td v-if="!linkedItem.devices">{{ props.item.dict.hwaddr ? props.item.dict.hwaddr : '-' }}</td>
+          <td v-if="!linkedItem.devices">{{ props.item.dict.mtu ? props.item.dict.mtu : '-' }}</td>
           <td>
             <span v-if="linkedItem.devices">
               <v-btn depressed small @click="attachItem(props.item)" v-if="!linkedItem.devices[props.item.name]">Attach</v-btn>
@@ -29,7 +31,7 @@
         </tr>
       </template>
       <template slot="no-data">
-        {{ tableLoading ? 'Fetching data, please wait...' : 'There are currently no proxy devices.' }}
+        {{ tableLoading ? 'Fetching data, please wait...' : 'There are currently no infiniband devices.' }}
       </template>
     </v-data-table>
 
@@ -40,7 +42,7 @@
           <v-btn icon @click.native="close('preview')" dark>
             <v-icon>close</v-icon>
           </v-btn>
-          <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Proxy Device</v-toolbar-title>
+          <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Infiniband Device</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
             <v-btn dark flat @click.native="saveItem()">Save</v-btn>
@@ -55,10 +57,13 @@
 
             <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the proxy device."></v-text-field>
 
-            <h3>Proxy Settings</h3>
-            <v-text-field v-model="editingItem.dict['listen']" :rules="listenRule" label="Listen:" placeholder="" required hint="The address and port to bind and listen."></v-text-field>
-            <v-text-field v-model="editingItem.dict['connect']" :rules="connectRule" label="Connect:" placeholder="" required hint="The address and port to connect to."></v-text-field>
-            <v-select :items="['host','container']" v-model="editingItem.dict['bind']" label="Bind:" persistent-hint hint="Which side to bind on."></v-select>
+            <h3>Infiniband Settings</h3>
+            <v-select :items="['physical','sriov']" v-model="editingItem.dict.nictype" label="Nic Type:" persistent-hint hint="Device type, one of physical or sriov."></v-select>
+            <v-select :items="networks" v-model="editingItem.dict.parent" :rules="parentRule" required label="Parent:"></v-select>
+            <v-text-field v-model="editingItem.dict.name" label="Name:" placeholder="" hint="Name of the interface inside the container."></v-text-field>
+            <v-text-field v-model="editingItem.dict.hwaddr" label="MAC Address:" :rules="macRule" placeholder="" hint="MAC address of the new interface."></v-text-field>
+            <v-text-field v-model="editingItem.dict.mtu" label="MTU:" :rules="mtuRule" placeholder="" hint="The MTU of the new interface."></v-text-field>
+
           </v-form>
         </v-card-text>
         <div style="flex: 1 1 auto;"></div>
@@ -87,17 +92,19 @@
         if (this.linked) {
           return [
             { text: 'Name', value: 'name' },
-            { text: 'Listen', value: 'listen' },
-            { text: 'Connect', value: 'connect' },
-            { text: 'Bind', value: 'bind' },
+            { text: 'Nic Type', value: 'nictype' },
+            { text: 'Device Name', value: 'devname' },
+            { text: 'Parent', value: 'parent' },
             { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'100px' }
           ]
         } else {
           return [
             { text: 'Name', value: 'name' },
-            { text: 'Listen', value: 'listen' },
-            { text: 'Connect', value: 'connect' },
-            { text: 'Bind', value: 'bind' },
+            { text: 'Nic Type', value: 'nictype' },
+            { text: 'Device Name', value: 'devname' },
+            { text: 'Parent', value: 'parent' },
+            { text: 'MAC Address', value: 'hwaddr' },
+            { text: 'MTU', value: 'mtu' },
             { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'100px' }
           ]
         }
@@ -112,25 +119,30 @@
       tableLoading: true,
 
       items: [],
+      networks: [],
       editingIndex: -1,
       editingItem: {
         id: -1,
-        type: "proxy",
+        type: "infiniband",
         name: "",
         dict: {
-          "listen": "",
-          "connect": "",
-          "bind": "host"
+          "nictype": "physical",
+          "name": "",
+          "hwaddr": "",
+          "mtu": "",
+          "parent": ""
         }
       },
       defaultItem: {
         id: -1,
-        type: "proxy",
+        type: "infiniband",
         name: "",
         dict: {
-          "listen": "",
-          "connect": "",
-          "bind": "host"
+          "nictype": "physical",
+          "name": "",
+          "hwaddr": "",
+          "mtu": "",
+          "parent": ""
         }
       },
 
@@ -142,13 +154,14 @@
         v => !!v || 'Name is required',
         v => (v && v.length <= 100) || 'Name must be less than 100 characters'
       ],
-      listenRule: [
-        v => !!v || 'Listen address is required',
-        v => (v && v.length <= 100) || 'Listen address must be less than 100 characters'
+      parentRule: [
+        v => !!v || 'Parent device is required'
       ],
-      connectRule: [
-        v => !!v || 'Connect address is required',
-        v => (v && v.length <= 100) || 'Connect address must be less than 100 characters'
+      mtuRule: [
+        v => (!v || !isNaN(v)) || 'MTU must be numeric'
+      ],
+      macRule: [
+        v => (!v || /^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$/.test(v)) || 'Invalid MAC address'
       ]
     }),
     beforeDestroy: function() {},
@@ -168,12 +181,37 @@
       async initialize () {
         try {
           //
-          const response = await axios.get(this.loggedUser.sub + '/api/lxd/devices/proxy')
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/devices/infiniband')
           this.items = response.data.data
+          
+          if (!this.linked) {
+            this.getNetworks()
+          }
         } catch (error) {
           this.error = 'Could not fetch data from server.';
         }
         this.tableLoading = false
+      },
+      
+      async getNetworks () {
+        //
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/networks')
+          
+          this.networks = []
+          response.data.data.forEach(item => {
+            if (item.managed) {
+              this.networks.push(item.name);
+            }
+          });
+        } catch (error) {
+          this.networks = [];
+        }
       },
 
       async attachItem(item) {
@@ -223,10 +261,6 @@
         this.editingIndex = this.items.indexOf(item)
         this.editingItem = JSON.parse(JSON.stringify(item));
 
-        // remove connection type
-        this.editingItem.dict.listen = this.editingItem.dict.listen.substring(this.editingItem.dict.listen.indexOf(":") + 1)
-        this.editingItem.dict.connect = this.editingItem.dict.connect.substring(this.editingItem.dict.connect.indexOf(":") + 1)
-
         this.dialog = true
       },
 
@@ -242,27 +276,29 @@
               type: this.editingItem.type,
               name: this.editingItem.name,
               dict: {
-                listen: 'tcp:' + this.editingItem.dict.listen,
-                connect: 'tcp:' + this.editingItem.dict.connect,
-                bind: this.editingItem.dict.bind
+                "nictype": this.editingItem.dict.nictype,
+                "name": this.editingItem.dict.name,
+                "hwaddr": this.editingItem.dict.hwaddr,
+                "mtu": this.editingItem.dict.mtu,
+                "parent": this.editingItem.dict.parent
               }
             };
 
             // edit
             if (this.editingIndex > -1) {
-              var response = await axios.put(this.loggedUser.sub + '/api/lxd/devices/proxy/'+this.editingItem.id, body)
+              var response = await axios.put(this.loggedUser.sub + '/api/lxd/devices/infiniband/'+this.editingItem.id, body)
             }
             // add
             else {
-              var response = await axios.post(this.loggedUser.sub + '/api/lxd/devices/proxy', body)
+              var response = await axios.post(this.loggedUser.sub + '/api/lxd/devices/infiniband', body)
             }
 
             if (response.data.error) {
-              if (response.data.error.listen) {
-                this.error = response.data.error.listen
+              if (response.data.error.parent) {
+                this.error = response.data.error.parent
               }
-              if (response.data.error.connect) {
-                this.error = response.data.error.connect
+              if (response.data.error.nictype) {
+                this.error = response.data.error.nictype
               }
             } else {
               //
@@ -302,7 +338,7 @@
                 // remote
                 try {
                   //
-                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/devices/proxy/'+item.id)
+                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/devices/infiniband/'+item.id)
 
                   //
                   this.$emit('snackbar', 'Device successfully deleted.')

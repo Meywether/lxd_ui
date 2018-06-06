@@ -25,8 +25,9 @@
                   <!--<v-tab ripple :href="`#unix-block`">Unix-block</v-tab>-->
                   <!--<v-tab ripple :href="`#usb`">USB</v-tab>-->
                   <!--<v-tab ripple :href="`#gpu`">GPU</v-tab>-->
-                  <!--<v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>-->
+                  
                   <v-tab ripple :href="`#proxy`">Proxy</v-tab>
+                  <v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>
                   
                   <!--<v-tab-item :id="`blocker`">blocker</v-tab-item>-->
                   <v-tab-item :id="`nic`">
@@ -42,6 +43,9 @@
                   <!--<v-tab-item :id="`infiniband`">infiniband</v-tab-item>-->
                   <v-tab-item :id="`proxy`">
                     <proxy @snackbar="setSnackbar" ref="proxy"></proxy>
+                  </v-tab-item>
+                  <v-tab-item :id="`infiniband`">
+                    <infiniband @snackbar="setSnackbar" ref="infiniband"></infiniband>
                   </v-tab-item>
                   <!--<v-tab-item :id="`proxy`">proxy</v-tab-item>-->
                 </v-tabs>
@@ -59,10 +63,11 @@
   import nic from '~/components/lxd/devices/nic.vue'
   import disk from '~/components/lxd/devices/disk.vue'
   import proxy from '~/components/lxd/devices/proxy.vue'
+  import infiniband from '~/components/lxd/devices/infiniband.vue'
 
   export default {
     components: {
-      nic, disk, proxy
+      nic, disk, proxy, infiniband
     },
     data: () => ({
       error: '',

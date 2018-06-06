@@ -212,6 +212,7 @@
                     <!--<v-tab ripple :href="`#gpu`">GPU</v-tab>-->
                     <!--<v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>-->
                     <v-tab ripple :href="`#proxy`">Proxy</v-tab>
+                    <v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>
 
                     <!--<v-tab-item :id="`blocker`">blocker</v-tab-item>-->
                     <v-tab-item :id="`nic`" v-if="container.info">
@@ -228,6 +229,9 @@
                     <!--<v-tab-item :id="`infiniband`">infiniband</v-tab-item>-->
                     <v-tab-item :id="`proxy`" v-if="container.info">
                       <proxy @snackbar="setSnackbar" ref="proxy" :linked="container.info"></proxy>
+                    </v-tab-item>
+                    <v-tab-item :id="`infiniband`" v-if="container.info">
+                      <infiniband @snackbar="setSnackbar" ref="infiniband" :linked="container.info"></infiniband>
                     </v-tab-item>
                   </v-tabs>
                 </v-card>
@@ -251,6 +255,7 @@
   import nic from '~/components/lxd/devices/nic.vue'
   import disk from '~/components/lxd/devices/disk.vue'
   import proxy from '~/components/lxd/devices/proxy.vue'
+  import infiniband from '~/components/lxd/devices/infiniband.vue'
 
   import { Terminal } from 'xterm'
   import * as fit from 'xterm/lib/addons/fit/fit'
@@ -266,7 +271,7 @@
       'authenticated'
     ],
     components: {
-      snapshots, nic, disk, proxy
+      snapshots, nic, disk, proxy, infiniband
     },
     computed: {
       ...mapGetters({
