@@ -1,4 +1,4 @@
-# Conext - LXD Control Panel
+title: Home
 
 <img src="https://i.imgur.com/gHhwGG4.png" alt="Screen" title="Screen" align="right" />
 
