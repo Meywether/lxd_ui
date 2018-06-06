@@ -211,7 +211,6 @@
 
         //
         const response = await axios.patch(this.loggedUser.sub + '/api/lxd/containers/' + this.linkedItem.name, {
-          // config: this.linkedItem.config,
           devices: this.linkedItem.devices
         })
 
@@ -283,6 +282,9 @@
             if (response.data.error) {
               if (response.data.error.name) {
                 this.error = response.data.error.name
+              }
+              if (response.data.error.dict.vendorid) {
+                this.error = response.data.error.dict.vendorid
               }
             } else {
               //
