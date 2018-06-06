@@ -56,10 +56,10 @@
             </div>
             <v-layout row wrap>
               <v-flex xs6>
-                <v-text-field v-model="editingItem.dict.hwaddr" label="MAC address:" placeholder="" hint="MAC address of the interface."></v-text-field>
+                <v-text-field v-model="editingItem.dict.hwaddr" label="MAC address:" :rules="macRule" placeholder="" hint="MAC address of the interface."></v-text-field>
               </v-flex>
               <v-flex xs6>
-                <v-text-field v-model="editingItem.dict.mtu" label="MTU:" placeholder="" hint="MTU of the interface."></v-text-field>
+                <v-text-field v-model="editingItem.dict.mtu" label="MTU:" :rules="mtuRule" placeholder="" hint="MTU of the interface."></v-text-field>
               </v-flex>
             </v-layout>
             <div v-if="['bridged', 'p2p'].includes(editingItem.dict.nictype)">
@@ -77,10 +77,10 @@
               <h3>DHCP</h3>
               <v-layout row wrap>
                 <v-flex xs6>
-                  <v-text-field v-model="editingItem.dict['ipv4.address']" label="IPv4 Address:" placeholder="" hint="An IPv4 address to assign to the container through DHCP."></v-text-field>
+                  <v-text-field v-model="editingItem.dict['ipv4.address']" label="IPv4 Address:" :rules="ip4Rule" placeholder="" hint="An IPv4 address to assign to the container through DHCP."></v-text-field>
                 </v-flex>
                 <v-flex xs6>
-                  <v-text-field v-model="editingItem.dict['ipv6.address']" label="IPv6 Address:" placeholder="" hint="An IPv6 address to assign to the container through DHCP."></v-text-field>
+                  <v-text-field v-model="editingItem.dict['ipv6.address']" label="IPv6 Address:" :rules="ip6Rule" placeholder="" hint="An IPv6 address to assign to the container through DHCP."></v-text-field>
                 </v-flex>
               </v-layout>
               <h4>MAC Filtering</h4>
@@ -94,10 +94,10 @@
               <h3>MAAS</h3>
               <v-layout row wrap>
                 <v-flex xs6>
-                  <v-text-field v-model="editingItem.dict['maas.subnet.ipv4']" label="MAAS IPv4:" placeholder="" hint="MAAS IPv4 subnet to register the container in."></v-text-field>
+                  <v-text-field v-model="editingItem.dict['maas.subnet.ipv4']" label="MAAS IPv4:" :rules="ip4Rule" placeholder="" hint="MAAS IPv4 subnet to register the container in."></v-text-field>
                 </v-flex>
                 <v-flex xs6>
-                  <v-text-field v-model="editingItem.dict['maas.subnet.ipv6']" label="MAAS IPv6:" placeholder="" hint="MAAS IPv6 subnet to register the container in."></v-text-field>
+                  <v-text-field v-model="editingItem.dict['maas.subnet.ipv6']" label="MAAS IPv6:" :rules="ip6Rule" placeholder="" hint="MAAS IPv6 subnet to register the container in."></v-text-field>
                 </v-flex>
               </v-layout>
             </div>
@@ -205,6 +205,18 @@
       nameRule: [
         v => !!v || 'Name is required',
         v => (v && v.length <= 100) || 'Name must be less than 100 characters'
+      ],
+      mtuRule: [
+        v => (!v || !isNaN(v)) || 'MTU must be numeric'
+      ],
+      macRule: [
+        v => (!v || /^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$/.test(v)) || 'Invalid MAC address'
+      ],
+      ip4Rule: [
+        v => (!v || /^(?!0)(?!\.)((^|\.)([1-9]?\d|1\d\d|2(5[0-5]|[0-4]\d))){4}$/gm.test(v)) || 'Invalid IPv4 address'
+      ] ,    
+      ip6Rule: [
+        v => (!v ||/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$|^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$|^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$/.test(v)) || 'Invalid IPv6 address'
       ]
     }),
     beforeDestroy: function() {},
@@ -352,7 +364,7 @@
             closable: false,
           },
           title: 'Delete device?',
-          text: 'Are you sure you want to delete the <b>'+item.name+'</b> device?',
+          text: 'Are you sure you want to delete the <b>'+item.name+'</b> device?<p class="text-md-center red--text"><br><b>Devices are not removed from containers!</b></p>',
           buttons: [
             {
               title: 'Yes',

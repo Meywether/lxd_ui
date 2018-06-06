@@ -325,7 +325,7 @@
             closable: false,
           },
           title: 'Delete device?',
-          text: 'Are you sure you want to delete the <b>'+item.name+'</b> device?',
+          text: 'Are you sure you want to delete the <b>'+item.name+'</b> device?<p class="text-md-center red--text"><br><b>Devices are not removed from containers!</b></p>',
           buttons: [
             {
               title: 'Yes',
