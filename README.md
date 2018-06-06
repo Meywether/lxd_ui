@@ -8,11 +8,11 @@ A decentralized LXD server control panel with sugar!
 
 Not going to bore you with stuff you probably won't read, so here is what the system can do:
 
- - Manage LXD containers, as if you were to use them for web hosting.
- - Create web and port forwards, to you know.. forward traffic into the containers or external upstream's.
+ - **Full** LXD management, including: profiles, containers, images, networks and devices.
+ - Create web and port forwards, to forward traffic into the containers or external upstream's.
  - Create custom tasks for maintaining containers or project deployments.
  - Create API endpoints for stuff the panel does not do.
- - Server information, so you know when to stop.
+ - Server information, host CPU, memory, disks network connections and processes.
 
 ## Install
 
