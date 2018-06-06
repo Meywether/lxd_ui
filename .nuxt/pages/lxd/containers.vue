@@ -175,7 +175,7 @@
                         </v-flex>
                         <v-flex xs6>
                           <h2>Network</h2>
-                        </v-flex> 
+                        </v-flex>
                       </v-layout>
                       <v-layout row wrap>
                         <v-flex xs6>
@@ -211,8 +211,8 @@
                     <!--<v-tab ripple :href="`#usb`">USB</v-tab>-->
                     <!--<v-tab ripple :href="`#gpu`">GPU</v-tab>-->
                     <!--<v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>-->
-                    <!--<v-tab ripple :href="`#proxy`">Proxy</v-tab>-->
-                    
+                    <v-tab ripple :href="`#proxy`">Proxy</v-tab>
+
                     <!--<v-tab-item :id="`blocker`">blocker</v-tab-item>-->
                     <v-tab-item :id="`nic`" v-if="container.info">
                       <nic @snackbar="setSnackbar" ref="nic" :linked="container.info"></nic>
@@ -226,7 +226,9 @@
                     <!--<v-tab-item :id="`usb`">usb</v-tab-item>-->
                     <!--<v-tab-item :id="`gpu`">gpu</v-tab-item>-->
                     <!--<v-tab-item :id="`infiniband`">infiniband</v-tab-item>-->
-                    <!--<v-tab-item :id="`proxy`">proxy</v-tab-item>-->
+                    <v-tab-item :id="`proxy`" v-if="container.info">
+                      <proxy @snackbar="setSnackbar" ref="proxy" :linked="container.info"></proxy>
+                    </v-tab-item>
                   </v-tabs>
                 </v-card>
               </v-tab-item>
@@ -248,13 +250,14 @@
   // devices components
   import nic from '~/components/lxd/devices/nic.vue'
   import disk from '~/components/lxd/devices/disk.vue'
-  
+  import proxy from '~/components/lxd/devices/proxy.vue'
+
   import { Terminal } from 'xterm'
   import * as fit from 'xterm/lib/addons/fit/fit'
   import helpers from '~/utils/helpers'
-  
+
   const container = require('~/components/lxd/container')
-  
+
   var xterm;
 
   export default {
@@ -263,7 +266,7 @@
       'authenticated'
     ],
     components: {
-      snapshots, nic, disk
+      snapshots, nic, disk, proxy
     },
     computed: {
       ...mapGetters({
@@ -295,7 +298,7 @@
     },
     data: () => ({
       valid: true,
-      
+
       //
       alert: { msg: '', outline: false, color: 'info', icon: 'info' },
 
@@ -317,7 +320,7 @@
         }
       },
       editingIndex: -1,
-      
+
       tableLoading: true,
       tableNoData: 'You have not added any containers.',
       tableHeaders: [
@@ -330,7 +333,7 @@
         { text: 'Status', value: 'status' },
         { text: 'Actions', value: 'name', sortable: false, align: 'right' }
       ],
-      
+
       // new container item
       newItem: {
         name: '',
@@ -364,7 +367,7 @@
         { title: 'Snapshot', action: 'snapshot', msg: 'Snapshotting' },
         { title: 'Image', action: 'image', msg: 'Imaging', state: 'Stopped' }
       ],
-      
+
       container: container.empty(),
       nameRule: [
         v => !!v || 'Name is required.',
@@ -383,7 +386,7 @@
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
       this.initialize()
       this.getResources()
-      
+
       clearInterval(this.pollId);
       this.pollId = setInterval(function () {
         this.initialize()
@@ -401,7 +404,7 @@
           if (!this.loggedUser) {
             this.$router.replace('/servers')
           }
-          
+
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers')
           this.items = response.data.data
@@ -422,14 +425,14 @@
 
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/resources')
-          
+
           this.resources = response.data.data
 
         } catch (error) {
           this.resources = {};
         }
       },
-      
+
       async getProfiles () {
         //
         try {
@@ -439,7 +442,7 @@
 
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/profiles')
-          
+
           this.profiles = []
           response.data.data.forEach(item => {
             this.profiles.push(item.name);
@@ -449,7 +452,7 @@
           this.profiles = [];
         }
       },
-      
+
       startAll() {
         this.items.forEach((item) => {
           if (item.status === 'Stopped') {
@@ -462,7 +465,7 @@
           }
         })
       },
-      
+
       stopAll() {
         this.items.forEach((item) => {
           if (item.status === 'Running') {
@@ -475,7 +478,7 @@
           }
         })
       },
-      
+
       restartAll() {
         this.items.forEach((item) => {
           if (item.status === 'Running') {
@@ -500,7 +503,7 @@
           setTimeout(() => {
             this.console()
           }, 300)
-          
+
           this.consoleDialog = true;
           return
         }
@@ -517,7 +520,7 @@
         if (action.action === 'image') {
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
-          
+
           this.container = {
             state: item,
             info: container.infix(response.data.data),
@@ -544,12 +547,12 @@
               "force": true,
               "stateful": false
           })
-          
+
           //
           this.snackbar = true;
           this.snackbarTimeout = 2500
           this.snackbarText = action.msg + ' container.';
-          
+
           setTimeout(() => this.initialize(), 1500)
         } catch (error) {
           this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
@@ -568,7 +571,7 @@
       safe_name() {
         this.container.info.name = this.container.info.name.replace(".", "-");
       },
-      
+
       setSnackbar (msg) {
         //
         this.snackbar = true;
@@ -616,7 +619,7 @@
             screenKeys: false,
             cursorBlink: true
           })
-          
+
           //
           var operationId = response.id
           var secret = response.metadata.fds[0]
@@ -641,7 +644,7 @@
               xterm.resize(0, height)
               xterm.fit()
             })
-            
+
             height = Math.max(Math.round(window.innerHeight / 19.50), 15)
             xterm.resize(0, height)
             xterm.fit()
@@ -670,7 +673,7 @@
               xterm.destroy()
             }
           }
-          
+
           sock.onerror = function (e) {
             xterm.writeln('An error occured.')
             xterm.destroy()
@@ -688,7 +691,7 @@
           this.snackbarText = 'Websocket connection failed.';
         })
       },
-      
+
       async editContainer (item, openDialog = true) {
         this.getProfiles()
         this.editingIndex = this.items.indexOf(item)
@@ -700,7 +703,7 @@
 
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
-          
+
           this.container = {
             state: item,
             info: container.infix(response.data.data),
@@ -708,10 +711,10 @@
         } catch (error) {
           this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
         }
-        
+
         this.containerDialog = openDialog
       },
-      
+
       async saveContainer () {
         if (this.$refs.form.validate()) {
 
@@ -720,7 +723,7 @@
             if (!this.loggedUser) {
               this.$router.replace('/servers')
             }
-            
+
             this.container.info = Object.assign({}, container.outfix(this.container.info))
 
             //
@@ -739,7 +742,7 @@
           }
         }
       },
-      
+
       newContainer() {
         this.newContainerDialog = true
       },
@@ -756,14 +759,14 @@
               name: new Date().toISOString(),
               stateful: false
           })
-          
+
           this.setSnackbar('Snapshotting container.')
 
         } catch (error) {
           this.alert = { msg: 'Could not snapshot container.', outline: false, color: 'error', icon: 'error' };
         }
       },
-      
+
       async imageContainer (item) {
         //
         try {
@@ -790,9 +793,9 @@
             },
             auto_update: false
           })
-          
+
           this.setSnackbar('Imaging container.')
-          
+
         } catch (error) {
           this.alert = { msg: 'Could not image container.', outline: false, color: 'error', icon: 'error' };
         }
@@ -812,10 +815,10 @@
             {
               title: 'Yes',
               color: 'success',
-              handler: async () => { 
+              handler: async () => {
                 const index = this.items.indexOf(item)
                 this.items.splice(index, 1)
-                
+
                 try {
                   if (!this.loggedUser) {
                     this.$router.replace('/servers')
@@ -823,7 +826,7 @@
 
                   //
                   const response = await axios.delete(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
-                  
+
                   this.setSnackbar('Container deleted.')
                 } catch (error) {
                   this.alert = { msg: 'Could not delete container.', outline: false, color: 'error', icon: 'error' };
