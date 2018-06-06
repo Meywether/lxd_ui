@@ -21,7 +21,7 @@
                 <p v-if="activeTab === 'unix-block'">Unix block device entries allow block devices to appear in the container's /dev and allow read/write operations to it.</p>
                 <p v-if="activeTab === 'usb'">USB device entries allow USB devices to appear in the container.</p>
                 <p v-if="activeTab === 'gpu'">GPU device allow GPU devices to appear in the container.</p>
-                <p v-if="activeTab === 'proxy'">Proxy devices allow forwarding network connections between host and container. This makes it possible to forward traffic hitting one of the host's addresses to an address inside the container or to do the reverse and have an address in the container connect through the host.</p>
+                <p v-if="activeTab === 'proxy'">Proxy devices allow port forwarding network connections between host and container.</p>
                 <p v-if="activeTab === 'infiniband'">LXD supports two different kind of network types for infiniband devices, Straight physical device passthrough from the host and virtual function of an SR-IOV.</p>
                 
                 <v-alert type="error" :value="error">
