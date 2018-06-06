@@ -13,7 +13,7 @@
           </td>
           <td>{{ props.item.dict.listen ? props.item.dict.listen.substring(props.item.dict.listen.indexOf(":") + 1) : '-' }}</td>
           <td>{{ props.item.dict.connect ? props.item.dict.connect.substring(props.item.dict.connect.indexOf(":") + 1) : '-' }}</td>
-          <td>{{ props.item.dict.bind ? props.item.dict.bind : '-' }}</td>
+          <td>{{ props.item.dict.bind ? ucfirst(props.item.dict.bind) : '-' }}</td>
           <td>
             <span v-if="linkedItem.devices">
               <v-btn depressed small @click="attachItem(props.item)" v-if="!linkedItem.devices[props.item.name]">Attach</v-btn>
@@ -52,9 +52,9 @@
               {{ error }}
             </v-alert>
             <h3>General</h3>
-            
+
             <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the proxy device."></v-text-field>
-            
+
             <h3>Proxy Settings</h3>
             <v-text-field v-model="editingItem.dict['listen']" :rules="listenRule" label="Listen:" placeholder="" required hint="The address and port to bind and listen."></v-text-field>
             <v-text-field v-model="editingItem.dict['connect']" :rules="connectRule" label="Connect:" placeholder="" required hint="The address and port to connect to."></v-text-field>
@@ -70,7 +70,7 @@
 <script>
   import { mapGetters } from 'vuex'
   import axios from 'axios'
-  
+
   const container = require('~/components/lxd/container')
 
   export default {
@@ -190,7 +190,7 @@
           // config: this.linkedItem.config,
           devices: this.linkedItem.devices
         })
-        
+
         if (response.data.error) {
           this.attachError = response.data.error
         }
@@ -198,10 +198,10 @@
 
       async detachItem(item) {
         this.attachError = false;
-        
+
         // remove from linked item
         this.$delete(this.linkedItem.devices, item.name)
-        
+
         this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
 
         //
@@ -212,7 +212,7 @@
           stateful: this.linkedItem.stateful,
           profiles: this.linkedItem.profiles
         })
-        
+
         if (response.data.error) {
           this.attachError = response.data.error
         }
@@ -222,7 +222,7 @@
       editItem (item) {
         this.editingIndex = this.items.indexOf(item)
         this.editingItem = JSON.parse(JSON.stringify(item));
-        
+
         // remove connection type
         this.editingItem.dict.listen = this.editingItem.dict.listen.substring(this.editingItem.dict.listen.indexOf(":") + 1)
         this.editingItem.dict.connect = this.editingItem.dict.connect.substring(this.editingItem.dict.connect.indexOf(":") + 1)
@@ -236,7 +236,7 @@
 
           // remote
           try {
-            
+
             var body = {
               id: this.editingItem.id,
               type: this.editingItem.type,
@@ -251,7 +251,7 @@
             // edit
             if (this.editingIndex > -1) {
               var response = await axios.put(this.loggedUser.sub + '/api/lxd/devices/proxy/'+this.editingItem.id, body)
-            } 
+            }
             // add
             else {
               var response = await axios.post(this.loggedUser.sub + '/api/lxd/devices/proxy', body)
@@ -271,7 +271,7 @@
               if (this.editingIndex === -1) {
                 this.close()
               }
-    
+
               this.initialize()
             }
           } catch (error) {
@@ -294,7 +294,7 @@
             {
               title: 'Yes',
               color: 'success',
-              handler: async () => { 
+              handler: async () => {
                 // local
                 const index = this.items.indexOf(item)
                 this.items.splice(index, 1)
@@ -332,7 +332,7 @@
           this.editingIndex = -1
         }, 300)
       },
-            
+
       ucfirst(str) {
           return String(str).charAt(0).toUpperCase() + String(str).slice(1);
       }
