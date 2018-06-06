@@ -1,0 +1,45 @@
+site_name: Conext
+site_description: 'A decentralized LXD server control panel with sugar!'
+site_author: 'Lawrence Cherone'
+site_url: 'https://github.com/lcherone/Conext'
+
+# Copyright
+copyright: 'Copyright &copy; 2018 Lawrence Cherone - Conext'
+
+# Theme
+theme:
+  logo: 
+    icon: 'language'
+  name: 'material'
+  palette:
+    primary: 'blue'
+    accent: 'blue'
+  font:
+    text: 'Ubuntu'
+    code: 'Ubuntu Mono'
+    
+# Configuration
+repo_name: 'Conext'
+repo_url: 'https://github.com/lcherone/Conext'
+edit_uri: ''
+
+# Customization
+extra:
+  social:
+    - type: 'github'
+      link: 'https://github.com/lcherone/Conext'
+  #disqus: 'plinker-rpc'
+  
+# Extensions
+markdown_extensions:
+  - admonition
+  - codehilite:
+      guess_lang: true
+  - toc:
+      permalink: true
+  - meta
+  - pymdownx.inlinehilite
+  - pymdownx.magiclink
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
