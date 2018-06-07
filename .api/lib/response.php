@@ -9,10 +9,24 @@ class Response extends \Prefab
         $this->f3 = $f3;
     }
 
-    public function json($data = null)
+    public function json($data = null, $halt = true)
     {
+        $data = json_encode($data, JSON_PRETTY_PRINT | JSON_PRESERVE_ZERO_FRACTION);
+        
         header('Content-Type: application/json;charset=utf8');
-        exit(json_encode($data, JSON_PRETTY_PRINT | JSON_PRESERVE_ZERO_FRACTION));
+        header('Content-Length: '.strlen($data));
+        
+        if ($halt) {
+            exit($data);
+        }
+        
+        ignore_user_abort(true);
+        set_time_limit(0);
+        echo $data;
+        header('Connection: close');
+        ob_end_flush();
+        session_write_close();
+        fastcgi_finish_request();
     }
 
     public function html()

@@ -70,7 +70,9 @@
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
       this.container = Object.assign({info:{name:''}}, this.item)
       
-      this.initialize()
+      this.$nextTick(() => {
+        this.initialize()
+      })
     },
     methods: {
       async initialize () {

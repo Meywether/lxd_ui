@@ -371,7 +371,9 @@
     }),
     mounted: function () {
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-      this.initialize()
+      this.$nextTick(() => {
+        this.initialize()
+      })
     },
     beforeDestroy: function(){
       clearInterval(this.pollId);

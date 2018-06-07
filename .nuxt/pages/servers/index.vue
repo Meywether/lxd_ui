@@ -152,7 +152,9 @@
       ]
     }),
     mounted: function () {
-      this.initialize()
+      this.$nextTick(() => {
+        this.initialize()
+      })
 
       document.forms['import_form'].elements['import_file'].onchange = e => {
         this.import_servers(e)

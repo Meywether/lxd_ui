@@ -59,7 +59,9 @@
       items: []
     }),
     mounted: function () {
-      this.initialize()
+      this.$nextTick(() => {
+        this.initialize()
+      })
     },
     methods: {
       async initialize () {

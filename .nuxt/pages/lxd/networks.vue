@@ -37,7 +37,7 @@
                       </td>
                       <td>{{ props.item.type ? ucfirst(props.item.type) : '-' }}</td>
                       <td>{{ props.item.used_by ? props.item.used_by.length : '0' }}</td>
-                      <td>{{ props.item.managed ? ucfirst(props.item.managed) : '-' }}</td>
+                      <td>{{ props.item.managed ? 'Yes' : 'No' }}</td>
                       <td>
                         <v-btn icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)" :disabled="!props.item.managed">
                           <v-icon color="pink">delete</v-icon>
@@ -74,7 +74,7 @@
                 <v-alert type="error" :value="error.editing">
                   {{ error.editing }}
                 </v-alert>
-                <v-alert type="warning" :value="editingItem.used_by.length > 0" outline color="warning" icon="priority_high">
+                <v-alert type="info" :value="editingItem.used_by.length > 0" outline color="info" icon="priority_high">
                   This network is used by {{ editingItem.used_by.length }} container{{ editingItem.used_by.length > 1 ? 's' : '' }}.
                 </v-alert>
 
@@ -82,7 +82,7 @@
                   <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the network."></v-text-field>
                   <v-text-field v-model="editingItem.description" label="Description:" placeholder="" hint="Enter a description for the network."></v-text-field>
                   
-                  <v-checkbox :label="`Restart container${editingItem.used_by.length > 1 ? 's' : ''} on save.`" v-model="restart_on_save" v-if="editingItem.used_by.length > 0" color="orange"></v-checkbox>
+                  <v-checkbox :label="`Restart container${editingItem.used_by.length > 1 ? 's' : ''} on save.`" v-model="restart_on_save" v-if="editingItem.used_by.length > 0"></v-checkbox>
 
                   <h2>Bridge</h2>
                   <v-select :items="['native','openvswitch']" v-model="editingItem.config['bridge.driver']" label="Driver:"></v-select>
@@ -288,7 +288,9 @@
     beforeDestroy: function() {},
     mounted: function () {
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-      this.initialize()
+      this.$nextTick(() => {
+        this.initialize()
+      })
     },
     watch: {
       dialog (val) {
