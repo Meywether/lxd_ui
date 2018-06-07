@@ -127,10 +127,6 @@
             modules.push({ icon: 'chevron_right', text: 'Containers', route: '/lxd/containers' })
           }
           //
-          if (this.loggedUser.mod.lxd.includes('certificates')) {
-            modules.push({ icon: 'chevron_right', text: 'Certificates', route: '/lxd/certificates' })
-          }
-          //
           if (this.loggedUser.mod.lxd.includes('images')) {
             modules.push({ icon: 'chevron_right', text: 'Images', route: '/lxd/images' })
           }
@@ -157,6 +153,10 @@
           //
           if (this.loggedUser.mod.lxd.includes('metadata')) {
             modules.push({ icon: 'chevron_right', text: 'Metadata', route: '/lxd/metadata' })
+          }
+          //
+          if (this.loggedUser.mod.lxd.includes('certificates')) {
+            modules.push({ icon: 'chevron_right', text: 'Certificates', route: '/lxd/certificates' })
           }
           //
           if (this.loggedUser.mod.lxd.includes('operations')) {
