@@ -11,7 +11,7 @@
             <v-layout column>
               <v-flex tag="h1" class="display mb-2">
                 LXD - Containers
-                <v-btn :dark="items.length > 0" color="orange" @click="restartAll()" style="float:right" :disabled="items.length === 0">Restart All</v-btn>
+                <v-btn :dark="items.length > 0 && !all_stopped" color="orange" @click="restartAll()" style="float:right" :disabled="items.length === 0 || all_stopped">Restart All</v-btn>
                 <v-btn :dark="!all_stopped" color="red" @click="stopAll()" style="float:right" :disabled="all_stopped">Stop All</v-btn>
                 <v-btn :dark="!all_running" color="green" @click="startAll()" style="float:right" :disabled="all_running">Start All</v-btn>
               </v-flex>
@@ -407,7 +407,7 @@
         clearInterval(this.pollId);
         this.pollId = setInterval(function () {
           this.initialize()
-        }.bind(this), 10000);
+        }.bind(this), 15000);
       })
     },
     watch: {
@@ -472,42 +472,67 @@
       },
 
       startAll() {
+        var timer = 0;
         this.items.forEach((item) => {
           if (item.status === 'Stopped') {
-            axios.put(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/state', {
-              "action": 'start',
-              "timeout": 30,
-              "force": true,
-              "stateful": false
-            })
+            setTimeout(() => {
+              item.status = 'Starting';
+              axios.put(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/state', {
+                "action": 'start',
+                "timeout": 30,
+                "force": true,
+                "stateful": false
+              })
+            }, timer)
+            timer = timer+750
           }
         })
+        
+        setTimeout(() => {
+          this.initialize()
+        }, timer+2000);
       },
 
       stopAll() {
+        var timer = 0;
         this.items.forEach((item) => {
           if (item.status === 'Running') {
-            axios.put(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/state', {
-              "action": 'stop',
-              "timeout": 30,
-              "force": true,
-              "stateful": false
-            })
+            setTimeout(() => {
+              item.status = 'Stopping';
+              axios.put(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/state', {
+                "action": 'stop',
+                "timeout": 30,
+                "force": true,
+                "stateful": false
+              })
+            }, timer)
+            timer = timer+750
           }
         })
+        setTimeout(() => {
+          this.initialize()
+        }, timer+2000);
       },
 
       restartAll() {
+        var timer = 0;
         this.items.forEach((item) => {
           if (item.status === 'Running') {
-            axios.put(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/state', {
-              "action": 'restart',
-              "timeout": 30,
-              "force": true,
-              "stateful": false
-            })
+            setTimeout(() => {
+              item.status = 'Restarting';
+              axios.put(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/state', {
+                "action": 'restart',
+                "timeout": 30,
+                "force": true,
+                "stateful": false
+              })
+            }, timer)
+            timer = timer+750
           }
         })
+        setTimeout(() => {
+          this.initialize()
+        }, timer+2000);
       },
 
       async stateContainer (action, item) {
@@ -571,7 +596,7 @@
           this.snackbarTimeout = 2500
           this.snackbarText = action.msg + ' container.';
 
-          setTimeout(() => this.initialize(), 1500)
+          setTimeout(() => this.initialize(), 2500)
         } catch (error) {
           this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
         }

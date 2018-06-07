@@ -77,7 +77,7 @@ class Snapshots extends \Base\Controller
             $body = json_decode($f3->get('BODY'), true);
             //
             $result = $client->lxd->containers->snapshots->create('local', $params['name'], $body);
-            
+
             $f3->response->json([
                 'error' => '',
                 'code'  => 200,
@@ -92,7 +92,7 @@ class Snapshots extends \Base\Controller
             $body = json_decode($f3->get('BODY'), true);
             //
             $result = $client->lxd->containers->snapshots->restore('local', $params['name'], $body['name']);
-            
+
             $f3->response->json([
                 'error' => '',
                 'code'  => 200,
