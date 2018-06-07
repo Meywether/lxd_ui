@@ -62,6 +62,32 @@
           </v-flex>
         </v-layout>
       </v-container>
+      
+      <!-- Copy Dialog -->
+      <v-dialog v-model="copyDialog" max-width="600px" scrollable>
+        <v-card tile>
+          <v-toolbar card dark color="light-blue darken-3">
+            <v-btn icon @click.native="copyDialog = false" dark>
+              <v-icon>close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Copy Container</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-btn dark flat @click.native="copyContainer(newItem, true)">Copy</v-btn>
+            </v-toolbar-items>
+          </v-toolbar>
+          <v-card-text>
+            <v-alert :value="true" outline color="info" icon="info">
+              Copying containers may take a while, be patient.
+            </v-alert>
+            <v-form ref="form" v-model="valid" lazy-validation>
+              <v-select :items="[copy.name]" v-model="copy.name" label="Container:" required disabled></v-select>
+              <v-select :items="private_remotes" v-model="copy.remote" :rules="remoteRule" label="To Remote:" required></v-select>
+            </v-form>
+          </v-card-text>
+          <div style="flex: 1 1 auto;"></div>
+        </v-card>
+      </v-dialog> 
 
       <v-dialog v-model="consoleDialog"  fullscreen hide-overlay transition="dialog-bottom-transition" color="black" style="overflow-y:hidden;">
         <v-toolbar card dark color="black">
@@ -311,6 +337,14 @@
         })
         return state.length === this.items.length
       },
+      private_remotes: function () {
+        return this.remotes.filter(row => {
+          if (this.publicServers.includes(row) || row === this.activeRemote) {
+            return false
+          }
+          return row
+        })
+      }
     },
     data: () => ({
       valid: true,
@@ -323,10 +357,13 @@
       snackbarColor: 'green',
       snackbarText: '',
       snackbarTimeout: 5000,
+      
+      publicServers: ['images', 'ubuntu', 'ubuntu-daily'],
 
       // table & items
       items: [],
       profiles: [],
+      remotes: [],
       resources: {
         cpu: {
           total: 0
@@ -363,12 +400,17 @@
         profile: ['default'],
         ephemeral: false
       },
+      copy: {
+        remote: '',
+        name: ''
+      },
 
       // tab
       activeTab: 'tab-configuration',
       activeDeviceTab: 'none',
 
       dialog: false,
+      copyDialog: false,
       consoleDialog: false,
       containerDialog: false,
       newContainerDialog: false,
@@ -381,6 +423,7 @@
         { title: 'Thaw', action: 'unfreeze', msg: 'Thawing', state: 'Frozen' },
         { title: 'Restart', action: 'restart', msg: 'Restarting', state: 'Running' },
         { title: 'Snapshot', action: 'snapshot', msg: 'Snapshotting' },
+        { title: 'Copy', action: 'copy', msg: 'Copying', state: 'Stopped' },
         { title: 'Image', action: 'image', msg: 'Imaging', state: 'Stopped' }
       ],
 
@@ -393,6 +436,9 @@
       profilesRule: [
         v => v.length >= 1 || 'At least one profile is required.'
       ],
+      remoteRule: [
+        v => !!v || 'Remote is required.'
+      ],  
       pollItem: 0
     }),
     beforeDestroy: function() {
@@ -403,7 +449,8 @@
       this.$nextTick(() => {
         this.initialize()
         this.getResources()
-  
+        this.getRemotes()
+
         clearInterval(this.pollId);
         this.pollId = setInterval(function () {
           this.initialize()
@@ -434,6 +481,24 @@
         this.tableLoading = false
       },
 
+      async getRemotes () {
+        // fetch remote
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          //
+          var response = await axios.get(this.loggedUser.sub + '/api/lxd/images/remotes')
+          this.remotes = response.data.data
+
+          //
+        } catch (error) {
+          this.tableNoData = 'No data.';
+          this.error = 'Could not fetch data from server.';
+        }
+      },
+      
       async getResources () {
         //
         try {
@@ -557,6 +622,11 @@
             info: {name: item.name}
           }
           this.snapshotContainer(item, false)
+          return
+        }
+        // intercept copy
+        if (action.action === 'copy') {
+          this.copyContainer(item, false)
           return
         }
         // intercept image
@@ -784,6 +854,37 @@
             this.snackbarText = 'Container '+this.container.info.name+' configuration saved.';
           } catch (error) {
             this.error = 'Could not save container configuration.';
+          }
+        }
+      },
+      
+      // create or edit item
+      copyContainer (item, execute) {
+         if (!execute) {
+          this.copyIndex = this.items.indexOf(item)
+          this.copy = Object.assign({}, this.copy, item)
+          this.copyDialog = true;
+        } else {
+          if (this.$refs.form.validate() && this.valid) {
+            axios.post(this.loggedUser.sub + '/api/lxd/containers/'+this.copy.name+'/copy', this.copy).then(response => {
+              if (response.data.code === 200) {
+                //
+                this.snackbar = true;
+                this.snackbarText = 'Container copied from local to '+this.copy.remote+'.';
+              } else {
+                //
+                this.snackbar = true;
+                this.snackbarColor = 'red';
+                this.snackbarText = response.data.error;
+              }
+            }).catch(error => {
+              this.error = 'Could not copy container.'
+            })
+            
+            //
+            this.snackbar = true;
+            this.snackbarText = 'Container queued for copy.';
+            this.copyDialog = false
           }
         }
       },

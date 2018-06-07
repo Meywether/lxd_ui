@@ -88,7 +88,7 @@
             <v-alert :value="true" outline color="info" icon="info">
               Copying images between hosts may take a while, be patient.
             </v-alert>
-            <v-form ref="form" v-model="copyvalid" lazy-validation>
+            <v-form ref="form" v-model="valid" lazy-validation>
               <v-select :items="[copy.properties.description]" v-model="copy.properties.description" label="Image:" required disabled></v-select>
               <v-select :items="[activeRemote]" v-model="activeRemote" label="From Remote:" required disabled></v-select>
               <v-select :items="private_remotes" v-model="copy.remote" :rules="remoteRule" label="To Remote:" required></v-select>
@@ -260,7 +260,6 @@
       
       // item form & validation
       valid: true,
-      copyvalid: false,
       nameRule: [
         v => !!v || 'Name is required.',
         v => (v && /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/.test(v)) || 'Only letters, digits or hyphens. No leading hyphen or digit. Dots are converted to hyphens.',
@@ -425,7 +424,7 @@
           this.copy = Object.assign({}, this.copy, item)
           this.dialog.copy = true
         } else {
-          if (this.$refs.form.validate() && this.copyvalid) {
+          if (this.$refs.form.validate() && this.valid) {
             axios.post(this.loggedUser.sub + '/api/lxd/images/'+this.copy.fingerprint+'/copy?remote='+this.activeRemote, this.copy).then(response => {
               if (response.data.code === 200) {
                 //
@@ -438,7 +437,7 @@
                 this.snackbarText = response.data.error;
               }
             }).catch(error => {
-              this.error = 'Could not create container.'
+              this.error = 'Could not copy image.'
             })
             
             //
