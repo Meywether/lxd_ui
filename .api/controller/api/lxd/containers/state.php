@@ -87,27 +87,7 @@ class State extends \Base\Controller
                 'data'  => $result
             ]);
         }
-        
-        /**
-         * DELETE /api/lxd/containers/@name/state
-         */
-        if ($verb === 'DELETE') {
-            $item = json_decode($f3->get('BODY'), true);
-            
-            if (empty($item) || !is_numeric($item['id'])) {
-               $f3->response->json([
-                    'error' => 'Invalid DELETE body, expecting item',
-                    'code'  => 422,
-                    'data'  => []
-                ]); 
-            }
-            
-            $f3->response->json([
-                'error' => '',
-                'code'  => 200,
-                'data'  => []
-            ]);
-        }
+
     }
 
 }

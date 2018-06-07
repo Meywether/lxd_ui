@@ -26,9 +26,6 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
         }
-        
-        $this->cache = \Cache::instance();
-        $this->cache_ttl = 30;
     }
 
     /**
@@ -46,24 +43,14 @@ class Index extends \Base\Controller
          * GET /api/lxd/containers
          */
         if ($verb === 'GET') {
-            // get containers
-            if (!$this->cache->exists('local.containers', $containers)) {
-                $containers = $client->lxd->containers->list('local', function ($result) {
-                    return str_replace('/1.0/containers/', '', $result);
-                });
-                //
-                $this->cache->set('local.containers', $containers, $this->cache_ttl);
-            }
+            $containers = $client->lxd->containers->list('local', function ($result) {
+                return str_replace('/1.0/containers/', '', $result);
+            });
 
             // get state
             $result = [];
             foreach ((array) $containers as $i => $container) {
-                if (!$this->cache->exists('local.container.'.$container.'.state', $result[$i])) {
-            	    $result[$i] = $client->lxd->containers->getState('local', $container);
-            	    //
-                    $this->cache->set('local.container.'.$container.'.state', $result[$i], $this->cache_ttl);
-                }
-
+                $result[$i] = $client->lxd->containers->getState('local', $container);
             	$result[$i]['name'] = $container;
             }
 
@@ -72,16 +59,7 @@ class Index extends \Base\Controller
                 'error' => null,
                 'code'  => 200,
                 'data'  => array_values($result)
-            ], false);
-            
-            // get info after response (populate cache)
-            foreach ((array) $containers as $i => $container) {
-                if (!$this->cache->exists('local.container.'.$container.'.info', $result)) {
-                    $result = $client->lxd->containers->info('local', $container);
-                	//
-                    $this->cache->set('local.container.'.$container.'.info', $result, $this->cache_ttl);
-                }
-            }
+            ]);
         }
         
         /**
@@ -130,7 +108,7 @@ class Index extends \Base\Controller
                     'data'  => []
                 ];
             }
-            
+
             $f3->response->json($result);
         }
         
@@ -138,6 +116,7 @@ class Index extends \Base\Controller
          * PUT /api/lxd/containers
          */
         if ($verb === 'PUT') {
+            /*
             $item = json_decode($f3->get('BODY'), true);
             
             if (empty($item) || !is_numeric($item['id'])) {
@@ -153,6 +132,7 @@ class Index extends \Base\Controller
                 'code'  => 200,
                 'data'  => []
             ]);
+            */
         }
         
         /**
@@ -187,12 +167,7 @@ class Index extends \Base\Controller
          * GET /api/lxd/containers/@name
          */
         if ($verb === 'GET') {
-            //
-            if (!$this->cache->exists('local.container.'.$container.'.info', $result)) {
-                $result = $client->lxd->containers->info('local', $params['name']);
-            	//
-                $this->cache->set('local.container.'.$container.'.info', $result, $this->cache_ttl);
-            }
+            $result = $client->lxd->containers->info('local', $params['name']);
 
             $f3->response->json([
                 'error' => null,
@@ -214,7 +189,7 @@ class Index extends \Base\Controller
 
             //
             $result = $client->lxd->containers->rename('local', $params['name'], $item['name']);
-            
+
             $f3->response->json([
                 'error' => null,
                 'code'  => 200,
@@ -246,7 +221,7 @@ class Index extends \Base\Controller
                     'data'  => []
                 ];
             }
-            
+
             $f3->response->json($result);
         }
         
@@ -263,7 +238,7 @@ class Index extends \Base\Controller
 
             //
             $result = $client->lxd->containers->replace('local', $params['name'], $options);
-            
+
             $f3->response->json([
                 'error' => null,
                 'code'  => 200,
@@ -274,7 +249,7 @@ class Index extends \Base\Controller
         if ($verb === 'DELETE') {
             //
             $result = $client->lxd->containers->delete('local', $params['name']);
-            
+
             $f3->response->json([
                 'error' => '',
                 'code'  => 200,
