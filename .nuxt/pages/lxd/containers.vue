@@ -100,6 +100,7 @@
             <v-btn dark flat @click.native="consoleDialog = false">Close</v-btn>
           </v-toolbar-items>
         </v-toolbar>
+        <v-btn color="green" @click="stateContainer({action:'console'}, container.info)" v-if="reconnect">Reconnect</v-btn>
         <div id="terminal"></div>
       </v-dialog>
 
@@ -426,6 +427,7 @@
         { title: 'Copy', action: 'copy', msg: 'Copying', state: 'Stopped' },
         { title: 'Image', action: 'image', msg: 'Imaging', state: 'Stopped' }
       ],
+      reconnect: false,
 
       container: container.empty(),
       nameRule: [
@@ -603,6 +605,7 @@
       async stateContainer (action, item) {
         // intercept console
         if (action.action === 'console') {
+          this.reconnect = false
           this.container = {
             state: item,
             info: {name: item.name}
@@ -723,7 +726,7 @@
           'interactive': true,
           'width': width,
           'height': height
-        }).then(function (response) {
+        }).then(response => {
 
           response = response.data.data
           //
@@ -737,17 +740,12 @@
           //
           var operationId = response.id
           var secret = response.metadata.fds[0]
-
-          var wssurl = 'wss://'+tmp.hostname+':8443/1.0/operations/' +
-              operationId +
-              '/websocket?secret=' +
-              secret
-          //
+          var wssurl = 'wss://'+tmp.hostname+':8443/1.0/operations/' + operationId + '/websocket?secret=' +secret
           var sock = new WebSocket(wssurl)
           sock.binaryType = 'blob';
           sock.rejectUnauthorized = false;
 
-          sock.onopen = function (e) {
+          sock.onopen = e => {
             //
             var previousResponse = null
             //
@@ -764,7 +762,7 @@
             xterm.fit()
 
             //
-            xterm.on('data', (data) => {
+            xterm.on('data', data => {
               sock.send(new Blob([data]))
             })
 
@@ -782,20 +780,25 @@
               reader.readAsText(msg.data);
               xterm.fit()
             }
+            
             //
-            sock.onclose = function (msg) {
+            sock.onclose = msg => {
               xterm.destroy()
+              //
+              this.snackbar = true;
+              this.snackbarTimeout = 5000
+              this.snackbarColor = 'red'
+              this.snackbarText = 'Websocket connection closed.';
+              this.reconnect = true;
             }
           }
 
-          sock.onerror = function (e) {
-            xterm.writeln('An error occured.')
-            xterm.destroy()
+          sock.onerror = e => {
             //
             this.snackbar = true;
-            this.snackbarTimeout = 5000
+            this.snackbarTimeout = 10000
             this.snackbarColor = 'red'
-            this.snackbarText = 'Websocket connection failed, have you have visited https://'+tmp.hostname+':8443 to accept the SSL certificate?';
+            this.snackbarText = 'Websocket connection failed, you must visit https://'+tmp.hostname+':8443 to accept the SSL certificate.';
           }
         }).catch(error => {
           //
