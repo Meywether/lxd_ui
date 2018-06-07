@@ -53,6 +53,12 @@
                         </v-btn>
                         <span>Launch Container</span>
                       </v-tooltip>
+                      <v-tooltip left>
+                        <v-btn slot="activator" icon class="mx-0" style="float:right" @click="copyItem(props.item, false)">
+                          <v-icon color="blue-grey lighten-1">file_copy</v-icon>
+                        </v-btn>
+                        <span>Copy Image</span>
+                      </v-tooltip>
                     </td>
                   </template>
                   <template slot="no-data">
@@ -65,7 +71,34 @@
         </v-layout>
       </v-container>
       
-      <!-- Fullscreen Dialog -->
+      <!-- Copy Dialog -->
+      <v-dialog v-model="dialog.copy" max-width="600px" scrollable>
+        <v-card tile v-if="copy.properties">
+          <v-toolbar card dark color="light-blue darken-3">
+            <v-btn icon @click.native="dialog.create = false" dark>
+              <v-icon>close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Copy Image</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-btn dark flat @click.native="copyItem(newItem, true)">Copy</v-btn>
+            </v-toolbar-items>
+          </v-toolbar>
+          <v-card-text>
+            <v-alert :value="true" outline color="info" icon="info">
+              Copying images between hosts may take a while, be patient.
+            </v-alert>
+            <v-form ref="form" v-model="copyvalid" lazy-validation>
+              <v-select :items="[copy.properties.description]" v-model="copy.properties.description" label="Image:" required disabled></v-select>
+              <v-select :items="[activeRemote]" v-model="activeRemote" label="From Remote:" required disabled></v-select>
+              <v-select :items="private_remotes" v-model="copy.remote" :rules="remoteRule" label="To Remote:" required></v-select>
+            </v-form>
+          </v-card-text>
+          <div style="flex: 1 1 auto;"></div>
+        </v-card>
+      </v-dialog> 
+      
+      <!-- Create Container Dialog -->
       <v-dialog v-model="dialog.create" max-width="600px" scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
@@ -80,9 +113,9 @@
           </v-toolbar>
           <v-card-text>
             <v-form ref="form" v-model="valid" lazy-validation>
-              <v-text-field v-model="newItem.name" label="Name" :rules="nameRule" @input="safe_name()" hint="Enter name for new container." required></v-text-field>
-              <v-select :items="[newItem.image]" v-model="newItem.image" label="Image" required disabled></v-select>
-              <v-select :items="profiles" :rules="profilesRule" v-model="newItem.profile" label="Profiles" multiple chips required></v-select>
+              <v-text-field v-model="newItem.name" label="Name:" :rules="nameRule" @input="safe_name()" hint="Enter name for new container." required></v-text-field>
+              <v-select :items="[newItem.image]" v-model="newItem.image" label="Image:" required disabled></v-select>
+              <v-select :items="profiles" :rules="profilesRule" v-model="newItem.profile" label="Profiles:" multiple chips required></v-select>
               <v-switch :label="`${newItem.ephemeral ? 'Ephemeral' : 'Ephemeral'}`" color="success" v-model="newItem.ephemeral"></v-switch>
             </v-form>
           </v-card-text>
@@ -90,7 +123,7 @@
         </v-card>
       </v-dialog>
       
-      <!-- Fullscreen Dialog -->
+      <!-- Edit Image Dialog -->
       <v-dialog v-model="dialog.edit" max-width="600px" scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
@@ -107,11 +140,11 @@
             <v-card flat>
               <v-card-text v-if="editingItem.properties">
                 <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-text-field v-model="editingItem.properties.description" label="Description" :counter="60" :rules="descriptionRule" hint="Enter description for image." required></v-text-field>
-                  <v-text-field v-model="editingItem.properties.version" label="Version" hint="Enter version for image."></v-text-field>
-                  <v-text-field v-model="editingItem.properties.release" label="Release" hint="Enter release for image."></v-text-field>
-                  <v-switch label="Auto Update" color="success" v-model="editingItem.auto_update"></v-switch>
-                  <v-switch label="Public" color="success" v-model="editingItem.public"></v-switch>
+                  <v-text-field v-model="editingItem.properties.description" label="Description:" :counter="60" :rules="descriptionRule" hint="Enter description for image." required></v-text-field>
+                  <v-text-field v-model="editingItem.properties.version" label="Version:" hint="Enter version for image."></v-text-field>
+                  <v-text-field v-model="editingItem.properties.release" label="Release:" hint="Enter release for image."></v-text-field>
+                  <v-switch label="Auto Update:" color="success" v-model="editingItem.auto_update"></v-switch>
+                  <v-switch label="Public:" color="success" v-model="editingItem.public"></v-switch>
                 </v-form>
               </v-card-text>
             </v-card>
@@ -149,6 +182,14 @@
       },
       distros_list: function () {
         return Array.from(new Set(this.distros))
+      },
+      private_remotes: function () {
+        return this.remotes.filter(row => {
+          if (this.publicServers.includes(row) || row === this.activeRemote) {
+            return false
+          }
+          return row
+        })
       }
     },
     data: () => ({
@@ -212,12 +253,21 @@
         remote: 'local'
       },
       
+      copyIndex: -1,
+      copy: {
+        remote:"local"
+      },
+      
       // item form & validation
       valid: true,
+      copyvalid: false,
       nameRule: [
         v => !!v || 'Name is required.',
         v => (v && /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/.test(v)) || 'Only letters, digits or hyphens. No leading hyphen or digit. Dots are converted to hyphens.',
         v => (v && isNaN(v.charAt(0))) || 'Only letters, digits or hyphens. No leading hyphen or digit. Dots are converted to hyphens.'
+      ],
+      remoteRule: [
+        v => !!v || 'Remote is required.'
       ],      
       descriptionRule: [
         v => !!v || 'Description is required.',
@@ -368,6 +418,37 @@
         this.newItem.name = this.newItem.name.replace(".", "-");
       },
 
+      // create or edit item
+      copyItem (item, execute) {
+         if (!execute) {
+          this.copyIndex = this.items.indexOf(item)
+          this.copy = Object.assign({}, this.copy, item)
+          this.dialog.copy = true
+        } else {
+          if (this.$refs.form.validate() && this.copyvalid) {
+            axios.post(this.loggedUser.sub + '/api/lxd/images/'+this.copy.fingerprint+'/copy?remote='+this.activeRemote, this.copy).then(response => {
+              if (response.data.code === 200) {
+                //
+                this.snackbar = true;
+                this.snackbarText = 'Image copied from '+this.activeRemote+' to '+this.copy.remote+'.';
+              } else {
+                //
+                this.snackbar = true;
+                this.snackbarColor = 'red';
+                this.snackbarText = response.data.error;
+              }
+            }).catch(error => {
+              this.error = 'Could not create container.'
+            })
+            
+            //
+            this.snackbar = true;
+            this.snackbarText = 'Image queued for copy.';
+            this.dialog.copy = false
+          }
+        }
+      },
+      
       // create or edit item
       editItem (item) {
         this.editingIndex.edit = this.items.indexOf(item)
