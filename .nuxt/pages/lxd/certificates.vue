@@ -11,7 +11,6 @@
             <v-layout column>
               <v-flex tag="h1" class="display mb-2">
                 LXD - Certificates
-                
                 <v-btn color="success" @click="dialog.editing = true" style="float:right">Add Certificate</v-btn>
                 <v-btn @click="dialog.generate = true" style="float:right">Generate Certificate</v-btn>
               </v-flex>
@@ -64,11 +63,11 @@
                 <v-alert type="error" :value="error.editing">
                   {{ error.editing }}
                 </v-alert>
-                <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-text-field v-model="editingItem.name" label="Name:" placeholder="" required hint="An optional name for the certificate. If nothing is provided, the host in the TLS header for the request is used."></v-text-field>
+                <v-form ref="form_editing" v-model="valid.editing" lazy-validation>
+                  <v-text-field v-model="editingItem.name" label="Common Name:" :rules="nameRule" placeholder="" required hint="Common Name (CN) for the certificate."></v-text-field>
                   <v-select :items="['client']" v-model="editingItem.type" label="Type:" hint="Certificate type (keyring), currently only client"></v-select>
                   <div v-if="editingIndex === -1">
-                    <v-text-field v-model="editingItem.certificate" label="PEM Certificate:" placeholder="" hint="If provided, a valid x509 certificate. If not, the client certificate of the connection will be used." multi-line></v-text-field>
+                    <v-text-field v-model="editingItem.certificate" :rules="certificateRule" label="PEM Certificate:" placeholder="" hint="If provided, a valid x509 certificate. If not, the client certificate of the connection will be used." multi-line></v-text-field>
                   </div>
                   <div v-else>
                     <h3>Client Certificate</h3>
@@ -86,13 +85,13 @@
       <v-dialog v-model="dialog.generate" max-width="510px" scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
-            <v-btn icon @click.native="dialog = false" dark>
+            <v-btn icon @click.native="dialog.generate = false" dark>
               <v-icon>close</v-icon>
             </v-btn>
             <v-toolbar-title>Generate Certificate</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
-              <v-btn dark flat @click.native="generateCert()">Generate</v-btn>
+              <v-btn dark flat @click.native="generateCert()" :loading="generating" :disabled="generating">Generate</v-btn>
             </v-toolbar-items>
           </v-toolbar>
           <v-card-text style="padding: 0px;">
@@ -101,25 +100,25 @@
                 <v-alert type="error" :value="error.generate">
                   {{ error.generate }}
                 </v-alert>
-                <v-form ref="form" v-model="valid" lazy-validation>
+                <v-form ref="form_generate" v-model="valid.generate" lazy-validation>
                   <div v-if="cert.key !== ''">
-                    <h2>Client Certificate <v-btn dark small color="success" @click="addCert()" style="float:right">Add</v-btn><v-btn dark small color="blue" @click="downloadCert('pem')" style="float:right">Download</v-btn></h2>
+                    <h2>Client Certificate <v-btn dark small color="success" @click="addCert()" style="float:right">Add To LXD</v-btn><v-btn dark small color="blue" @click="downloadCert('pem')" style="float:right">Download</v-btn></h2>
                     <pre style="font-size:12px">{{cert.pem}}</pre>
                     <h2 style="margin-top:15px">Private Key <v-btn dark small color="blue" @click="downloadCert('key')" style="float:right">Download</v-btn></h2>
                     <pre style="font-size:12px">{{cert.key}}</pre>
                   </div>
                   <div v-else>
                     <h3>General</h3>
-                    <v-select :items="[2048,4096,8192]" v-model="cert.bits" label="Key Length:" hint="RSA key length."></v-select>
-                    <v-text-field v-model="cert.days" label="Days:" placeholder="" required hint="Length in days the certificate is valid for."></v-text-field>
+                    <v-select :disabled="generating" :items="['2048','4096','8192']" v-model="cert.bits" label="Key Length:" hint="RSA key length. 8192 takes considerably longer to generate."></v-select>
+                    <v-text-field :disabled="generating" v-model="cert.days" label="Days:" :rules="daysRule" placeholder="" required hint="Length in days the certificate is valid for."></v-text-field>
                     
                     <h3>CSR Subject</h3>
-                    <v-text-field v-model="cert.subject.cn" label="Common Name:" placeholder="" required hint="Primary domain of the certificate. For Wildcard certificates, the domain name should be represented with an asterisk in front (e.g. *.example.com)."></v-text-field>
-                    <v-text-field v-model="cert.subject.c" label="Country:" placeholder="" required hint="Two-letter country code. e.g. GB"></v-text-field>
-                    <v-text-field v-model="cert.subject.st" label="State:" placeholder="" required hint="State, county or region. e.g: London"></v-text-field>
-                    <v-text-field v-model="cert.subject.l" label="Locality:" placeholder="" required hint="City or town. e.g: Wimbledon"></v-text-field>
-                    <v-text-field v-model="cert.subject.o" label="Organization:" placeholder="" required hint="Registered name of the organization. e.g: Conext"></v-text-field>
-                    <v-text-field v-model="cert.subject.ou" label="Organization Unit:" placeholder="" required hint="Name of the department. e.g: IT Department"></v-text-field>
+                    <v-text-field :disabled="generating" v-model="cert.subject.cn" label="Common Name:" :rules="commonNameRule" placeholder="" required hint="Common Name (CN) for the certificate."></v-text-field>
+                    <v-text-field :disabled="generating" v-model="cert.subject.c" label="Country:" :rules="countryRule" placeholder="" required hint="Two-letter country code. e.g. GB"></v-text-field>
+                    <v-text-field :disabled="generating" v-model="cert.subject.st" label="State:" :rules="stateRule" placeholder="" required hint="State, county or region. e.g: London"></v-text-field>
+                    <v-text-field :disabled="generating" v-model="cert.subject.l" label="Locality:" :rules="localityRule" placeholder="" required hint="City or town. e.g: Wimbledon"></v-text-field>
+                    <v-text-field :disabled="generating" v-model="cert.subject.o" label="Organization:" :rules="organizationRule" placeholder="" required hint="Registered name of the organization. e.g: Conext"></v-text-field>
+                    <v-text-field :disabled="generating" v-model="cert.subject.ou" label="Organization Unit:" :rules="organizationUnitRule" placeholder="" required hint="Name of the department. e.g: IT Department"></v-text-field>
                   </div>
                 </v-form>
               </v-card-text>
@@ -153,7 +152,8 @@
     },
     data: () => ({
       dialog: {editing: false, generate: false},
-      valid: true,
+      valid: {editing: true, generate: true},
+      generating: false,
 
       // error alerts
       error: {global:false, editing: false, generate: false},
@@ -167,7 +167,7 @@
       // table & items
       items: [],
       cert: {
-        bits: 2048,
+        bits: "2048",
         days: 365,
         subject: {
           c: "",
@@ -204,8 +204,33 @@
       },
 
       nameRule: [
-        v => !!v || 'Name is required',
-        v => (v && v.length <= 15) || 'Name is too long (maximum 15 characters)'
+        v => !!v || 'Name is required'
+      ],
+      certificateRule: [
+        v => !!v || 'Certificate is required'
+      ],
+      daysRule: [
+        v => !!v || 'Days is required',
+        v => (v && !isNaN(v)) || 'Days is numeric',
+      ],
+      commonNameRule: [
+        v => !!v || 'Common name is required'
+      ],
+      countryRule: [
+        v => !!v || 'Country is required',
+        v => (v && v.length == 2) || 'Country is a 2 letter code',
+      ],
+      stateRule: [
+        v => !!v || 'State is required'
+      ],
+      localityRule: [
+        v => !!v || 'Locality is required'
+      ],
+      organizationRule: [
+        v => !!v || 'Organization is required'
+      ],
+      organizationUnitRule: [
+        v => !!v || 'Organization Unit is required'
       ]
     }),
     beforeDestroy: function() {},
@@ -213,10 +238,10 @@
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
       this.$nextTick(() => {
         this.initialize()
-
+        //
         this.cert = Object.assign(this.cert, this.$storage.get("cert_default"))
+        console.log(this.cert);
       })
-
     },
     watch: {
       'dialog.editing': function (val) {
@@ -246,31 +271,36 @@
       },
       
       async generateCert() {
-        //
-        try {
-          if (!this.loggedUser) {
-            this.$router.replace('/servers')
-          }
-          
-          this.$storage.set("cert_default", {
-            bits: this.cert.bits,
-            days: this.cert.days,
-            subject: {
-              c: this.cert.subject.c,
-              st: this.cert.subject.st,
-              l: this.cert.subject.l,
-              o: this.cert.subject.o,
-              ou: this.cert.subject.ou,
-              cn: this.cert.subject.cn,
-            }
-          })
-
+        if (this.$refs.form_generate.validate()) {
+          this.generating = true
           //
-          const response = await axios.post(this.loggedUser.sub + '/api/lxd/certificates/generate', this.cert)
-
-          this.cert = response.data.data
-        } catch (error) {
-
+          try {
+            if (!this.loggedUser) {
+              this.$router.replace('/servers')
+            }
+            
+            this.$storage.set("cert_default", {
+              bits: String(this.cert.bits),
+              days: String(this.cert.days),
+              subject: {
+                c: this.cert.subject.c,
+                st: this.cert.subject.st,
+                l: this.cert.subject.l,
+                o: this.cert.subject.o,
+                ou: this.cert.subject.ou,
+                cn: this.cert.subject.cn,
+              }
+            })
+  
+            //
+            const response = await axios.post(this.loggedUser.sub + '/api/lxd/certificates/generate', this.cert)
+  
+            this.cert = response.data.data
+            
+            this.generating = false
+          } catch (error) {
+  
+          }
         }
       },
       
@@ -285,29 +315,31 @@
       },  
       
       async addCert() {
-        // remote
-        try {
-          if (!this.loggedUser) {
-            this.$router.replace('/servers')
+        if (this.$refs.form_generate.validate()) {
+          // remote
+          try {
+            if (!this.loggedUser) {
+              this.$router.replace('/servers')
+            }
+            var response = await axios.post(this.loggedUser.sub + '/api/lxd/certificates', {
+              name: this.cert.subject.cn,
+              type: "client",
+              certificate: this.cert.pem
+            })
+            
+            if (response.data.code == 200) {
+              //
+              this.snackbar = true
+              this.snackbarText = 'Certificate successfully added.'
+              this.initialize()
+            }
+            
+            if (response.data.error) {
+              this.error.generate = response.data.error
+            }
+          } catch (error) {
+            this.error.global = 'Could not save certificates to server.'
           }
-          var response = await axios.post(this.loggedUser.sub + '/api/lxd/certificates', {
-            name: this.cert.subject.cn,
-            type: "client",
-            certificate: this.cert.pem
-          })
-          
-          if (response.data.code == 200) {
-            //
-            this.snackbar = true
-            this.snackbarText = 'Certificate successfully added.'
-            this.initialize()
-          }
-          
-          if (response.data.error) {
-            this.error.generate = response.data.error
-          }
-        } catch (error) {
-          this.error.global = 'Could not save certificates to server.'
         }
       },
 
@@ -321,7 +353,7 @@
 
       // save
       async save () {
-        if (this.$refs.form.validate()) {
+        if (this.$refs.form_editing.validate()) {
           // remote
           try {
             if (!this.loggedUser) {
