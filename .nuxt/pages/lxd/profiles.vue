@@ -230,8 +230,10 @@
     beforeDestroy: function() {},
     mounted: function () {
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-      this.initialize()
-      this.getResources()
+      this.$nextTick(() => {
+        this.initialize()
+        this.getResources()
+      })
     },
     watch: {
       dialog (val) {

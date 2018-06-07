@@ -170,7 +170,9 @@
 
       this.linkedItem = Object.assign({}, this.linked)
 
-      this.initialize()
+      this.$nextTick(() => {
+        this.initialize()
+      })
     },
     watch: {
       dialog (val) {

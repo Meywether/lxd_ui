@@ -31,12 +31,12 @@ class Index extends \Base\Controller
      */
     public function favicon(\Base $f3, $params)
     {
-        // load spa if exists
         if (file_exists('ui/favicon.ico')) {
             \Web::instance()->send(
-                'ui/favicon.ico', 'image/x-icon', 1024, false
+                'ui/favicon.ico', 'image/x-icon', 2048, false
             );
         }
+        $f3->status(404);
     }
 
     /**
@@ -44,12 +44,14 @@ class Index extends \Base\Controller
      */
     public function ping(\Base $f3, $params)
     {
+        $f3->status(200);
         die('pong');
     }
     
     /**
      * Handles upon login adding all known servers to db
      */
+     /*
     public function sync(\Base $f3, $params)
     {
         try {
@@ -87,5 +89,6 @@ class Index extends \Base\Controller
         }
         
     }
+    */
     
 }

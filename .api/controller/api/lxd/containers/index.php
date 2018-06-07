@@ -26,6 +26,9 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
         }
+        
+        $this->cache = \Cache::instance();
+        $this->cache_ttl = 30;
     }
 
     /**
@@ -44,22 +47,41 @@ class Index extends \Base\Controller
          */
         if ($verb === 'GET') {
             // get containers
-            $containers = $client->lxd->containers->list('local', function ($result) {
-                return str_replace('/1.0/containers/', '', $result);
-            });
+            if (!$this->cache->exists('local.containers', $containers)) {
+                $containers = $client->lxd->containers->list('local', function ($result) {
+                    return str_replace('/1.0/containers/', '', $result);
+                });
+                //
+                $this->cache->set('local.containers', $containers, $this->cache_ttl);
+            }
 
             // get state
             $result = [];
-            foreach ($containers as $i => $container) {
-            	$result[$i] = $client->lxd->containers->getState('local', $container);
+            foreach ((array) $containers as $i => $container) {
+                if (!$this->cache->exists('local.container.'.$container.'.state', $result[$i])) {
+            	    $result[$i] = $client->lxd->containers->getState('local', $container);
+            	    //
+                    $this->cache->set('local.container.'.$container.'.state', $result[$i], $this->cache_ttl);
+                }
+
             	$result[$i]['name'] = $container;
             }
-            
+
+            // send response, but dont exit/halt
             $f3->response->json([
                 'error' => null,
                 'code'  => 200,
                 'data'  => array_values($result)
-            ]);
+            ], false);
+            
+            // get info after response (populate cache)
+            foreach ((array) $containers as $i => $container) {
+                if (!$this->cache->exists('local.container.'.$container.'.info', $result)) {
+                    $result = $client->lxd->containers->info('local', $container);
+                	//
+                    $this->cache->set('local.container.'.$container.'.info', $result, $this->cache_ttl);
+                }
+            }
         }
         
         /**
@@ -166,7 +188,11 @@ class Index extends \Base\Controller
          */
         if ($verb === 'GET') {
             //
-            $result = $client->lxd->containers->info('local', $params['name']);
+            if (!$this->cache->exists('local.container.'.$container.'.info', $result)) {
+                $result = $client->lxd->containers->info('local', $params['name']);
+            	//
+                $this->cache->set('local.container.'.$container.'.info', $result, $this->cache_ttl);
+            }
 
             $f3->response->json([
                 'error' => null,

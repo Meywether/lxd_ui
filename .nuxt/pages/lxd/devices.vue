@@ -17,8 +17,8 @@
                 <p v-if="activeTab === 'none'">A none device type doesn't create anything inside the container. It's purpose it to stop inheritance of devices coming from profiles.</p>
                 <p v-if="activeTab === 'nic'">LXD supports different kind of network devices. From straight physical device pass-through from the host to virtual device pairs and bridges.</p>
                 <p v-if="activeTab === 'disk'">Disk entries are mountpoints inside the container. They can either be a bind-mount of an existing file or directory on the host, or if the source is a block device, a regular mount.</p>
-                <p v-if="activeTab === 'unix-char'">Unix character device entries allow character devices to appear in container's /dev and allow read/write operations to it.</p>
-                <p v-if="activeTab === 'unix-block'">Unix block device entries allow block devices to appear in the container's /dev and allow read/write operations to it.</p>
+                <p v-if="activeTab === 'unixchar'">Unix character device entries allow character devices to appear in container's /dev and allow read/write operations to it.</p>
+                <p v-if="activeTab === 'unixblock'">Unix block device entries allow block devices to appear in the container's /dev and allow read/write operations to it.</p>
                 <p v-if="activeTab === 'usb'">USB device entries allow USB devices to appear in the container.</p>
                 <p v-if="activeTab === 'gpu'">GPU device allow GPU devices to appear in the container.</p>
                 <p v-if="activeTab === 'proxy'">Proxy devices allow port forwarding network connections between host and container.</p>
@@ -32,8 +32,8 @@
                   <v-tab ripple :href="`#none`">None</v-tab>
                   <v-tab ripple :href="`#nic`">Nic</v-tab>
                   <v-tab ripple :href="`#disk`">Disk</v-tab>
-                  <!--<v-tab ripple :href="`#unix-char`">Unix-char</v-tab>-->
-                  <!--<v-tab ripple :href="`#unix-block`">Unix-block</v-tab>-->
+                  <v-tab ripple :href="`#unixchar`">Unix-char</v-tab>
+                  <v-tab ripple :href="`#unixblock`">Unix-block</v-tab>
                   <v-tab ripple :href="`#usb`">USB</v-tab>
                   <v-tab ripple :href="`#gpu`">GPU</v-tab>
                   <v-tab ripple :href="`#proxy`">Proxy</v-tab>
@@ -47,6 +47,12 @@
                   </v-tab-item>
                   <v-tab-item :id="`disk`">
                     <disk @snackbar="setSnackbar" ref="disk"></disk>
+                  </v-tab-item>
+                  <v-tab-item :id="`unixchar`">
+                    <unixchar @snackbar="setSnackbar" ref="unixchar"></unixchar>
+                  </v-tab-item>
+                  <v-tab-item :id="`unixblock`">
+                    <unixblock @snackbar="setSnackbar" ref="unixblock"></unixblock>
                   </v-tab-item>
                   <v-tab-item :id="`usb`">
                     <usb @snackbar="setSnackbar" ref="usb"></usb>
@@ -79,10 +85,12 @@
   import infiniband from '~/components/lxd/devices/infiniband.vue'
   import gpu from '~/components/lxd/devices/gpu.vue'
   import usb from '~/components/lxd/devices/usb.vue'
+  import unixchar from '~/components/lxd/devices/unixchar.vue'
+  import unixblock from '~/components/lxd/devices/unixblock.vue'
 
   export default {
     components: {
-      none, nic, disk, proxy, infiniband, gpu, usb
+      none, nic, disk, proxy, infiniband, gpu, usb, unixchar, unixblock
     },
     data: () => ({
       error: '',

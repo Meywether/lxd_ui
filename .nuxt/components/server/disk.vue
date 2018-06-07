@@ -110,7 +110,9 @@
       clearInterval(this.pollId);
     },
     mounted: function () {
-      this.initialize()
+      this.$nextTick(() => {
+        this.initialize()
+      })
       
       clearInterval(this.pollId);
       this.pollId = setInterval(function () {

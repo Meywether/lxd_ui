@@ -288,7 +288,9 @@
     beforeDestroy: function() {},
     mounted: function () {
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-      this.initialize()
+      this.$nextTick(() => {
+        this.initialize()
+      })
     },
     watch: {
       dialog (val) {

@@ -206,8 +206,8 @@
                     <v-tab ripple :href="`#none`">None</v-tab>
                     <v-tab ripple :href="`#nic`">Nic</v-tab>
                     <v-tab ripple :href="`#disk`">Disk</v-tab>
-                    <!--<v-tab ripple :href="`#unix-char`">Unix-char</v-tab>-->
-                    <!--<v-tab ripple :href="`#unix-block`">Unix-block</v-tab>-->
+                    <v-tab ripple :href="`#unixchar`">Unix-char</v-tab>
+                    <v-tab ripple :href="`#unixblock`">Unix-block</v-tab>
                     <v-tab ripple :href="`#usb`">USB</v-tab>
                     <v-tab ripple :href="`#gpu`">GPU</v-tab>
                     <v-tab ripple :href="`#proxy`">Proxy</v-tab>
@@ -220,6 +220,12 @@
                     </v-tab-item>
                     <v-tab-item :id="`disk`" v-if="container.info">
                       <disk @snackbar="setSnackbar" ref="disk" :linked="container.info"></disk>
+                    </v-tab-item>
+                    <v-tab-item :id="`unixchar`" v-if="container.info">
+                      <unixchar @snackbar="setSnackbar" ref="unixchar" :linked="container.info"></unixchar>
+                    </v-tab-item>
+                    <v-tab-item :id="`unixblock`" v-if="container.info">
+                      <unixblock @snackbar="setSnackbar" ref="unixblock" :linked="container.info"></unixblock>
                     </v-tab-item>
                     <v-tab-item :id="`usb`" v-if="container.info">
                       <usb @snackbar="setSnackbar" ref="usb" :linked="container.info"></usb>
@@ -259,6 +265,8 @@
   import infiniband from '~/components/lxd/devices/infiniband.vue'
   import gpu from '~/components/lxd/devices/gpu.vue'
   import usb from '~/components/lxd/devices/usb.vue'
+  import unixchar from '~/components/lxd/devices/unixchar.vue'
+  import unixblock from '~/components/lxd/devices/unixblock.vue'
 
   import { Terminal } from 'xterm'
   import * as fit from 'xterm/lib/addons/fit/fit'
@@ -274,7 +282,7 @@
       'authenticated'
     ],
     components: {
-      snapshots, none, nic, disk, proxy, infiniband, gpu, usb
+      snapshots, none, nic, disk, proxy, infiniband, gpu, usb, unixchar, unixblock
     },
     computed: {
       ...mapGetters({
@@ -392,13 +400,15 @@
     },
     mounted: function () {
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-      this.initialize()
-      this.getResources()
-
-      clearInterval(this.pollId);
-      this.pollId = setInterval(function () {
+      this.$nextTick(() => {
         this.initialize()
-      }.bind(this), 10000);
+        this.getResources()
+  
+        clearInterval(this.pollId);
+        this.pollId = setInterval(function () {
+          this.initialize()
+        }.bind(this), 10000);
+      })
     },
     watch: {
       dialog (val) {
@@ -701,26 +711,27 @@
         })
       },
 
-      async editContainer (item, openDialog = true) {
-        this.getProfiles()
-        this.editingIndex = this.items.indexOf(item)
-        //
-        try {
-          if (!this.loggedUser) {
-            this.$router.replace('/servers')
-          }
-
+       editContainer (item, openDialog = true) {
+        this.$nextTick(async () => {
+          this.getProfiles()
+          this.editingIndex = this.items.indexOf(item)
           //
-          const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
-
-          this.container = {
-            state: item,
-            info: container.infix(response.data.data),
+          try {
+            if (!this.loggedUser) {
+              this.$router.replace('/servers')
+            }
+  
+            //
+            const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
+  
+            this.container = {
+              state: item,
+              info: container.infix(response.data.data),
+            }
+          } catch (error) {
+            this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
           }
-        } catch (error) {
-          this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
-        }
-
+        })
         this.containerDialog = openDialog
       },
 
