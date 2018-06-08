@@ -65,8 +65,9 @@ class Copy extends \Base\Controller
             }
             
             $this->cache->clear('images.'.$f3->get('GET.remote'));
+            $this->cache->clear('images.'.$body['remote']);
 
-            $f3->response->json($response, false);
+            $f3->response->json($response);
         }
         
     }
