@@ -73,6 +73,10 @@ class Index extends \Base\Controller
                 $errors['profile'] = 'Container requires at least one profile'; 
             }
             
+            if (empty($body['pool'])) {
+                $errors['pool'] = 'Container requires a storage pool'; 
+            }
+            
             if (empty($body['remote'])) {
                 $errors['remote'] = 'Remote cannot be empty'; 
             }
@@ -86,12 +90,12 @@ class Index extends \Base\Controller
             }
             
             $body['ephemeral'] = !empty($body['ephemeral']) ? ' -e ' : '';
-            
+
             try {
                 $result = [
                     'error' => '',
                     'code'  => 200,
-                    'data'  => $client->lxd->local('lxc launch '.escapeshellarg($body['remote']).':'.escapeshellarg($body['image_fingerprint']).' '.escapeshellarg($body['name']).$body['ephemeral'].' -p '.implode(' -p ', $body['profile']))
+                    'data'  => $client->lxd->local('lxc launch '.escapeshellarg($body['remote']).':'.escapeshellarg($body['image_fingerprint']).' '.escapeshellarg($body['name']).$body['ephemeral'].' -p '.implode(' -p ', $body['profile']).' -s '.$body['pool'])
                 ];
             } catch (\Exception $e) {
                 $result = [

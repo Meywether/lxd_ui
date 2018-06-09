@@ -123,6 +123,7 @@
               <v-text-field v-model="newItem.name" label="Name:" :rules="nameRule" @input="safe_name()" hint="Enter name for new container." required></v-text-field>
               <v-select :items="[newItem.image]" v-model="newItem.image" label="Image:" required disabled></v-select>
               <v-select :items="profiles" :rules="profilesRule" v-model="newItem.profile" label="Profiles:" multiple chips required></v-select>
+              <v-select :items="pools" v-model="newItem.pool" label="Storage Pool:" persistent-hint hint="Storage pool the root disk device belongs to."></v-select>
               <v-switch :label="`${newItem.ephemeral ? 'Ephemeral' : 'Ephemeral'}`" color="success" v-model="newItem.ephemeral"></v-switch>
             </v-form>
           </v-card-text>
@@ -212,6 +213,7 @@
       // table & items
       items: [],
       profiles: [],
+      pools: [],
       remotes: [],
       distros: [],
       publicServers: ['images', 'ubuntu', 'ubuntu-daily'],
@@ -246,6 +248,7 @@
       newItem: {
         name: '',
         image: '',
+        pool: 'default',
         image_fingerprint: '',
         profile: ['default'],
         ephemeral: false,
@@ -254,6 +257,7 @@
       defaultItem: {
         name: '',
         image: '',
+        pool: 'default',
         image_fingerprint: '',
         profile: ['default'],
         ephemeral: false,
@@ -352,6 +356,23 @@
         } catch (error) {
           this.profiles = [];
         }
+      }, 
+      
+      async getStoragePools () {
+        //
+        try {
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/storage', {
+            params: {
+              types: ['name']
+            }
+          })
+          response.data.data.forEach(item => {
+            this.pools.push(item.name)
+          })
+        } catch (error) {
+          this.pools = [];
+        }
       },
       
       async loadRemoteImages(remote = 'local') {
@@ -393,6 +414,7 @@
       
      createContainer (item, launch = false) {
         if (!launch) {
+          this.getStoragePools()
           this.getProfiles()
           this.dialog.create = true
           this.newItem = {
@@ -400,6 +422,7 @@
             image: item.properties.description,
             image_fingerprint: item.fingerprint,
             profile: ['default'],
+            pool: 'default',
             ephemeral: false,
             remote: this.activeRemote
           };
@@ -409,7 +432,7 @@
             if (!this.loggedUser) {
               this.$router.replace('/servers')
             }
-            
+
             //
             this.snackbar = true;
             this.snackbarColor = 'green';

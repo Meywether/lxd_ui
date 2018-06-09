@@ -56,55 +56,36 @@ class Index extends \Base\Controller
                     // name
                     if (in_array('name', $types)) {
                         foreach ($pools as $i => $pool) {
-                        	$result[$i]['name'] = $pool;
+                            $result[$i]['name'] = $pool;
                         }
                     }
                     
                     // get info
                     if (in_array('info', $types)) {
                         foreach ($pools as $i => $pool) {
-                        	$result[$i]['info'] = $client->lxd->query('local:/1.0/storage-pools/'.$pool, 'GET', []);
+                            $result[$i]['info'] = $client->lxd->query('local:/1.0/storage-pools/'.$pool, 'GET', []);
                         }
                     }
                     
                     // get resources
                     if (in_array('resources', $types)) {
                         foreach ($pools as $i => $pool) {
-                        	$result[$i]['resources'] = $client->lxd->query('local:/1.0/storage-pools/'.$pool.'/resources', 'GET', []);
+                            $result[$i]['resources'] = $client->lxd->query('local:/1.0/storage-pools/'.$pool.'/resources', 'GET', []);
                         }
                     }    
                     
                     // get volumes
                     if (in_array('volumes', $types)) {
                         foreach ($pools as $i => $pool) {
-                        	$volumes = $client->lxd->query('local:/1.0/storage-pools/'.$pool.'/volumes', 'GET', [], function ($result) {
-                                $result = str_replace('/1.0/storage-pools/default/volumes/', '', $result);
+                            $volumes = $client->lxd->query('local:/1.0/storage-pools/'.$pool.'/volumes', 'GET', [], function ($result) {
+                                $result = str_replace('/1.0/storage-pools/', '', $result);
                                 foreach ($result as &$row) {
                                     $row = explode('/', $row);
-                                    $row = ['type' => $row[0], 'name' => $row[1]];
+                                    $row = ['type' => $row[2], 'name' => $row[3]];
                                 }
                                 return $result;
                             });
-                        	
-                        	/*
-                        	$client->lxd->query('local:/1.0/storage-pools/default/volumes', 'POST', [
-                                "config" => (object) [],
-                                "pool" => "default",
-                                "name" => "vol1",
-                                "type" => "custom"
-                            ]);
-                        	*/
-                      
-                     
-                        	// get volume info
-                        	//if (in_array('volume_info', $types)) {
-                        	//    foreach ($volumes as $volume) {
-                        	//        $result[$i]['volumes'][] = $client->lxd->query('local:'.$volume, 'GET', []);
-                        	//        print_r($result);
-                        	//    }
-                        	//} else {
-                        	    $result[$i]['volumes'] = $volumes;
-                        	//}
+                            $result[$i]['volumes'] = $volumes;
                         }
                     }
                 } catch (\Exception $e) {
