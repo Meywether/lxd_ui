@@ -5,25 +5,28 @@
       {{ snackbarText }}
       <v-btn dark flat @click.native="snackbar = false">Close</v-btn>
     </v-snackbar>
-
     <v-content>
-      
       <!-- Main Content -->
       <v-container fluid tag="section" id="grid">
         <v-layout row wrap>
           <v-flex d-flex xs12 order-xs5>
             <v-layout column>
               <v-flex tag="h1" class="display mb-2">
-                API - Email
-                
-                <span v-if="state == 'templates'">
-                  <v-btn color="success" @click="state = 'templates';dialog.template = true" style="float:right" v-if="state == 'templates'">New Template</v-btn>
-                  <v-btn color="orange" @click="state = 'providers';" style="float:right" v-if="state == 'templates'">Providers</v-btn>
-                </span>
-                <span v-if="state == 'providers'">
-                  <v-btn color="success" @click="state = 'providers';dialog.provider = true" style="float:right" v-if="state == 'providers'">New Provider</v-btn>
-                  <v-btn color="orange" @click="state = 'templates';" style="float:right" v-if="state == 'providers'">Templates</v-btn>
-                </span>
+                <v-layout row wrap>
+                  <v-flex xs12 sm6>
+                    API - Email
+                  </v-flex>
+                  <v-flex xs12 sm6>
+                    <span v-if="state == 'templates'">
+                      <v-btn small color="success" @click="state = 'templates';dialog.template = true" style="float:right" v-if="state == 'templates'">New Template</v-btn>
+                      <v-btn small color="orange" @click="state = 'providers';" style="float:right" v-if="state == 'templates'">Providers</v-btn>
+                    </span>
+                    <span v-if="state == 'providers'">
+                      <v-btn small color="success" @click="state = 'providers';dialog.provider = true" style="float:right" v-if="state == 'providers'">New Provider</v-btn>
+                      <v-btn smallcolor="orange" @click="state = 'templates';" style="float:right" v-if="state == 'providers'">Templates</v-btn>
+                    </span>
+                  </v-flex>
+                </v-layout>
               </v-flex>
               <v-flex>
                 <v-alert type="error" :value="error">

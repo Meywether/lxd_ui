@@ -11,7 +11,14 @@
           <v-flex d-flex xs12 order-xs5>
             <v-layout column>
               <v-flex tag="h1" class="display mb-2">
-                LXD - Operations
+                <v-layout row wrap>
+                  <v-flex xs12 sm6>
+                    LXD - Operations
+                  </v-flex>
+                  <v-flex xs12 sm6>
+                    
+                  </v-flex>
+                </v-layout>
               </v-flex>
               <v-flex>
                 <v-alert type="error" :value="error">
