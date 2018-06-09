@@ -9,7 +9,7 @@ A decentralized multi-server LXD server control panel with sugar!
 Not going to bore you with stuff you probably won't read, so here is what the system can do:
 
  - Responsive single page app (SPA) style control panel.
- - **Full** LXD management, including: profiles, containers, images, certificates, networks and devices.
+ - **Full** LXD management, including: profiles, containers, images, certificates, networks, storage and devices.
  - Server information, host CPU, memory, disks network connections and processes.
  - Built-in Web Proxy with LetsEncrypt, to forward HTTP/s traffic into the containers or external upstream's.
  - Create custom tasks for maintaining containers or project deployments.

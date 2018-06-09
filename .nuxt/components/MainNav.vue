@@ -163,6 +163,10 @@
             modules.push({ icon: 'chevron_right', text: 'Operations', route: '/lxd/operations' })
           }
           //
+          if (this.loggedUser.mod.lxd.includes('storage')) {
+            modules.push({ icon: 'chevron_right', text: 'Storage', route: '/lxd/storage' })
+          }
+          //
           if (this.loggedUser.mod.lxd.includes('backups')) {
             modules.push({ icon: 'chevron_right', text: 'Backups', route: '/lxd/backups' })
           }
