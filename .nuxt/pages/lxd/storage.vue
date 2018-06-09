@@ -71,8 +71,7 @@
 
               <div v-if="editingItem.info.driver == 'dir'">
                 <!--<h4>DIR</h4>-->
-                <v-text-field v-model="editingItem.info.config.source" label="Source:" placeholder="" hint="Path to block device or loop file or filesystem entry."></v-text-field>
-                <v-text-field v-model="editingItem.info.config.size" label="Size:" placeholder="" hint="Size of the storage pool in bytes (suffixes supported). (Currently valid for loop based pools and zfs)."></v-text-field>
+                <v-text-field v-model="editingItem.info.config.source" label="Source:" placeholder="" hint="Path to block device or loop file or filesystem entry." :disabled="editingIndex !== -1"></v-text-field>
               </div>
               <div v-if="editingItem.info.driver == 'btrfs'">
                 <!--<h4>BTRFS</h4>-->
