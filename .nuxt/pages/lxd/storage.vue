@@ -142,23 +142,25 @@
         </v-card>
       </v-dialog>
       
-      <!-- Add/Edit Dialog -->
+      <!-- Volumes Dialog -->
       <v-dialog v-model="dialog.volumes" max-width="600px" scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
-            <v-btn icon @click.native="dialog.editing = false" dark>
+            <v-btn icon @click.native="dialog.volumes = false" dark>
               <v-icon>close</v-icon>
             </v-btn>
             <v-toolbar-title>Storage Volumes</v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
-          <v-card-text>
-            <v-alert type="error" :value="error.editing">
-              {{ error.editing }}
-            </v-alert>
-            <v-form ref="form" v-model="valid" lazy-validation>
-            <pre>{{ editingItem.volumes }}</pre>
-            </v-form>
+          <v-card-text style="padding:0px">
+            <v-data-table :headers="volumeTableHeaders" :items="editingItem.volumes" hide-actions class="elevation-1">
+              <template slot="items" slot-scope="props">
+                <tr>
+                  <td>{{ ucfirst(props.item.name) }}</td>
+                  <td>{{ ucfirst(props.item.type) }}</td>
+                </tr>
+              </template>
+            </v-data-table>
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
         </v-card>
@@ -211,6 +213,10 @@
         { text: 'Volumes', value: 'volumes' },
         { text: 'Status', value: 'status' },
         { text: 'Actions', value: 'id', sortable: false, align: 'right' }
+      ],
+      volumeTableHeaders: [
+        { text: 'Name', value: 'name' },
+        { text: 'Type', value: 'type' }
       ],
 
       editingIndex: -1,
@@ -448,6 +454,10 @@
           this.editingItem = Object.assign({}, this.defaultItem)
           this.editingIndex = -1
         }, 300)
+      },
+      
+      ucfirst(str) {
+          return String(str).charAt(0).toUpperCase() + String(str).slice(1);
       },
 
       disk_used (item) {
