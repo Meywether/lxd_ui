@@ -431,8 +431,8 @@
         { text: 'Memory', value: 'memory.usage' },
         { text: 'Network (In/Out)', value: 'network' },
         { text: 'Status', value: 'status' },
-        { text: 'Attributes', value: 'attributes', sortable: false,  width:'10px' },
-        { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'10px' }
+        { text: 'Attributes', value: 'attributes', sortable: false,  width:'50px' },
+        { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'50px' }
       ],
 
       // new container item
