@@ -80,7 +80,7 @@
                 <v-switch color="success" v-model="editingItem.dict['recursive']" persistent-hint hint="Whether or not to recursively mount the source path."></v-switch>
               </v-flex>
             </v-layout>
-            <v-select :items="['None','default']" v-model="editingItem.dict.pool" label="Pool:" persistent-hint hint="Storage pool the disk device belongs to. This is only applicable for storage volumes managed by LXD."></v-select>
+            <v-select :items="['None',...pools]" v-model="editingItem.dict.pool" label="Pool:" persistent-hint hint="Storage pool the disk device belongs to. This is only applicable for storage volumes managed by LXD."></v-select>
             <v-select :items="['None','private','shared','slave','unbindable','rshared','rslave','runbindable','rprivate']" v-model="editingItem.dict.propagation" label="Propagation:" persistent-hint hint="Controls how a bind-mount is shared between the container and the host."></v-select>
           </v-form>
         </v-card-text>
@@ -169,6 +169,8 @@
           "propagation": "None"
         }
       },
+      
+      pools: [],
 
       // container/profile
       linkedItem: {},
@@ -216,7 +218,23 @@
         } catch (error) {
           this.error = 'Could not fetch data from server.';
         }
+        
         this.tableLoading = false
+        
+        //
+        try {
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/storage', {
+            params: {
+              types: ['name']
+            }
+          })
+          response.data.data.forEach(item => {
+            this.pools.push(item.name)
+          })
+        } catch (error) {
+          this.pools = [];
+        }
       },
 
       async attachItem(item) {
