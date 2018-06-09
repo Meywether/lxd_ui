@@ -25,20 +25,56 @@
                     <tr>
                       <td><a href="javascript:void(0)" @click.stop="editContainer(props.item)">{{ props.item.name }}</a></td>
                       <td>
-                        <span v-if="check_started_with_ip(props.item)">{{ props.item.network && props.item.network.eth0.addresses[0].address ? props.item.network.eth0.addresses[0].address : '-' }}</span>
-                        <span v-if="props.item.network && props.item.status === 'Running' && (!props.item.network.eth0 || props.item.network.eth0.addresses.length === 0 || isIP4(props.item.network.eth0.addresses[0].address) === false)">
+                        <span v-if="check_started_with_ip(props.item)">{{ props.item.state && props.item.state.network && props.item.state.network.eth0.addresses[0].address ? props.item.state.network.eth0.addresses[0].address : '-' }}</span>
+                        <span v-if="props.item.state && props.item.state.network && props.item.state.status === 'Running' && (!props.item.state.network.eth0 || props.item.state.network.eth0.addresses.length === 0 || isIP4(props.item.state.network.eth0.addresses[0].address) === false)">
                           <v-icon size="15" @click="initialize()" color="orange darken-2">fa fa-refresh</v-icon>
                         </span>
                         <span v-if="props.item.status === 'Stopped'">-</span>
                       </td>
-                      <td>{{ props.item.cpu && props.item.cpu.usage ? Number(props.item.cpu.usage/1000000000).toFixed(2) + 's' : '-' }}</td>
-                      <td>{{ props.item.processes ? props.item.processes : '-' }}</td>
-                      <td>{{ props.item.memory && props.item.memory.usage ? formatBytes(props.item.memory.usage) : '-' }}</td>
+                      <td>{{ props.item.state && props.item.state.cpu && props.item.state.cpu.usage ? Number(props.item.state.cpu.usage/1000000000).toFixed(2) + 's' : '-' }}</td>
+                      <td>{{ props.item.state && props.item.state.processes ? props.item.state.processes : '-' }}</td>
+                      <td>{{ props.item.state && props.item.state.memory && props.item.state.memory.usage ? formatBytes(props.item.state.memory.usage) : '-' }}</td>
                       <td>
-                        {{ props.item.network && props.item.network.eth0 && props.item.network.eth0.counters ? formatBytes(props.item.network.eth0.counters.bytes_received) : '-' }} /
-                        {{ props.item.network && props.item.network.eth0 && props.item.network.eth0.counters ? formatBytes(props.item.network.eth0.counters.bytes_sent) : '-' }}
+                        {{ props.item.state && props.item.state.network && props.item.state.network.eth0 && props.item.state.network.eth0.counters ? formatBytes(props.item.state.network.eth0.counters.bytes_received) : '-' }} /
+                        {{ props.item.state && props.item.state.network && props.item.state.network.eth0 && props.item.state.network.eth0.counters ? formatBytes(props.item.state.network.eth0.counters.bytes_sent) : '-' }}
                       </td>
                       <td>{{ props.item.status }}</td>
+                      <td>
+                        <div class="field is-grouped is-grouped-multiline" style="display:flex">
+                          <div class="control">
+                            <div class="tags has-addons">
+                              <v-tooltip left>
+                                <span slot="activator" :class="[props.item.config['boot.autostart'] === '1' ? 'is-on' : 'is-off', 'tag']">A</span>
+                                <span>Auto Start</span>
+                              </v-tooltip>
+                            </div>
+                          </div>
+                          <div class="control">
+                            <div class="tags has-addons">
+                              <v-tooltip left>
+                                <span slot="activator" :class="[props.item.ephemeral ? 'is-on' : 'is-off', 'tag']">E</span>
+                                <span>Ephemeral</span>
+                              </v-tooltip>
+                            </div>
+                          </div>
+                          <div class="control">
+                            <div class="tags has-addons">
+                              <v-tooltip left>
+                                <span slot="activator" :class="[props.item.config['security.privileged'] === '1' ? 'is-on' : 'is-off', 'tag']">P</span>
+                                <span>Privileged</span>
+                              </v-tooltip>
+                            </div>
+                          </div>
+                          <div class="control">
+                            <div class="tags has-addons">
+                              <v-tooltip left>
+                                <span slot="activator" :class="[props.item.config['security.nesting'] === '1' ? 'is-on' : 'is-off', 'tag']">N</span>
+                                <span>Nesting</span>
+                              </v-tooltip>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
                       <td class="px-0">
                         <v-menu offset-y left style="float:right" class="mr-3">
                           <v-btn icon class="mx-0" slot="activator">
@@ -110,7 +146,7 @@
             <v-btn icon @click.native="containerDialog = false" dark>
               <v-icon>close</v-icon>
             </v-btn>
-            <v-toolbar-title>Container: {{ container.info && container.info.name }}</v-toolbar-title>
+            <v-toolbar-title>Container: {{ container.state && container.state.name }}</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items v-if="activeTab !== 'tab-snapshots' && activeTab !== 'tab-devices'">
               <v-btn dark flat @click.native="saveContainer()">Save</v-btn>
@@ -125,11 +161,14 @@
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <v-card-text>
                     <v-form ref="form" v-model="valid" lazy v-if="container.info.config">
+                      <v-alert type="error" :value="error.editing">
+                        {{ error.editing }}
+                      </v-alert>
                       <h2>General</h2>
                       <v-layout row wrap style="margin-top:-20px">
                         <v-flex xs6>
                           <v-card-text class="px-1">
-                            <v-text-field v-model="container.info.name" label="Name" :rules="nameRule" @input="safe_name()" required></v-text-field>
+                            <v-text-field v-model="container.info.name" label="Name" :rules="nameRule" @input="safe_name()" required :disabled="container.state.status !== 'Stopped'" :persistent-hint="container.state.status !== 'Stopped'" :hint="`${container.state.status !== 'Stopped' ? 'Container must be stopped to rename.' : 'Enter name for container.'}`"></v-text-field>
                             <v-select :items="profiles" :rules="profilesRule" v-model="container.info.profiles" label="Profiles" multiple chips required></v-select>
                           </v-card-text>
                         </v-flex>
@@ -352,6 +391,7 @@
 
       //
       alert: { msg: '', outline: false, color: 'info', icon: 'info' },
+      error: { editing: false },
 
       // snackbar (notification)
       snackbar: false,
@@ -385,7 +425,8 @@
         { text: 'Memory', value: 'memory.usage' },
         { text: 'Network (In/Out)', value: 'network' },
         { text: 'Status', value: 'status' },
-        { text: 'Actions', value: 'name', sortable: false, align: 'right' }
+        { text: 'Attributes', value: 'attributes', sortable: false,  width:'10px' },
+        { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'10px' }
       ],
 
       // new container item
@@ -446,8 +487,22 @@
     beforeDestroy: function() {
       clearInterval(this.pollId);
     },
-    mounted: function () {
+    mounted: async function () {
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
+      // get LXD server info
+      if (!this.$storage.isset('lxd')) {
+        try {
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd')
+          this.$storage.set('lxd', response.data)
+          this.lxd = response.data
+        } catch (error) {
+          this.$storage.remove('lxd')
+        }
+      } else {
+        this.lxd = this.$storage.get('lxd')
+      }
+
       this.$nextTick(() => {
         this.initialize()
         this.getResources()
@@ -677,11 +732,12 @@
 
       check_started_with_ip (container) {
         return (
-          container.network &&
-          container.network.eth0 &&
-          container.network.eth0.addresses.length > 0 &&
+          container.state &&
+          container.state.network &&
+          container.state.network.eth0 &&
+          container.state.network.eth0.addresses.length > 0 &&
           container.status === 'Running' &&
-          this.isIP4(container.network.eth0.addresses[0].address)
+          this.isIP4(container.state.network.eth0.addresses[0].address)
         )
       },
 
@@ -809,7 +865,7 @@
         })
       },
 
-       editContainer (item, openDialog = true) {
+      editContainer (item, openDialog = true) {
         this.$nextTick(async () => {
           this.getProfiles()
           this.editingIndex = this.items.indexOf(item)
@@ -821,11 +877,10 @@
   
             //
             const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
-  
-            this.container = {
-              state: item,
-              info: container.infix(response.data.data),
-            }
+            
+            this.$set(this.container, 'state', item)
+            this.$set(this.container, 'info', container.infix(response.data.data))
+
           } catch (error) {
             this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
           }
@@ -842,21 +897,37 @@
               this.$router.replace('/servers')
             }
 
-            this.container.info = Object.assign({}, container.outfix(this.container.info))
+            // rename
+            if (this.container.info.name !== this.container.state.name) {
+              var response = await axios.post(this.loggedUser.sub + '/api/lxd/containers/' + this.container.state.name, {
+                name: this.container.info.name
+              })
+              // update name
+              this.$set(this.container.state, 'name', this.container.info.name)
+            }
+
+            this.container.info = container.outfix(this.container.info)
 
             //
-            const response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name, {
-              config: this.container.info.config,
-              devices: this.container.info.devices,
+            var response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name, {
+              config: JSON.parse(JSON.stringify(this.container.info.config)),
+              devices: JSON.parse(JSON.stringify(this.container.info.devices)),
               ephemeral: this.container.info.ephemeral,
               stateful: this.container.info.stateful,
               profiles: this.container.info.profiles
             })
-            //
-            this.snackbar = true;
-            this.snackbarText = 'Container '+this.container.info.name+' configuration saved.';
+            
+            // check errors
+            if (response.data.code === 422) {
+              this.error.editing = response.data.error
+            } else {
+              //
+              this.snackbar = true;
+              this.snackbarText = 'Container '+this.container.info.name+' configuration saved.';
+              this.initialize()
+            }
           } catch (error) {
-            this.error = 'Could not save container configuration.';
+            this.error.editing = 'Could not save container configuration.';
           }
         }
       },
@@ -1031,5 +1102,68 @@
     width: 100%;
     height: calc(100vh - 65px);
     padding-left: 5px;
+  }
+  
+  .tags:last-child {
+    margin-bottom: -.5rem;
+  }
+
+  .tags {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .tags.has-addons .tag:not(:last-child) {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .tags.has-addons .tag {
+    margin-right: 0;
+  }
+
+  .tags .tag:not(:last-child) {
+    margin-right: .5rem;
+  }
+
+  .tag:not(body).is-off {
+    background-color: #f5f5f5;
+    color: #363636;
+  }
+
+  .tag:not(body).is-on {
+    background-color: #DCEDC8;
+    color: #363636;
+  }
+  
+
+  .tags .tag {
+    margin-bottom: .5rem;
+  }
+
+  .tags.has-addons .tag:not(:first-child) {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+  }
+
+  .tags.has-addons .tag {
+    margin-right: 3px;
+  }
+
+  .tag:not(body) {
+    align-items: center;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    color: #4a4a4a;
+    display: inline-flex;
+    font-size: .75rem;
+    height: 2em;
+    justify-content: center;
+    line-height: 1.5;
+    padding-left: .75em;
+    padding-right: .75em;
+    white-space: nowrap;
   }
 </style>

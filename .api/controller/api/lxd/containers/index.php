@@ -43,22 +43,14 @@ class Index extends \Base\Controller
          * GET /api/lxd/containers
          */
         if ($verb === 'GET') {
-            $containers = $client->lxd->containers->list('local', function ($result) {
-                return str_replace('/1.0/containers/', '', $result);
-            });
-
-            // get state
-            $result = [];
-            foreach ((array) $containers as $i => $container) {
-                $result[$i] = $client->lxd->containers->getState('local', $container);
-            	$result[$i]['name'] = $container;
-            }
-
+            
+            $containers = $client->lxd->local('lxc list --format json');
+            
             // send response, but dont exit/halt
             $f3->response->json([
                 'error' => null,
                 'code'  => 200,
-                'data'  => array_values($result)
+                'data'  => array_values($containers)
             ]);
         }
         
@@ -186,15 +178,22 @@ class Index extends \Base\Controller
                     'data'  => []
                 ]); 
             }
-
-            //
-            $result = $client->lxd->containers->rename('local', $params['name'], $item['name']);
-
-            $f3->response->json([
-                'error' => null,
-                'code'  => 200,
-                'data'  => $result
-            ]);
+            
+            try {
+                $result = [
+                    'error' => '',
+                    'code'  => 200,
+                    'data'  => $client->lxd->containers->rename('local', $params['name'], $item['name'])
+                ];
+            } catch (\Exception $e) {
+                $result = [
+                    'error' => $e->getMessage(),
+                    'code'  => 422,
+                    'data'  => []
+                ];
+            }
+            
+            $f3->response->json($result);
         }
 
         if ($verb === 'PATCH') {
@@ -235,15 +234,22 @@ class Index extends \Base\Controller
                     'data'  => []
                 ]); 
             }
-
-            //
-            $result = $client->lxd->containers->replace('local', $params['name'], $options);
-
-            $f3->response->json([
-                'error' => null,
-                'code'  => 200,
-                'data'  => $result
-            ]);
+            
+            try {
+                $result = [
+                    'error' => '',
+                    'code'  => 200,
+                    'data'  => $client->lxd->containers->replace('local', $params['name'], $options)
+                ];
+            } catch (\Exception $e) {
+                $result = [
+                    'error' => $e->getMessage(),
+                    'code'  => 422,
+                    'data'  => []
+                ];
+            }
+            
+            $f3->response->json($result);
         }
         
         if ($verb === 'DELETE') {

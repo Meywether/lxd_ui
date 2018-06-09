@@ -23,9 +23,9 @@
                     <tr>
                       <td><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.info.name }}</a></td>
                       <td>{{ props.item.info.description ? props.item.info.description : '-' }}</td>
-                      <td>{{ props.item.info.driver }}</td>
+                      <td>{{ props.item.info.driver.toUpperCase() }}</td>
                       <td><v-progress-linear :value="disk_used(props.item.resources)" height="20" color="error" background-color="success">{{ props.item.resources.space.used }} / {{ formatBytes(props.item.resources.space.total) }}</v-progress-linear></td>
-                      <td>{{ props.item.volumes.length }}</td>
+                      <td><a href="javascript:void(0)" @click.stop="editVolumes(props.item)">{{ props.item.volumes.length }}</a></td>
                       <td>{{ props.item.info.status }}</td>
                       <td>
                         <v-btn icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)">
@@ -63,7 +63,7 @@
             </v-alert>
             <v-form ref="form" v-model="valid" lazy-validation>
               <h3>General</h3>
-              <v-text-field v-model="editingItem.info.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the storage pool."></v-text-field>
+              <v-text-field v-model="editingItem.info.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the storage pool." :disabled="editingIndex !== -1"></v-text-field>
               <v-text-field v-model="editingItem.info.description" label="Description:" placeholder="" hint="Enter a description for the storage pool."></v-text-field>
               <v-select :items="['dir','btrfs','lvm','zfs','ceph']" v-model="editingItem.info.driver" label="Driver:" :disabled="editingIndex !== -1"></v-select>
 
@@ -116,7 +116,7 @@
               <div v-if="editingItem.info.driver == 'ceph'">
                 <!--<h4>CEPH</h4>-->
                 <v-text-field v-model="editingItem.info.config.source" label="Source:" placeholder="" hint="Path to block device or loop file or filesystem entry."></v-text-field>
-                <v-text-field v-model="editingItem.info.config.size" label="Size:" placeholder="" hint="Size of the storage pool in bytes (suffixes supported). (Currently valid for loop based pools and zfs)."></v-text-field>
+                <!--<v-text-field v-model="editingItem.info.config.size" label="Size:" placeholder="" hint="Size of the storage pool in bytes (suffixes supported). (Currently valid for loop based pools and zfs)."></v-text-field>-->
 
                 <v-text-field v-model="editingItem.info.config['ceph.cluster_name']" label="Cluster name:" placeholder="" hint="Name of the ceph cluster in which to create new storage pools."></v-text-field>
                 <h4>OSD force reuse:</h4>
@@ -130,6 +130,28 @@
 
               <!--<v-text-field v-model="editingItem.info.config['rsync.bwlimit']" label="Rsync bandwidth limit:" placeholder="" hint="Specifies the upper limit to be placed on the socket I/O whenever rsync has to be used to transfer storage entities."></v-text-field>-->
 
+            </v-form>
+          </v-card-text>
+          <div style="flex: 1 1 auto;"></div>
+        </v-card>
+      </v-dialog>
+      
+      <!-- Add/Edit Dialog -->
+      <v-dialog v-model="dialog.volumes" max-width="600px" scrollable>
+        <v-card tile>
+          <v-toolbar card dark color="light-blue darken-3">
+            <v-btn icon @click.native="dialog.editing = false" dark>
+              <v-icon>close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Storage Volumes</v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-toolbar>
+          <v-card-text>
+            <v-alert type="error" :value="error.editing">
+              {{ error.editing }}
+            </v-alert>
+            <v-form ref="form" v-model="valid" lazy-validation>
+            <pre>{{ editingItem.volumes }}</pre>
             </v-form>
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
@@ -159,7 +181,7 @@
       })
     },
     data: () => ({
-      dialog: {editing: false},
+      dialog: {editing: false, volumes: false},
       valid: true,
 
       // global error
@@ -237,8 +259,22 @@
       ]
     }),
     beforeDestroy: function() {},
-    mounted: function () {
+    mounted: async function () {
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+      
+      // get LXD server info
+      if (!this.$storage.isset('lxd')) {
+        try {
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd')
+          this.$storage.set('lxd', response.data)
+          this.lxd = response.data
+        } catch (error) {
+          this.$storage.remove('lxd')
+        }
+      } else {
+        this.lxd = this.$storage.get('lxd')
+      }
+      
       this.$nextTick(() => {
         this.initialize()
       })
@@ -285,14 +321,25 @@
       // create or edit item
       editItem (item) {
         this.editingIndex = this.items.indexOf(item)
-        this.editingItem = Object.assign({}, this.defaultItem, item)
+        this.editingItem = JSON.parse(JSON.stringify(item));
 
         this.dialog.editing = true
+      },
+      
+      // create or volumes 
+      editVolumes (item) {
+        this.editingIndex = this.items.indexOf(item)
+        this.editingItem = JSON.parse(JSON.stringify(item));
+
+        this.dialog.volumes = true
       },
 
       // save
       async save () {
         if (this.$refs.form.validate()) {
+          
+          console.log(this.editingItem);
+          
           // remote
           try {
             if (!this.loggedUser) {
@@ -301,13 +348,13 @@
 
             // edit
             if (this.editingIndex > -1) {
-              var response = await axios.put(this.loggedUser.sub + '/api/lxd/storage/'+this.editingItem.name, {
-                "name": this.editingItem.info.name,
+              // update
+              var response = await axios.put(this.loggedUser.sub + '/api/lxd/storage/'+this.editingItem.info.name, {
                 "description": this.editingItem.info.description,
                 "driver": this.editingItem.info.driver,
                 "config": this.editingItem.info.config
               })
-              } 
+            } 
             // add
             else {
               var response = await axios.post(this.loggedUser.sub + '/api/lxd/storage', {
@@ -316,7 +363,7 @@
                 "driver": this.editingItem.info.driver,
                 "config": this.editingItem.info.config
               })
-              }
+            }
 
             // check errors
             if (response.data.code === 422) {
@@ -333,7 +380,7 @@
               this.snackbarText = 'Storage pool successfully saved.';
             }
           } catch (error) {
-            this.error.global = 'Could not save storage pool to server.';
+            this.error.global = 'Could not save storage pool to server.'+error;
           }
 
           if (!this.error.editing && this.editingIndex === -1) {
@@ -355,7 +402,7 @@
             closable: false,
           },
           title: 'Delete storage pool?',
-          text: 'Are you sure you want to delete the <b>'+item.name+'</b> storage pool?',
+          text: 'Are you sure you want to delete the <b>'+item.info.name+'</b> storage pool?',
           buttons: [
             {
               title: 'Yes',
@@ -368,7 +415,7 @@
                 // remote
                 try {
                   //
-                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/storage/'+item.name)
+                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/storage/'+item.info.name)
 
                   //
                   this.snackbar = true;
