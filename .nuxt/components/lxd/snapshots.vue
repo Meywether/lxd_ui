@@ -66,8 +66,22 @@
       items: []
     }),
     beforeDestroy: function() {},
-    mounted: function () {
+    mounted: async function () {
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+      
+      // get LXD server info
+      if (!this.$storage.isset('lxd')) {
+        try {
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd')
+          this.$storage.set('lxd', response.data)
+          this.lxd = response.data
+        } catch (error) {
+          this.$storage.remove('lxd')
+        }
+      } else {
+        this.lxd = this.$storage.get('lxd')
+      }
+      
       this.container = Object.assign({info:{name:''}}, this.item)
       
       this.$nextTick(() => {

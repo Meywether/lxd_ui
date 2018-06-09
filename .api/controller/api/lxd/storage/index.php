@@ -78,6 +78,17 @@ class Index extends \Base\Controller
                     if (in_array('volumes', $types)) {
                         foreach ($pools as $i => $pool) {
                         	$volumes = $client->lxd->query('local:/1.0/storage-pools/'.$pool.'/volumes', 'GET', []);
+                        	
+                        	/*
+                        	$client->lxd->query('local:/1.0/storage-pools/default/volumes', 'POST', [
+                                "config" => (object) [],
+                                "pool" => "default",
+                                "name" => "vol1",
+                                "type" => "custom"
+                            ]);
+                        	*/
+                      
+                     
                         	// get volume info
                         	//if (in_array('volume_info', $types)) {
                         	//    foreach ($volumes as $volume) {
@@ -182,12 +193,11 @@ class Index extends \Base\Controller
          * POST /api/lxd/storage/@name
          */
         if ($verb === 'POST') {
-            /*
             $body = json_decode($f3->get('BODY'), true);
             
             $errors = [];
-            if (empty($params['name'])) {
-                $errors['name'] = 'Profiles name cannot be empty'; 
+            if (empty($params['name']) || empty($body['name'])) {
+                $errors['name'] = 'Storage pool names cannot be empty'; 
             }
 
             if (!empty($errors)) {
@@ -197,17 +207,15 @@ class Index extends \Base\Controller
                     'data'  => []
                 ]);
             }
-            
-            // fix devices (cast to object)
-            if (!empty($body['devices'])) {
-                $body['devices'] = (object) $body['devices'];
-            }
-            
+
             try {
+                //
+                $pool = $client->lxd->query('local:/1.0/storage-pools/'.$params['name'], 'POST', $body);
+
                 $result = [
                     'error' => '',
                     'code'  => 200,
-                    'data'  => $client->lxd->profiles->replace('local', $params['name'], $body)
+                    'data'  => $pool
                 ];
             } catch (\Exception $e) {
                 $result = [
@@ -218,7 +226,6 @@ class Index extends \Base\Controller
             }
             
             $f3->response->json($result);
-            */
         }
         
         /**

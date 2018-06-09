@@ -238,6 +238,11 @@
       },
 
       authItem (item) {
+        // remove lxd info from storage
+        if (this.$storage.isset('lxd')) {
+          this.$storage.remove('lxd')
+        }
+        
         this.editedIndex = this.items.indexOf(item)
         this.editedItem = Object.assign({}, item)
 

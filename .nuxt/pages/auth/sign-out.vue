@@ -7,6 +7,12 @@
   export default {
     mounted () {
       unsetToken()
+      
+      // remove lxd info from storage
+      if (this.$storage.isset('lxd')) {
+        this.$storage.remove('lxd')
+      }
+
       this.$router.replace('/')
     }
   }
