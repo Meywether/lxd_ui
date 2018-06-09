@@ -77,7 +77,14 @@ class Index extends \Base\Controller
                     // get volumes
                     if (in_array('volumes', $types)) {
                         foreach ($pools as $i => $pool) {
-                        	$volumes = $client->lxd->query('local:/1.0/storage-pools/'.$pool.'/volumes', 'GET', []);
+                        	$volumes = $client->lxd->query('local:/1.0/storage-pools/'.$pool.'/volumes', 'GET', [], function ($result) {
+                                $result = str_replace('/1.0/storage-pools/default/volumes/', '', $result);
+                                foreach ($result as &$row) {
+                                    $row = explode('/', $row);
+                                    $row = ['type' => $row[0], 'name' => $row[1]];
+                                }
+                                return $result;
+                            });
                         	
                         	/*
                         	$client->lxd->query('local:/1.0/storage-pools/default/volumes', 'POST', [

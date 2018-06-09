@@ -72,38 +72,27 @@
               <v-text-field v-model="editingItem.info.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the storage pool." :disabled="editingIndex !== -1"></v-text-field>
               <v-text-field v-model="editingItem.info.description" label="Description:" placeholder="" hint="Enter a description for the storage pool."></v-text-field>
               <v-select :items="['dir','btrfs','lvm','zfs','ceph']" v-model="editingItem.info.driver" label="Driver:" :disabled="editingIndex !== -1"></v-select>
-
               <h3>Configuration</h3>
-
               <div v-if="editingItem.info.driver == 'dir'">
-                <!--<h4>DIR</h4>-->
                 <v-text-field v-model="editingItem.info.config.source" label="Source:" placeholder="" hint="Path to block device or loop file or filesystem entry." :disabled="editingIndex !== -1"></v-text-field>
               </div>
               <div v-if="editingItem.info.driver == 'btrfs'">
-                <!--<h4>BTRFS</h4>-->
                 <v-text-field v-model="editingItem.info.config.source" label="Source:" placeholder="" hint="Path to block device or loop file or filesystem entry."></v-text-field>
                 <v-text-field v-model="editingItem.info.config.size" label="Size:" placeholder="" hint="Size of the storage pool in bytes (suffixes supported). (Currently valid for loop based pools and zfs)."></v-text-field>
-
                 <v-text-field v-model="editingItem.info.config['btrfs.mount_options']" label="Mount options:" placeholder="" hint="Mount options for block devices."></v-text-field>
               </div>
               <div v-if="editingItem.info.driver == 'lvm'">
-                <!--<h4>LVM</h4>-->
                 <v-text-field v-model="editingItem.info.config.source" label="Source:" placeholder="" hint="Path to block device or loop file or filesystem entry."></v-text-field>
                 <v-text-field v-model="editingItem.info.config.size" label="Size:" placeholder="" hint="Size of the storage pool in bytes (suffixes supported). (Currently valid for loop based pools and zfs)."></v-text-field>
-
                 <v-text-field v-model="editingItem.info.config['lvm.thinpool_name']" label="Thinpool Name:" placeholder="" hint="Thin pool where images and containers are created."></v-text-field>
-                
                 <h4>Use thinpool</h4>
                 <v-switch :label="`${editingItem.info.config['lvm.use_thinpool'] ? 'Yes' : 'No'}`" color="success" v-model="editingItem.info.config['lvm.use_thinpool']" persistent-hint hint="Whether the storage pool uses a thinpool for logical volumes."></v-switch>
-                
                 <v-text-field v-model="editingItem.info.config['lvm.vg_name']" label="VG Name:" placeholder="" hint="Name of the volume group to create."></v-text-field>
               </div>
               <div v-if="editingItem.info.driver == 'zfs'">
-                <!--<h4>ZFS</h4>-->
                 <v-text-field v-model="editingItem.info.config.source" label="Source:" placeholder="" hint="Path to block device or loop file or filesystem entry."></v-text-field>
                 <v-text-field v-model="editingItem.info.config.size" label="Size:" placeholder="" hint="Size of the storage pool in bytes (suffixes supported). (Currently valid for loop based pools and zfs)."></v-text-field>
                 <v-text-field v-model="editingItem.info.config['zfs.pool_name']" label="Pool name:" placeholder="" hint="Name of the zpool."></v-text-field>
-
                 <v-layout row wrap style="margin-top:10px">
                   <v-flex xs4>
                     <h4>Clone Copy:</h4>
@@ -120,45 +109,41 @@
                 </v-layout> 
               </div>
               <div v-if="editingItem.info.driver == 'ceph'">
-                <!--<h4>CEPH</h4>-->
                 <v-text-field v-model="editingItem.info.config.source" label="Source:" placeholder="" hint="Path to block device or loop file or filesystem entry."></v-text-field>
-                <!--<v-text-field v-model="editingItem.info.config.size" label="Size:" placeholder="" hint="Size of the storage pool in bytes (suffixes supported). (Currently valid for loop based pools and zfs)."></v-text-field>-->
-
                 <v-text-field v-model="editingItem.info.config['ceph.cluster_name']" label="Cluster name:" placeholder="" hint="Name of the ceph cluster in which to create new storage pools."></v-text-field>
                 <h4>OSD force reuse:</h4>
                 <v-switch :label="`${editingItem.info.config['ceph.osd.force_reuse'] ? 'Yes' : 'No'}`" color="success" v-model="editingItem.info.config['ceph.osd.force_reuse']" persistent-hint hint="Force using an osd storage pool that is already in use by another LXD instance."></v-switch>
-                
                 <v-text-field v-model="editingItem.info.config['ceph.osd.pg_num']" label="OSD placement group num:" placeholder="" hint="Number of placement groups for the osd storage pool."></v-text-field>
                 <v-text-field v-model="editingItem.info.config['ceph.osd.pool_name']" label="OSD pool name:" placeholder="" hint="Name of the osd storage pool."></v-text-field>
                 <v-text-field v-model="editingItem.info.config['ceph.rbd.clone_copy']" label="RBD clone copy:" placeholder="" hint="Whether to use RBD lightweight clones rather than full dataset copies."></v-text-field>
                 <v-text-field v-model="editingItem.info.config['ceph.user.name']" label="User name:" placeholder="" hint="The ceph user to use when creating storage pools and volumes."></v-text-field>
               </div>
-
               <!--<v-text-field v-model="editingItem.info.config['rsync.bwlimit']" label="Rsync bandwidth limit:" placeholder="" hint="Specifies the upper limit to be placed on the socket I/O whenever rsync has to be used to transfer storage entities."></v-text-field>-->
-
             </v-form>
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
         </v-card>
       </v-dialog>
       
-      <!-- Add/Edit Dialog -->
+      <!-- Volumes Dialog -->
       <v-dialog v-model="dialog.volumes" max-width="600px" scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
-            <v-btn icon @click.native="dialog.editing = false" dark>
+            <v-btn icon @click.native="dialog.volumes = false" dark>
               <v-icon>close</v-icon>
             </v-btn>
             <v-toolbar-title>Storage Volumes</v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
-          <v-card-text>
-            <v-alert type="error" :value="error.editing">
-              {{ error.editing }}
-            </v-alert>
-            <v-form ref="form" v-model="valid" lazy-validation>
-            <pre>{{ editingItem.volumes }}</pre>
-            </v-form>
+          <v-card-text style="padding:0px">
+            <v-data-table :headers="volumeTableHeaders" :items="editingItem.volumes" hide-actions class="elevation-1">
+              <template slot="items" slot-scope="props">
+                <tr>
+                  <td>{{ ucfirst(props.item.name) }}</td>
+                  <td>{{ ucfirst(props.item.type) }}</td>
+                </tr>
+              </template>
+            </v-data-table>
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
         </v-card>
@@ -211,6 +196,10 @@
         { text: 'Volumes', value: 'volumes' },
         { text: 'Status', value: 'status' },
         { text: 'Actions', value: 'id', sortable: false, align: 'right' }
+      ],
+      volumeTableHeaders: [
+        { text: 'Name', value: 'name' },
+        { text: 'Type', value: 'type' }
       ],
 
       editingIndex: -1,
@@ -311,7 +300,7 @@
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/storage', {
             params: {
-              types: ['name', 'info', 'resources', 'volumes', /*'volume_info'*/]
+              types: [/*'name', */'info', 'resources', 'volumes', /*'volume_info'*/]
             }
           })
 
@@ -448,6 +437,10 @@
           this.editingItem = Object.assign({}, this.defaultItem)
           this.editingIndex = -1
         }, 300)
+      },
+      
+      ucfirst(str) {
+          return String(str).charAt(0).toUpperCase() + String(str).slice(1);
       },
 
       disk_used (item) {
