@@ -10,10 +10,16 @@
           <v-flex d-flex xs12 order-xs5>
             <v-layout column>
               <v-flex tag="h1" class="display mb-2">
-                LXD - Containers
-                <v-btn :dark="items.length > 0 && !all_stopped" color="orange" @click="restartAll()" style="float:right" :disabled="items.length === 0 || all_stopped">Restart All</v-btn>
-                <v-btn :dark="!all_stopped" color="red" @click="stopAll()" style="float:right" :disabled="all_stopped">Stop All</v-btn>
-                <v-btn :dark="!all_running" color="green" @click="startAll()" style="float:right" :disabled="all_running">Start All</v-btn>
+                <v-layout row wrap>
+                  <v-flex xs12 sm6>
+                    LXD - Containers
+                  </v-flex>
+                  <v-flex xs12 sm6>
+                    <v-btn small :dark="items.length > 0 && !all_stopped" color="orange" @click="restartAll()" style="float:right" :disabled="items.length === 0 || all_stopped">Restart All</v-btn>
+                    <v-btn small :dark="!all_stopped" color="red" @click="stopAll()" style="float:right" :disabled="all_stopped">Stop All</v-btn>
+                    <v-btn small :dark="!all_running" color="green" @click="startAll()" style="float:right" :disabled="all_running">Start All</v-btn>
+                  </v-flex>
+                </v-layout>
               </v-flex>
               <v-flex>
                 <v-alert v-if="alert.msg" :value="alert.msg" :outline="alert.outline" :color="alert.color" :icon="alert.icon" dismissible>
@@ -32,8 +38,8 @@
                         <span v-if="props.item.status === 'Stopped'">-</span>
                       </td>
                       <td>{{ props.item.state && props.item.state.cpu && props.item.state.cpu.usage ? Number(props.item.state.cpu.usage/1000000000).toFixed(2) + 's' : '-' }}</td>
-                      <td>{{ props.item.state && props.item.state.processes ? props.item.state.processes : '-' }}</td>
-                      <td>{{ props.item.state && props.item.state.memory && props.item.state.memory.usage ? formatBytes(props.item.state.memory.usage) : '-' }}</td>
+                      <td>{{ props.item.state && props.item.state.processes ? props.item.state.processes : '-' }} / {{ props.item.config['limits.processes'] ? props.item.config['limits.processes'] : '-'}}</td>
+                      <td>{{ props.item.state && props.item.state.memory && props.item.state.memory.usage ? formatBytes(props.item.state.memory.usage) : '-' }} / {{ props.item.config['limits.memory'] ? props.item.config['limits.memory'] : '-'}}</td>
                       <td>
                         {{ props.item.state && props.item.state.network && props.item.state.network.eth0 && props.item.state.network.eth0.counters ? formatBytes(props.item.state.network.eth0.counters.bytes_received) : '-' }} /
                         {{ props.item.state && props.item.state.network && props.item.state.network.eth0 && props.item.state.network.eth0.counters ? formatBytes(props.item.state.network.eth0.counters.bytes_sent) : '-' }}

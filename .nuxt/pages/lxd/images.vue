@@ -13,7 +13,14 @@
           <v-flex d-flex xs12 order-xs5>
             <v-layout column>
               <v-flex tag="h1" class="display mb-2">
-                LXD - Images
+                <v-layout row wrap>
+                  <v-flex xs12 sm6>
+                    LXD - Images
+                  </v-flex>
+                  <v-flex xs12 sm6>
+                    
+                  </v-flex>
+                </v-layout>
               </v-flex>
               <v-flex>
                 <v-alert type="error" :value="error">

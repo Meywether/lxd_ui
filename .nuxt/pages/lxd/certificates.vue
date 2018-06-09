@@ -10,9 +10,15 @@
           <v-flex d-flex xs12 order-xs5>
             <v-layout column>
               <v-flex tag="h1" class="display mb-2">
-                LXD - Certificates
-                <v-btn color="success" @click="dialog.editing = true" style="float:right">Add Certificate</v-btn>
-                <v-btn @click="dialog.generate = true" style="float:right">Generate Certificate</v-btn>
+                <v-layout row wrap>
+                  <v-flex xs12 sm6>
+                    LXD - Certificates
+                  </v-flex>
+                  <v-flex xs12 sm6>
+                    <v-btn small color="success" @click="dialog.editing = true" style="float:right">Add Certificate</v-btn>
+                    <v-btn small @click="dialog.generate = true" style="float:right">Generate Certificate</v-btn>
+                  </v-flex>
+                </v-layout>
               </v-flex>
               <v-flex>
                 <v-alert type="error" :value="error.global">

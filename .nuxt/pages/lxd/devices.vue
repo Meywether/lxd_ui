@@ -10,8 +10,14 @@
           <v-flex d-flex xs12 order-xs5>
             <v-layout column>
               <v-flex tag="h1" class="display mb-2">
-                LXD - Devices
-                <v-btn color="success" @click="openDialog()" style="float:right">New {{ activeTab }}</v-btn>
+                <v-layout row wrap>
+                  <v-flex xs12 sm6>
+                    LXD - Devices
+                  </v-flex>
+                  <v-flex xs12 sm6>
+                    <v-btn small color="success" @click="openDialog()" style="float:right">New {{ activeTab }} Device</v-btn>
+                  </v-flex>
+                </v-layout>
               </v-flex>
               <v-flex>
                 <p v-if="activeTab === 'none'">A none device type doesn't create anything inside the container. It's purpose it to stop inheritance of devices coming from profiles.</p>

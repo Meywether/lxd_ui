@@ -6,15 +6,21 @@
           <v-flex d-flex xs12 order-xs5>
             <v-layout column>
               <v-flex tag="h1" class="display mb-2">
-                My Servers
-                <v-btn color="success" @click="dialog = true" style="float:right" :ripple="false">Add Server</v-btn>
-                <v-btn dark color="blue-grey lighten-2" @click="export_servers()" style="float:right" v-if="items.length > 0" :ripple="false">Export</v-btn>
-                <form id="import_form" style="display:inline-block;float: right">
-                  <label for="import_file" class="btn theme--dark blue-grey lighten-2" style="cursor: pointer">
-                    Import
-                  </label>
-                  <input id="import_file" name="file" type="file" accept=".json"/>
-                </form>
+                <v-layout row wrap>
+                  <v-flex xs12 sm6>
+                    My Servers
+                  </v-flex>
+                  <v-flex xs12 sm6>
+                    <v-btn small color="success" @click="dialog = true" style="float:right" :ripple="false">Add Server</v-btn>
+                    <v-btn small dark color="blue-grey lighten-2" @click="export_servers()" style="float:right" v-if="items.length > 0" :ripple="false">Export</v-btn>
+                    <form id="import_form" style="display:inline-block;float: right">
+                      <label for="import_file" class="btn btn--small theme--dark blue-grey lighten-2" style="cursor: pointer">
+                        Import
+                      </label>
+                      <input id="import_file" name="file" type="file" accept=".json"/>
+                    </form>
+                  </v-flex>
+                </v-layout>
               </v-flex>
               <v-flex>
                 <v-alert type="error" :value="error">
