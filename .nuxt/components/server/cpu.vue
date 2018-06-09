@@ -181,6 +181,7 @@
   .field.is-grouped.is-grouped-multiline {
     flex-wrap: wrap;
   }
+  
   .field.is-grouped {
     display: flex;
     justify-content: flex-start;
@@ -194,9 +195,11 @@
     margin-bottom: 0;
     margin-right: .75rem;
   }
+  
   .field.is-grouped>.control {
     flex-shrink: 0;
   }
+  
   .control {
     font-size: 1rem;
     position: relative;
