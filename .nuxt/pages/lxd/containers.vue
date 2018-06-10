@@ -124,6 +124,7 @@
             </v-alert>
             <v-form ref="form" v-model="valid" lazy-validation>
               <v-select :items="[copy.name]" v-model="copy.name" label="Container:" required disabled></v-select>
+              <v-text-field v-model="copy.name_alt" label="Name:" :rules="nameRule" @input="copy.name_alt = safe_name(copy.name_alt)" hint="Enter name for new container." required></v-text-field>
               <v-select :items="private_remotes" v-model="copy.remote" :rules="remoteRule" label="To Remote:" required></v-select>
             </v-form>
           </v-card-text>
@@ -175,7 +176,7 @@
                       <v-layout row wrap style="margin-top:-20px">
                         <v-flex xs6>
                           <v-card-text class="px-1">
-                            <v-text-field v-model="container.info.name" label="Name" :rules="nameRule" @input="safe_name()" required :disabled="container.state.status !== 'Stopped'" :persistent-hint="container.state.status !== 'Stopped'" :hint="`${container.state.status !== 'Stopped' ? 'Container must be stopped to rename.' : 'Enter name for container.'}`"></v-text-field>
+                            <v-text-field v-model="container.info.name" label="Name" :rules="nameRule" @input="container.info.name = safe_name(container.info.name)" required :disabled="container.state.status !== 'Stopped'" :persistent-hint="container.state.status !== 'Stopped'" :hint="`${container.state.status !== 'Stopped' ? 'Container must be stopped to rename.' : 'Enter name for container.'}`"></v-text-field>
                             <v-select :items="profiles" :rules="profilesRule" v-model="container.info.profiles" label="Profiles" multiple chips required></v-select>
                           </v-card-text>
                         </v-flex>
@@ -457,7 +458,8 @@
       },
       copy: {
         remote: '',
-        name: ''
+        name: '',
+        name_alt: ''
       },
 
       // tab
@@ -754,8 +756,8 @@
         )
       },
 
-      safe_name() {
-        this.container.info.name = this.container.info.name.replace(".", "-");
+      safe_name(name) {
+        return name.replace(".", "-");
       },
 
       setSnackbar (msg) {
@@ -859,6 +861,9 @@
               this.snackbarColor = 'red'
               this.snackbarText = 'Websocket connection closed.';
               this.reconnect = true;
+              setTimeout(() => {
+                this.snackbarColor = 'green';
+              }, 7000)
             }
           }
 
@@ -868,6 +873,9 @@
             this.snackbarTimeout = 10000
             this.snackbarColor = 'red'
             this.snackbarText = 'Websocket connection failed, you must visit https://'+tmp.hostname+':8443 to accept the SSL certificate.';
+            setTimeout(() => {
+              this.snackbarColor = 'green';
+            }, 12000)
           }
         }).catch(error => {
           //
@@ -875,6 +883,9 @@
           this.snackbarTimeout = 5000
           this.snackbarColor = 'red'
           this.snackbarText = 'Websocket connection failed.';
+          setTimeout(() => {
+            this.snackbarColor = 'green';
+          }, 7000)
         })
       },
 
@@ -950,6 +961,7 @@
          if (!execute) {
           this.copyIndex = this.items.indexOf(item)
           this.copy = Object.assign({}, this.copy, item)
+          this.copy.name_alt = this.copy.name
           this.copyDialog = true;
         } else {
           if (this.$refs.form.validate() && this.valid) {
@@ -963,6 +975,9 @@
                 this.snackbar = true;
                 this.snackbarColor = 'red';
                 this.snackbarText = response.data.error;
+                setTimeout(() => {
+                  this.snackbarColor = 'green';
+                }, 7000)
               }
             }).catch(error => {
               this.error = 'Could not copy container.'
@@ -972,6 +987,9 @@
             this.snackbar = true;
             this.snackbarText = 'Container queued for copy.';
             this.copyDialog = false
+            setTimeout(() => {
+              this.initialize()
+            }, 3000)
           }
         }
       },
@@ -1081,6 +1099,7 @@
         }
         setTimeout(() => {
           this.newItem = Object.assign({}, this.defaultItem)
+          this.snackbarColor = 'green';
         }, 300)
       },
 

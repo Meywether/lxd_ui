@@ -30,6 +30,7 @@
                       <td><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.name }}</a></td>
                       <td>{{ props.item.description }}</td>
                       <td>{{ props.item.devices.root && props.item.devices.root.pool ? props.item.devices.root.pool : '-' }}</td>
+                      <td>{{ props.item.devices.eth0 && props.item.devices.eth0.parent ? props.item.devices.eth0.parent : '-' }}</td>
                       <td>
                         <v-btn icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)">
                           <v-icon color="pink">delete</v-icon>
@@ -287,6 +288,7 @@
         { text: 'Name', value: 'name' },
         { text: 'Description', value: 'description' },
         { text: 'Storage Pool', value: 'pool' },
+        { text: 'Network', value: 'network' },
         { text: 'Actions', value: 'id', sortable: false, align: 'right' }
       ],
 

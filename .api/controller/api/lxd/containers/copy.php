@@ -50,7 +50,7 @@ class Copy extends \Base\Controller
             ignore_user_abort(true);
             set_time_limit(0);
             
-            $params['container'] = ($body['remote'] == 'local') ? $params['name'].'-copy' : $params['name'];
+            $params['container'] = !empty($body['name_alt']) ? $body['name_alt'] : $params['name'].'-copy';
 
             try {
                 $response = [
