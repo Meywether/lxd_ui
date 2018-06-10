@@ -32,9 +32,10 @@
                       <td>{{ props.item.info.driver.toUpperCase() }}</td>
                       <td><v-progress-linear :value="disk_used(props.item.resources)" height="20" color="error" background-color="success">{{ props.item.resources.space.used }} / {{ formatBytes(props.item.resources.space.total) }}</v-progress-linear></td>
                       <td><a href="javascript:void(0)" @click.stop="editVolumes(props.item)">{{ props.item.volumes.length }}</a></td>
+                      <td><a href="javascript:void(0)" @click.stop="showUsedBy(props.item)">{{ props.item.info.used_by.length }}</a></td>
                       <td>{{ props.item.info.status }}</td>
                       <td>
-                        <v-btn icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)">
+                        <v-btn icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)" :disabled="!canDelete(props.item)">
                           <v-icon color="pink">delete</v-icon>
                         </v-btn>
                       </td>
@@ -143,6 +144,38 @@
                   <td>{{ ucfirst(props.item.type) }}</td>
                 </tr>
               </template>
+              <template slot="no-data">
+                Storage pool has no volumes.
+              </template>
+            </v-data-table>
+          </v-card-text>
+          <div style="flex: 1 1 auto;"></div>
+        </v-card>
+      </v-dialog>
+      
+      <!-- Used by Dialog -->
+      <v-dialog v-model="dialog.used_by" max-width="600px" scrollable>
+        <v-card tile>
+          <v-toolbar card dark color="light-blue darken-3">
+            <v-btn icon @click.native="dialog.volumes = false" dark>
+              <v-icon>close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Used By</v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-toolbar>
+          <v-card-text style="padding:0px" v-if="editingItem.info.used_by_structured">
+            <v-data-table :headers="usedByTableHeaders" :items="editingItem.info.used_by_structured" hide-actions class="elevation-1">
+              <template slot="items" slot-scope="props">
+                <tr>
+                  <td>{{ ucfirst(props.item.name) }}</td>
+                  <td>{{ ucfirst(props.item.type) }}</td>
+                  <td>{{ ucfirst(props.item.sub_type) }}</td>
+                  <td>{{ ucfirst(props.item.sub_name) }}</td>
+                </tr>
+              </template>
+              <template slot="no-data">
+                Storage pool is not being used.
+              </template>
             </v-data-table>
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
@@ -172,7 +205,7 @@
       })
     },
     data: () => ({
-      dialog: {editing: false, volumes: false},
+      dialog: {editing: false, volumes: false, used_by: false},
       valid: true,
 
       // global error
@@ -194,12 +227,19 @@
         { text: 'Driver', value: 'driver' },
         { text: 'Usage', value: 'space' },
         { text: 'Volumes', value: 'volumes' },
+        { text: 'Used By', value: 'used_by' },
         { text: 'Status', value: 'status' },
         { text: 'Actions', value: 'id', sortable: false, align: 'right' }
       ],
       volumeTableHeaders: [
         { text: 'Name', value: 'name' },
         { text: 'Type', value: 'type' }
+      ],
+      usedByTableHeaders: [
+        { text: 'Name', value: 'name' },
+        { text: 'Type', value: 'type' },
+        { text: 'Sub Type', value: 'sub_type' },
+        { text: 'Sub Name', value: 'sub_name' }
       ],
 
       editingIndex: -1,
@@ -327,14 +367,33 @@
         this.editingItem = JSON.parse(JSON.stringify(item));
 
         this.dialog.volumes = true
+      },  
+      
+      // show used by
+      showUsedBy (item) {
+        this.editingIndex = this.items.indexOf(item)
+        this.editingItem = JSON.parse(JSON.stringify(item));
+
+        this.editingItem.info.used_by_structured = []
+        if (this.editingItem.info.used_by.length > 0) {
+          this.editingItem.info.used_by.forEach(value => {
+            let tmp = value.split('/')
+            this.editingItem.info.used_by_structured.push({
+              type: tmp[2] ? tmp[2] : '-',
+              name: tmp[3] ? tmp[3] : '-',
+              sub_type: tmp[4] ? tmp[4] + (tmp[5] ? '/' + tmp[5] : '') : '-',
+              sub_name: tmp[6] ? tmp[6] : '-'
+            })
+          })
+        }
+
+        this.dialog.used_by = true
       },
 
       // save
       async save () {
         if (this.$refs.form.validate()) {
-          
-          console.log(this.editingItem);
-          
+
           // remote
           try {
             if (!this.loggedUser) {
@@ -428,6 +487,10 @@
             }
           ]
         })
+      },
+      
+      canDelete (item) {
+        return item.info.used_by.length === 0
       },
 
       // close item dialog, and reset to default item
