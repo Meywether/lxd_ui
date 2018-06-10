@@ -207,6 +207,11 @@
     watch: {
       dialog (val) {
         val || this.close()
+      },
+      'editingItem.dict.pool': function (val) {
+        if (val !== 'None') {
+          this.editingItem.dict['source'] = val
+        }
       }
     },
     methods: {
