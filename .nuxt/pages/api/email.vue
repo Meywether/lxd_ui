@@ -23,7 +23,7 @@
                     </span>
                     <span v-if="state == 'providers'">
                       <v-btn small color="success" @click="state = 'providers';dialog.provider = true" style="float:right" v-if="state == 'providers'">New Provider</v-btn>
-                      <v-btn smallcolor="orange" @click="state = 'templates';" style="float:right" v-if="state == 'providers'">Templates</v-btn>
+                      <v-btn small color="orange" @click="state = 'templates';" style="float:right" v-if="state == 'providers'">Templates</v-btn>
                     </span>
                   </v-flex>
                 </v-layout>
