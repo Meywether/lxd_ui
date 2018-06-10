@@ -36,7 +36,7 @@
       dialog: false,
       thanks: false,
       nagPoll: 0,
-      nagTrigger: 1000*60*15
+      nagTrigger: 1000*60*10
     }),
     mounted () {
       if (!this.$storage.isset('support')) {
