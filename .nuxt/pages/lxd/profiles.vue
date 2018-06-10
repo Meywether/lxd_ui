@@ -15,7 +15,7 @@
                     LXD - Profiles
                   </v-flex>
                   <v-flex xs12 sm6>
-                    <v-btn small color="success" @click="dialog = true" style="float:right">New Profile</v-btn>
+                    <v-btn small color="success" @click="newItem()" style="float:right">New Profile</v-btn>
                   </v-flex>
                 </v-layout>
               </v-flex>
@@ -47,7 +47,7 @@
       </v-container>
 
       <!-- Add/Edit Dialog -->
-      <v-dialog v-model="dialog" max-width="600px" scrollable>
+      <v-dialog v-model="dialog" max-width="750px" scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
             <v-btn icon @click.native="dialog = false" dark>
@@ -59,102 +59,146 @@
               <v-btn dark flat @click.native="save()">Save</v-btn>
             </v-toolbar-items>
           </v-toolbar>
-          <v-card-text style="padding: 0px;">
-            <v-card flat>
-              <v-card-text>
-                <v-form ref="form" v-model="valid" lazy-validation>
-                  <h2>General</h2>
-                  <v-layout row wrap style="margin-top:-20px">
-                    <v-flex xs6>
-                      <v-card-text class="px-1">
-                        <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the profile."></v-text-field>
-                        <v-text-field v-model="editingItem.description" label="Description:" placeholder="" hint="Enter a description for the profile."></v-text-field>
-                      </v-card-text>
-                    </v-flex>
-                    <v-flex xs6>
-                      <v-card-text class="px-4">
-                        <v-layout row wrap>
-                          <v-flex xs12>
-                            <h4>Auto Start</h4>
-                            <v-switch :label="`${editingItem.config['boot.autostart'] === '1' ? 'Yes' : 'No'}`" true-value="1" false-value="0" color="success" v-model="editingItem.config['boot.autostart']"></v-switch>
-                          </v-flex>
-                        </v-layout>
-                        <v-layout row wrap>
-                          <v-flex xs6>
-                            <h4>Privileged</h4>
-                            <v-switch :label="`${editingItem.config['security.privileged'] === '1' ? 'Yes' : 'No'}`" true-value="1" false-value="0" color="success" v-model="editingItem.config['security.privileged']"></v-switch>
-                          </v-flex>
-                          <v-flex xs6>
-                            <h4>Nesting</h4>
-                            <v-switch :label="`${editingItem.config['security.nesting'] === '1' ? 'Yes' : 'No'}`" true-value="1" false-value="0" color="success" v-model="editingItem.config['security.nesting']"></v-switch>
-                          </v-flex>
-                        </v-layout>
-                      </v-card-text>
-                    </v-flex>
-                  </v-layout>
-                  <h2 style="margin-top:-15px">CPU</h2>
-                  <v-layout row wrap>
-                    <v-flex xs6>
-                      <v-card-text class="px-1">
-                        <h4 style="margin-bottom:-20px">CPU Cores ({{ editingItem.config['limits.cpu'] }})</h4>
-                        <v-slider v-model="editingItem.config['limits.cpu']" thumb-label :max="max_cpu" ticks></v-slider>
-                        <h4 style="margin-bottom:-20px">Max Processes ({{ editingItem.config['limits.processes'] }})</h4>
-                        <v-slider v-model="editingItem.config['limits.processes']" thumb-label max="20000" step="100" ticks></v-slider>
-                      </v-card-text>
-                    </v-flex>
-                    <v-flex xs6>
-                      <v-card-text class="px-1">
-                        <h4 style="margin-bottom:-20px">CPU Allowance ({{ editingItem.config['limits.cpu.allowance'] }}%)</h4>
-                        <v-slider v-model="editingItem.config['limits.cpu.allowance']" thumb-label max="100" step="1" ticks></v-slider>
-                        <h4 style="margin-bottom:-20px">CPU Priority ({{ editingItem.config['limits.cpu.priority'] }}/10)</h4>
-                        <v-slider v-model="editingItem.config['limits.cpu.priority']" thumb-label max="10" step="1" ticks></v-slider>
-                      </v-card-text>
-                    </v-flex>
-                  </v-layout>
-                  <h2 style="margin-top:-15px">Memory</h2>
-                  <v-layout row wrap>
-                    <v-flex xs6>
-                      <v-card-text class="px-1">
-                        <h4 style="margin-bottom:-20px">Memory ({{ editingItem.config['limits.memory'] }}MB)</h4>
-                        <v-slider v-model="editingItem.config['limits.memory']" :max="max_memory" thumb-label step="64" ticks></v-slider>
-                        <h4 style="margin-bottom:-20px">Swap Priority ({{ editingItem.config['limits.memory.swap.priority'] }}/10)</h4>
-                        <v-slider v-model="editingItem.config['limits.memory.swap.priority']" thumb-label max="10" step="1" ticks></v-slider>
-                      </v-card-text>
-                    </v-flex>
-                    <v-flex xs6>
-                      <v-card-text class="px-1">
-                        <h4>Enforce</h4>
-                        <v-switch :label="`${editingItem.config['limits.memory.enforce'] === 'hard' ? 'Hard' : 'Soft'}`" true-value="hard" false-value="soft" color="success" v-model="editingItem.config['limits.memory.enforce']"></v-switch>
-                        <h4>Swap</h4>
-                        <v-switch :label="`${editingItem.config['limits.memory.swap'] === '1' ? 'Yes' : 'No'}`" true-value="1" false-value="0" color="success" v-model="editingItem.config['limits.memory.swap']"></v-switch>
-                      </v-card-text>
-                    </v-flex>
-                  </v-layout>
-                  <v-layout row wrap>
-                    <v-flex xs6>
-                      <h2>Disk</h2>
-                    </v-flex>
-                    <v-flex xs6>
-                      <h2>Network</h2>
-                    </v-flex> 
-                  </v-layout>
-                  <v-layout row wrap>
-                    <v-flex xs6>
-                      <v-card-text class="px-1">
-                        <h4 style="margin-bottom:-20px">Priority ({{ editingItem.config['limits.disk.priority'] }}/10)</h4>
-                        <v-slider v-model="editingItem.config['limits.disk.priority']" thumb-label max="10" step="1" ticks></v-slider>
-                      </v-card-text>
-                    </v-flex>
-                    <v-flex xs6>
-                      <v-card-text class="px-1">
-                        <h4 style="margin-bottom:-20px">Priority ({{ editingItem.config['limits.network.priority'] }}/10)</h4>
-                        <v-slider v-model="editingItem.config['limits.network.priority']" thumb-label max="10" step="1" ticks></v-slider>
-                      </v-card-text>
-                    </v-flex>
-                  </v-layout>
-                </v-form>
-              </v-card-text>
-            </v-card>
+          <v-card-text style="padding:0px">
+            <v-tabs v-model="activeTab" show-arrows>
+              <v-tab ripple :href="'#tab-configuration'">Configuration</v-tab>
+              <v-tab ripple :href="'#tab-devices'">Devices</v-tab>
+              <v-tab-item :id="'tab-configuration'">
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
+                  <v-card-text>
+                    <v-form ref="form" v-model="valid" lazy-validation>
+                      <h2>General</h2>
+                      <v-layout row wrap style="margin-top:-20px">
+                        <v-flex xs6>
+                          <v-card-text class="px-1">
+                            <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the profile."></v-text-field>
+                            <v-text-field v-model="editingItem.description" label="Description:" placeholder="" hint="Enter a description for the profile."></v-text-field>
+                          </v-card-text>
+                        </v-flex>
+                        <v-flex xs6>
+                          <v-card-text class="px-4">
+                            <v-layout row wrap>
+                              <v-flex xs12>
+                                <h4>Auto Start</h4>
+                                <v-switch :label="`${editingItem.config['boot.autostart'] === '1' ? 'Yes' : 'No'}`" true-value="1" false-value="0" color="success" v-model="editingItem.config['boot.autostart']"></v-switch>
+                              </v-flex>
+                            </v-layout>
+                            <v-layout row wrap>
+                              <v-flex xs6>
+                                <h4>Privileged</h4>
+                                <v-switch :label="`${editingItem.config['security.privileged'] === '1' ? 'Yes' : 'No'}`" true-value="1" false-value="0" color="success" v-model="editingItem.config['security.privileged']"></v-switch>
+                              </v-flex>
+                              <v-flex xs6>
+                                <h4>Nesting</h4>
+                                <v-switch :label="`${editingItem.config['security.nesting'] === '1' ? 'Yes' : 'No'}`" true-value="1" false-value="0" color="success" v-model="editingItem.config['security.nesting']"></v-switch>
+                              </v-flex>
+                            </v-layout>
+                          </v-card-text>
+                        </v-flex>
+                      </v-layout>
+                      <h2 style="margin-top:-15px">CPU</h2>
+                      <v-layout row wrap>
+                        <v-flex xs6>
+                          <v-card-text class="px-1">
+                            <h4 style="margin-bottom:-20px">CPU Cores ({{ editingItem.config['limits.cpu'] }})</h4>
+                            <v-slider v-model="editingItem.config['limits.cpu']" thumb-label :max="max_cpu" ticks></v-slider>
+                            <h4 style="margin-bottom:-20px">Max Processes ({{ editingItem.config['limits.processes'] }})</h4>
+                            <v-slider v-model="editingItem.config['limits.processes']" thumb-label max="20000" step="100" ticks></v-slider>
+                          </v-card-text>
+                        </v-flex>
+                        <v-flex xs6>
+                          <v-card-text class="px-1">
+                            <h4 style="margin-bottom:-20px">CPU Allowance ({{ editingItem.config['limits.cpu.allowance'] }}%)</h4>
+                            <v-slider v-model="editingItem.config['limits.cpu.allowance']" thumb-label max="100" step="1" ticks></v-slider>
+                            <h4 style="margin-bottom:-20px">CPU Priority ({{ editingItem.config['limits.cpu.priority'] }}/10)</h4>
+                            <v-slider v-model="editingItem.config['limits.cpu.priority']" thumb-label max="10" step="1" ticks></v-slider>
+                          </v-card-text>
+                        </v-flex>
+                      </v-layout>
+                      <h2 style="margin-top:-15px">Memory</h2>
+                      <v-layout row wrap>
+                        <v-flex xs6>
+                          <v-card-text class="px-1">
+                            <h4 style="margin-bottom:-20px">Memory ({{ editingItem.config['limits.memory'] }}MB)</h4>
+                            <v-slider v-model="editingItem.config['limits.memory']" :max="max_memory" thumb-label step="64" ticks></v-slider>
+                            <h4 style="margin-bottom:-20px">Swap Priority ({{ editingItem.config['limits.memory.swap.priority'] }}/10)</h4>
+                            <v-slider v-model="editingItem.config['limits.memory.swap.priority']" thumb-label max="10" step="1" ticks></v-slider>
+                          </v-card-text>
+                        </v-flex>
+                        <v-flex xs6>
+                          <v-card-text class="px-1">
+                            <h4>Enforce</h4>
+                            <v-switch :label="`${editingItem.config['limits.memory.enforce'] === 'hard' ? 'Hard' : 'Soft'}`" true-value="hard" false-value="soft" color="success" v-model="editingItem.config['limits.memory.enforce']"></v-switch>
+                            <h4>Swap</h4>
+                            <v-switch :label="`${editingItem.config['limits.memory.swap'] === '1' ? 'Yes' : 'No'}`" true-value="1" false-value="0" color="success" v-model="editingItem.config['limits.memory.swap']"></v-switch>
+                          </v-card-text>
+                        </v-flex>
+                      </v-layout>
+                      <v-layout row wrap>
+                        <v-flex xs6>
+                          <h2>Disk</h2>
+                        </v-flex>
+                        <v-flex xs6>
+                          <h2>Network</h2>
+                        </v-flex> 
+                      </v-layout>
+                      <v-layout row wrap>
+                        <v-flex xs6>
+                          <v-card-text class="px-1">
+                            <h4 style="margin-bottom:-20px">Priority ({{ editingItem.config['limits.disk.priority'] }}/10)</h4>
+                            <v-slider v-model="editingItem.config['limits.disk.priority']" thumb-label max="10" step="1" ticks></v-slider>
+                          </v-card-text>
+                        </v-flex>
+                        <v-flex xs6>
+                          <v-card-text class="px-1">
+                            <h4 style="margin-bottom:-20px">Priority ({{ editingItem.config['limits.network.priority'] }}/10)</h4>
+                            <v-slider v-model="editingItem.config['limits.network.priority']" thumb-label max="10" step="1" ticks></v-slider>
+                          </v-card-text>
+                        </v-flex>
+                      </v-layout>
+                    </v-form>
+                  </v-card-text>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item :id="`tab-devices`">
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
+                  <v-tabs v-model="activeDeviceTab" show-arrows>
+                    <v-tab ripple :href="`#nic`">Nic</v-tab>
+                    <v-tab ripple :href="`#disk`">Disk</v-tab>
+                    <v-tab ripple :href="`#unixchar`">Unix-char</v-tab>
+                    <v-tab ripple :href="`#unixblock`">Unix-block</v-tab>
+                    <v-tab ripple :href="`#usb`">USB</v-tab>
+                    <v-tab ripple :href="`#gpu`">GPU</v-tab>
+                    <v-tab ripple :href="`#proxy`">Proxy</v-tab>
+                    <v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>
+                    <v-tab-item :id="`nic`" v-if="editingItem">
+                      <nic @snackbar="setSnackbar" ref="nic" :linked="editingItem"></nic>
+                    </v-tab-item>
+                    <v-tab-item :id="`disk`" v-if="editingItem">
+                      <disk @snackbar="setSnackbar" ref="disk" :linked="editingItem"></disk>
+                    </v-tab-item>
+                    <v-tab-item :id="`unixchar`" v-if="editingItem">
+                      <unixchar @snackbar="setSnackbar" ref="unixchar" :linked="editingItem"></unixchar>
+                    </v-tab-item>
+                    <v-tab-item :id="`unixblock`" v-if="editingItem">
+                      <unixblock @snackbar="setSnackbar" ref="unixblock" :linked="editingItem"></unixblock>
+                    </v-tab-item>
+                    <v-tab-item :id="`usb`" v-if="editingItem">
+                      <usb @snackbar="setSnackbar" ref="usb" :linked="editingItem"></usb>
+                    </v-tab-item>
+                    <v-tab-item :id="`gpu`" v-if="editingItem">
+                      <gpu @snackbar="setSnackbar" ref="gpu" :linked="editingItem"></gpu>
+                    </v-tab-item>
+                    <v-tab-item :id="`proxy`" v-if="editingItem">
+                      <proxy @snackbar="setSnackbar" ref="proxy" :linked="editingItem"></proxy>
+                    </v-tab-item>
+                    <v-tab-item :id="`infiniband`" v-if="editingItem">
+                      <infiniband @snackbar="setSnackbar" ref="infiniband" :linked="editingItem"></infiniband>
+                    </v-tab-item>
+                  </v-tabs>
+                </v-card>
+              </v-tab-item>
+            </v-tabs>
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
         </v-card>
@@ -168,6 +212,16 @@
   import { setToken } from '~/utils/auth'
   import axios from 'axios'
   import helpers from '~/utils/helpers'
+  
+  // devices components
+  import nic from '~/components/lxd/devices/nic.vue'
+  import disk from '~/components/lxd/devices/disk.vue'
+  import proxy from '~/components/lxd/devices/proxy.vue'
+  import infiniband from '~/components/lxd/devices/infiniband.vue'
+  import gpu from '~/components/lxd/devices/gpu.vue'
+  import usb from '~/components/lxd/devices/usb.vue'
+  import unixchar from '~/components/lxd/devices/unixchar.vue'
+  import unixblock from '~/components/lxd/devices/unixblock.vue'
 
   const profile = require('~/components/lxd/profile')
 
@@ -176,7 +230,9 @@
     middleware: [
       'authenticated'
     ],
-    components: {},
+    components: {
+      nic, disk, proxy, infiniband, gpu, usb, unixchar, unixblock
+    },
     computed: {
       ...mapGetters({
         isAuthenticated: 'auth/isAuthenticated',
@@ -205,6 +261,10 @@
       snackbarColor: 'green',
       snackbarText: '',
       snackbarTimeout: 5000,
+      
+      // tab
+      activeTab: 'tab-configuration',
+      activeDeviceTab: 'nic',
 
       // table & items
       items: [],
@@ -294,6 +354,11 @@
         } catch (error) {
           this.resources = {};
         }
+      },
+      
+      // new item init
+      newItem() {
+        this.dialog = true
       },
 
       // create or edit item
@@ -404,6 +469,13 @@
           ]
         })
       },
+      
+      setSnackbar (msg) {
+        //
+        this.snackbar = true;
+        this.snackbarTimeout = 2500
+        this.snackbarText = msg;
+      },
 
       // close item dialog, and reset to default item
       close () {
@@ -411,6 +483,11 @@
         setTimeout(() => {
           this.editingItem = Object.assign({}, this.defaultItem)
           this.editingIndex = -1
+          
+          //
+          this.activeTab = 'tab-configuration'
+          this.activeDeviceTab = 'nic'
+          this.tabInit = false
         }, 300)
       }
     }

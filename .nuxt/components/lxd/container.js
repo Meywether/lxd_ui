@@ -151,6 +151,11 @@ module.exports = {
     // fix multis, so can be called from devices
     config['limits.cpu.allowance'] = config['limits.cpu.allowance'].replace('%%', '%')
     config['limits.memory'] = config['limits.memory'].replace('MBMB', 'MB')
+    
+    // idmap
+    if (typeof container.config['raw.idmap'] !== 'undefined') {
+      config['raw.idmap'] = container.config['raw.idmap'].trim()
+    }
 
     // overwrite config
     container.config = config
@@ -164,7 +169,6 @@ module.exports = {
     if (typeof container.config['limits.memory.swap'] === 'undefined' || container.config['limits.memory.swap'] === null) {
       container.config['limits.memory.swap'] = '0'
     }
-
 
     return container
   }

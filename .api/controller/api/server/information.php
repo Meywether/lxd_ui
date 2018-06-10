@@ -9,10 +9,8 @@ class Information extends \Base\Controller
 {
     public function beforeRoute(\Base $f3, $params)
     {
-        // check auth
         try {
             \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
-                // set plinker client
                 $f3->set('plinker', new \Plinker\Core\Client($server, [
                     'secret' => $f3->get('AUTH.secret'),
                     'database' => $f3->get('db')
@@ -28,6 +26,28 @@ class Information extends \Base\Controller
 
         $this->cache = \Cache::instance();
         $this->cache_ttl = 5;
+    }
+    
+    /**
+     *
+     */
+    public function idmap(\Base $f3, $params)
+    {
+        $client = $f3->get('plinker');
+        $data = $client->system->shell_exec('awk -F: \'{printf "%s:%s\n",$1,$3}\' /etc/passwd');
+        
+        $lines = explode(PHP_EOL, trim($data));
+        $result = [];
+        foreach ($lines as $line) {
+            $line = explode(':', $line);
+            $result[] = ['user' => $line[0], 'id' => $line[1]];
+        }
+        
+        $f3->response->json([
+            'error' => null,
+            'code'  => 200,
+            'data'  => $result
+        ]);
     }
 
     /**

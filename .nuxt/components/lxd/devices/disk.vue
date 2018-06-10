@@ -255,11 +255,11 @@
         })
         
         // attach root of host to root of container (else it be nobody)
-        //this.$set(this.linkedItem.config, "raw.idmap", "both 0 1000")
+        this.$set(this.linkedItem.config, "raw.idmap", "both 1000 1000\nboth 0 0")
 
         //
         const response = await axios.patch(this.loggedUser.sub + '/api/lxd/containers/' + this.linkedItem.name, {
-          // config: this.linkedItem.config,
+          config: this.linkedItem.config,
           devices: this.linkedItem.devices
         })
         
@@ -277,7 +277,7 @@
         this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
         
         // remove root of host to root of container
-        // delete this.linkedItem.config["raw.idmap"];
+        delete this.linkedItem.config["raw.idmap"];
         
         //
         const response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + this.linkedItem.name, {

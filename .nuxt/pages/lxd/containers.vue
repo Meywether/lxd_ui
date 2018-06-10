@@ -146,7 +146,7 @@
         <div id="terminal"></div>
       </v-dialog>
 
-      <v-dialog v-model="containerDialog" max-width="800px" scrollable v-if="container.info">
+      <v-dialog v-model="containerDialog" max-width="750px" scrollable v-if="container.info">
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
             <v-btn icon @click.native="containerDialog = false" dark>
@@ -154,7 +154,7 @@
             </v-btn>
             <v-toolbar-title>Container: {{ container.state && container.state.name }}</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-toolbar-items v-if="activeTab !== 'tab-snapshots' && activeTab !== 'tab-devices'">
+            <v-toolbar-items v-if="activeTab !== 'tab-snapshots' && activeTab !== 'tab-devices'  && activeTab !== 'tab-idmap'">
               <v-btn dark flat @click.native="saveContainer()">Save</v-btn>
             </v-toolbar-items>
           </v-toolbar>
@@ -162,6 +162,7 @@
             <v-tabs v-model="activeTab" show-arrows>
               <v-tab ripple :href="`#tab-configuration`">Configuration</v-tab>
               <v-tab ripple :href="`#tab-devices`">Devices</v-tab>
+              <v-tab ripple :href="`#tab-idmap`">ID Map</v-tab>
               <v-tab ripple :href="`#tab-snapshots`">Snapshots</v-tab>
               <v-tab-item :id="`tab-configuration`" v-if="container.info">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
@@ -267,6 +268,11 @@
                   </v-card-text>
                 </v-card>
               </v-tab-item>
+              <v-tab-item :id="`tab-idmap`">
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
+                  <idmap @snackbar="setSnackbar" ref="none" :linked="container.info"></idmap>
+                </v-card>
+              </v-tab-item>
               <v-tab-item :id="`tab-snapshots`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <snapshots :item="container" :key="editingIndex" @snackbar="setSnackbar"></snapshots>
@@ -339,6 +345,7 @@
   import usb from '~/components/lxd/devices/usb.vue'
   import unixchar from '~/components/lxd/devices/unixchar.vue'
   import unixblock from '~/components/lxd/devices/unixblock.vue'
+  import idmap from '~/components/lxd/devices/idmap.vue'
 
   import { Terminal } from 'xterm'
   import * as fit from 'xterm/lib/addons/fit/fit'
@@ -354,7 +361,7 @@
       'authenticated'
     ],
     components: {
-      snapshots, none, nic, disk, proxy, infiniband, gpu, usb, unixchar, unixblock
+      snapshots, none, nic, disk, proxy, infiniband, gpu, usb, unixchar, unixblock, idmap
     },
     computed: {
       ...mapGetters({
