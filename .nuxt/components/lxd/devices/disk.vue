@@ -52,6 +52,9 @@
             <v-alert type="error" :value="error">
               {{ error }}
             </v-alert>
+            <v-alert type="error" :value="editingItem.dict.pool !== 'None' && (editingItem.dict['source'].indexOf('/') > -1)">
+              Source value for pools is the name of the block device ({{ editingItem.dict.pool }}), not a path.
+            </v-alert>
             <h3>General</h3>
             <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the disk device."></v-text-field>
             <v-text-field v-model="editingItem.dict['path']" label="Path:" placeholder="" required hint="Path inside the container where the disk will be mounted."></v-text-field>
