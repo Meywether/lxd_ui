@@ -29,6 +29,7 @@
                     <tr>
                       <td><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.name }}</a></td>
                       <td>{{ props.item.description }}</td>
+                      <td>{{ props.item.devices.root && props.item.devices.root.pool ? props.item.devices.root.pool : '-' }}</td>
                       <td>
                         <v-btn icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)">
                           <v-icon color="pink">delete</v-icon>
@@ -73,6 +74,7 @@
                           <v-card-text class="px-1">
                             <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the profile."></v-text-field>
                             <v-text-field v-model="editingItem.description" label="Description:" placeholder="" hint="Enter a description for the profile."></v-text-field>
+                            <v-select :items="pools" v-model="editingItem.devices.root.pool" label="Storage Pool:" persistent-hint hint="Storage pool the root disk device belongs to."></v-select>
                           </v-card-text>
                         </v-flex>
                         <v-flex xs6>
@@ -93,6 +95,7 @@
                                 <v-switch :label="`${editingItem.config['security.nesting'] === '1' ? 'Yes' : 'No'}`" true-value="1" false-value="0" color="success" v-model="editingItem.config['security.nesting']"></v-switch>
                               </v-flex>
                             </v-layout>
+                            <v-select style="margin-top:-6px" v-if="editingItem.devices.eth0" :items="['None', ...networks]" v-model="editingItem.devices.eth0.parent" label="Network:" persistent-hint hint="Network bridge for eth0."></v-select>
                           </v-card-text>
                         </v-flex>
                       </v-layout>
@@ -268,6 +271,8 @@
 
       // table & items
       items: [],
+      pools: [],
+      networks: [],
       resources: {
         cpu: {
           total: 0
@@ -281,6 +286,7 @@
       tableHeaders: [
         { text: 'Name', value: 'name' },
         { text: 'Description', value: 'description' },
+        { text: 'Storage Pool', value: 'pool' },
         { text: 'Actions', value: 'id', sortable: false, align: 'right' }
       ],
 
@@ -356,6 +362,38 @@
         }
       },
       
+      async getStoragePools () {
+        //
+        try {
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/storage', {
+            params: {
+              types: ['name']
+            }
+          })
+          response.data.data.forEach(item => {
+            this.pools.push(item.name)
+          })
+        } catch (error) {
+          this.pools = [];
+        }
+      },      
+      
+      async getNetworks () {
+        //
+        try {
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/networks')
+          response.data.data.forEach(item => {
+            if (item.managed) {
+              this.networks.push(item.name)
+            }
+          })
+        } catch (error) {
+          this.networks = [];
+        }
+      },
+      
       // new item init
       newItem() {
         this.dialog = true
@@ -367,10 +405,22 @@
 
         // convoluted - add each of the items props to editingItem
         this.editingItem = Object.assign({}, this.empty_profile, item)
+        // check if network is none (then delete it after assigned)
+        var removeNetwork = !item.devices.eth0
         this.editingItem.devices = Object.assign({}, this.empty_profile.devices, item.devices)
+        if (removeNetwork) {
+          this.editingItem.devices.eth0 = {
+            nictype: 'bridged',
+            parent: 'None',
+            type: 'nic'
+          }
+        }
         this.editingItem.config = Object.assign({}, this.empty_profile.config, item.config)
         // set defaults if not set
         this.editingItem = profile.infix(this.editingItem)
+        
+        this.getStoragePools()
+        this.getNetworks()
 
         this.dialog = true
       },
@@ -392,26 +442,44 @@
             }
             
             this.editingItem = profile.outfix(this.editingItem);
+            
+            var item = JSON.parse(JSON.stringify(this.editingItem));
+            
+            // remove network if nonoe
+            var removeNetwork = false
+            if (!item.devices.eth0 || item.devices.eth0.parent === 'None') {
+              delete item.devices.eth0
+              removeNetwork = true
+            }
 
             // edit
             if (this.editingIndex > -1) {
-              var response = await axios.post(this.loggedUser.sub + '/api/lxd/profiles/'+this.editingItem.name, {
-                "config": this.editingItem.config,
-                "description": this.editingItem.description,
-                "devices": this.editingItem.deviced
+              var response = await axios.post(this.loggedUser.sub + '/api/lxd/profiles/'+item.name, {
+                "config": item.config,
+                "description": item.description,
+                "devices": item.devices
               })
             } 
             // add
             else {
               var response = await axios.post(this.loggedUser.sub + '/api/lxd/profiles', {
-                "config": this.editingItem.config,
-                "description": this.editingItem.description,
-                "devices": this.editingItem.deviced,
-                "name": this.editingItem.name
+                "config": item.config,
+                "description": item.description,
+                "devices": item.devices,
+                "name": item.name
               })
             }
             
-            this.editingItem = profile.infix(this.editingItem);
+            this.editingItem = profile.infix(item);
+            
+            // remove the network if none
+            if (removeNetwork) {
+              this.editingItem.devices.eth0 = {
+                nictype: 'bridged',
+                parent: 'None',
+                type: 'nic'
+              }
+            }
 
             //
             this.snackbar = true;
