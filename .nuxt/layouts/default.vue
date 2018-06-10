@@ -2,7 +2,8 @@
   <v-app>
     <main-nav/>
     <nuxt/>
-    <prompt></prompt>
+    <prompt/>
+    <nag/>
   </v-app>
 </template>
 
