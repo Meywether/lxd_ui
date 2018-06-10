@@ -13,7 +13,7 @@
           <v-card-text v-else>
             <h3 class="text-md-center green--text"><b>Thank you!</b></h3>
             <p class="text-md-center">Your support will help continue the development of this project.</p>
-            <p class="text-md-center">Please wait one moment whilst you are redirected to paypal.</p>
+            <p class="text-md-center">Please wait one moment whilst you're redirected to paypal.</p>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -36,7 +36,7 @@
       dialog: false,
       thanks: false,
       nagPoll: 0,
-      nagTrigger: 1000*60*15
+      nagTrigger: 1000*60*10
     }),
     mounted () {
       if (!this.$storage.isset('support')) {
