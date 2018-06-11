@@ -52,7 +52,7 @@ class Sshkeys extends \Base\Controller
         }
         $key_base64_decoded = base64_decode($key, true);
         
-        if ($key_base64_decoded == false) {
+        if (empty($key_base64_decoded)) {
             return false;
         }
         $check = base64_decode(substr($key, 0, 16));

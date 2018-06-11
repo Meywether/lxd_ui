@@ -41,6 +41,8 @@ class Index extends \Base\Controller
         $body = !$f3->devoid('BODY') ? (array) json_decode($f3->get('BODY')) : [];
         //
         $errors = [];
+        //
+        $result = [];
 
         /**
          * GET /api/lxd/containers
@@ -104,7 +106,7 @@ class Index extends \Base\Controller
                 // ephemeral
                 !empty($body['ephemeral']) ? '-e' : '',
                 // profiles
-                '-p '.implode(' -p ', $f3->recursive($body['profile'], function ($value) {
+                '-p '.implode(' -p ', $f3->recursive((array) $body['profile'], function ($value) {
                 	return  escapeshellarg($value);
                 })),
                 // storage pool
@@ -143,6 +145,8 @@ class Index extends \Base\Controller
         $body = !$f3->devoid('BODY') ? (array) json_decode($f3->get('BODY')) : [];
         //
         $errors = [];
+        //
+        $result = [];
         
         /**
          * GET /api/lxd/containers/@name

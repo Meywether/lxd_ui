@@ -65,6 +65,7 @@ class Information extends \Base\Controller
      */
     public function networkConnections(\Base $f3, $params)
     {
+        $data = [];
         if (!$this->cache->exists(__FUNCTION__, $data)) {
             // plinker client
             $client = $f3->get('plinker');
@@ -86,6 +87,7 @@ class Information extends \Base\Controller
      */
     public function cpu(\Base $f3, $params)
     {
+        $data = [];
         if (!$this->cache->exists(__FUNCTION__, $data)) {
             // plinker client
             $client = $f3->get('plinker');
@@ -107,6 +109,7 @@ class Information extends \Base\Controller
      */
     public function disks(\Base $f3, $params)
     {
+        $data = [];
         if (!$this->cache->exists(__FUNCTION__, $data)) {
             // plinker client
             $client = $f3->get('plinker');
@@ -129,6 +132,7 @@ class Information extends \Base\Controller
      */
     public function logins(\Base $f3, $params)
     {
+        $data = [];
         if (!$this->cache->exists(__FUNCTION__, $data)) {
             // plinker client
             $client = $f3->get('plinker');
@@ -154,6 +158,7 @@ class Information extends \Base\Controller
      */
     public function memory(\Base $f3, $params)
     {
+        $data = [];
         if (!$this->cache->exists(__FUNCTION__, $data)) {
             // plinker client
             $client = $f3->get('plinker');
@@ -175,6 +180,7 @@ class Information extends \Base\Controller
      */
     public function processTree(\Base $f3, $params)
     {
+        $data = [];
         if (!$this->cache->exists(__FUNCTION__, $data)) {
             // plinker client
             $client = $f3->get('plinker');
@@ -196,6 +202,7 @@ class Information extends \Base\Controller
      */
     public function top(\Base $f3, $params)
     {
+        $data = [];
         if (!$this->cache->exists(__FUNCTION__, $data)) {
             // plinker client
             $client = $f3->get('plinker');

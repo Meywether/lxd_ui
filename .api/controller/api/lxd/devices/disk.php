@@ -81,7 +81,7 @@ class Disk extends \Base\Controller
                 ]); 
             }
             
-            $body = $f3->recursive($body, function($value) {
+            $body = $f3->recursive((array) $body, function($value) {
             	return trim($value);
             });
 
@@ -202,7 +202,7 @@ class Disk extends \Base\Controller
                 ]); 
             }
             
-            $body = $f3->recursive($body, function($value) {
+            $body = $f3->recursive((array) $body, function($value) {
             	return trim($value);
             });
             
@@ -283,7 +283,7 @@ class Disk extends \Base\Controller
                 if (!empty($result->id)) {
                     $this->devices->trash($result);
                 } else {
-                    throw \Exception('Not found', 404);
+                    throw new \Exception('Not found', 404);
                 }
             } catch (\Exception $e) {
                 $result = [];
