@@ -34,6 +34,23 @@ wget https://gist.githubusercontent.com/lcherone/d7e5ba660bc20d738132ccb1a453459
 
 Once complete, you will be able to go to the panel at `http://IP:88`, and then add the server, with the provided key during install.
 
+## Updates
+
+The panel will have *many* updates, as it is very much under construction. But thankfully updating is simple and wont effect your containers.
+
+So to update, enter into /var/www/html and do a git pull.
+
+```
+# switch into root user!
+sudo su
+
+# update
+cd /var/www/html && git pull
+
+# fix ownership on any new files
+chown www-data:www-data ./ -R
+```
+
 <!--
 
 ### With Composer
