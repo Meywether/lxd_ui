@@ -11,14 +11,14 @@ install:
   - travis_retry composer update --no-interaction --prefer-source
 script:
   # set PATH
-  - export PATH=/usr/bin:/bin:/snap/bin:$PATH
+  #- export PATH=/usr/bin:/bin:/snap/bin:$PATH
   # install 
-  - sudo apt-get update
-  - sudo apt-get -y install wget
+  #- sudo apt-get update
+  #- sudo apt-get -y install wget
   # setup LXD group
-  - sudo groupadd --system lxd
-  - sudo usermod -a -G lxd $USER
-  - wget https://gist.githubusercontent.com/lcherone/d7e5ba660bc20d738132ccb1a453459d/raw/ba46a36952a3c7461cd1219c8a1a2fdd35a18e91/install.sh && sudo bash install.sh -s
+  #- sudo groupadd --system lxd
+  #- sudo usermod -a -G lxd $USER
+  #- wget https://gist.githubusercontent.com/lcherone/d7e5ba660bc20d738132ccb1a453459d/raw/ba46a36952a3c7461cd1219c8a1a2fdd35a18e91/install.sh && sudo bash install.sh -s
   
   # exit on fail
   #- set -eo pipefail
