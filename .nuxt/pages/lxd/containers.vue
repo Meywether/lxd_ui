@@ -446,7 +446,7 @@
         { text: 'Memory', value: 'memory.usage' },
         { text: 'Network (In/Out)', value: 'network' },
         { text: 'Status', value: 'status' },
-        { text: 'Attributes', value: 'attributes', sortable: false,  width:'50px' },
+        { text: 'Attributes', value: 'attributes', sortable: false },
         { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'50px' }
       ],
 
@@ -703,16 +703,10 @@
         // intercept console
         if (action.action === 'console') {
           this.reconnect = false
-          this.container = {
-            state: item,
-            info: {name: item.name}
-          }
-          this.editContainer(item, false)
-          setTimeout(() => {
-            this.console()
-          }, 300)
-
           this.consoleDialog = true;
+          setTimeout(() => {
+            this.console(item)
+          }, 500)
           return
         }
         // intercept snapshot
@@ -794,7 +788,7 @@
         this.snackbarText = msg;
       },
 
-      console () {
+      console (item) {
         //
         if (xterm) {
           xterm.destroy()
@@ -803,7 +797,7 @@
         var height = 80
         // bash in everything except Alpine which uses Ash
         let command
-        if (this.os === 'Alpine') {
+        if (item.config['image.os'] && item.config['image.os'] === 'Alpine') {
           command = 'ash'
         } else {
           command = 'bash'
@@ -813,7 +807,7 @@
         tmp.href = this.loggedUser.sub;
 
         //
-        const response = axios.post(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name + '/exec', {
+        const response = axios.post(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/exec', {
           'command': [command],
           'environment': {
             'HOME': '/root',

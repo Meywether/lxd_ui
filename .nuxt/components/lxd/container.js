@@ -131,7 +131,7 @@ module.exports = {
    * - prepends MB to limits.memory
    */
   outfix: function (container) {
-    //
+
     let config = {
       // autostart
       'boot.autostart': container.config['boot.autostart'],
@@ -152,6 +152,15 @@ module.exports = {
       'limits.disk.priority': String(container.config['limits.disk.priority']),
       'limits.network.priority': String(container.config['limits.network.priority'])
     }
+    
+    // general props - image
+    config['image.architecture'] = container.config['image.architecture'] || ''
+    config['image.description'] = container.config['image.description'] || ''
+    config['image.label'] = container.config['image.label'] || ''
+    config['image.os'] = container.config['image.os'] || ''
+    config['image.release'] = container.config['image.release'] || ''
+    config['image.serial'] = container.config['image.serial'] || ''
+    config['image.version'] = container.config['image.version'] || ''
 
     // fix multis, so can be called from devices
     config['limits.cpu.allowance'] = config['limits.cpu.allowance'].replace('%%', '%')
