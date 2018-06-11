@@ -174,6 +174,10 @@
           if (this.loggedUser.mod.lxd.includes('cluster')) {
             modules.push({ icon: 'chevron_right', text: 'Cluster', route: '/lxd/cluster' })
           }
+          //
+          if (this.loggedUser.mod.lxd.includes('ssh-keys')) {
+            modules.push({ icon: 'chevron_right', text: 'SSH Keys', route: '/lxd/ssh-keys' })
+          }
 
           items.push({
             icon: 'keyboard_arrow_up',

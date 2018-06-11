@@ -28,7 +28,9 @@ module.exports = {
         'limits.cpu.allowance': 50,
         'limits.memory': 1024,
         'limits.memory.swap': '0',
-        'limits.memory.enforce': 'soft'
+        'limits.memory.enforce': 'soft',
+        'user.sshkeys': '',
+        'raw.idmap': ''
       },
       devices: {},
       ephemeral: false,
@@ -114,6 +116,9 @@ module.exports = {
     config['volatile.idmap.next'] = container.config['volatile.idmap.next'] || ''
     config['volatile.last_state.idmap'] = container.config['volatile.last_state.idmap'] || ''
     config['volatile.last_state.power'] = container.config['volatile.last_state.power'] || ''
+    
+    config['raw.idmap'] = container.config['raw.idmap'] || ''
+    config['user.sshkeys'] = container.config['user.sshkeys'] || ''
 
     container.config = config
 
@@ -155,6 +160,11 @@ module.exports = {
     // idmap
     if (typeof container.config['raw.idmap'] !== 'undefined') {
       config['raw.idmap'] = container.config['raw.idmap'].trim()
+    }
+    
+    // user.sshkeys
+    if (typeof container.config['user.sshkeys'] !== 'undefined') {
+      config['user.sshkeys'] = container.config['user.sshkeys'].trim()
     }
 
     // overwrite config
