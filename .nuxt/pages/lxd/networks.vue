@@ -340,14 +340,14 @@
       editItem (item) {
         this.editingIndex = this.items.indexOf(item)
         this.editingItem = Object.assign({}, this.defaultItem, item)
-        
+
         // apply toggle states
-        this.state.ip4 = this.editingItem.config['ipv4.address'] !== 'none'
-        this.state.ip6 = this.editingItem.config['ipv6.address'] !== 'none'
+        this.state.ip4 = this.editingItem.config['ipv4.address'] && this.editingItem.config['ipv4.address'] !== 'none'
+        this.state.ip6 = this.editingItem.config['ipv6.address'] && this.editingItem.config['ipv6.address'] !== 'none'
         
         // setup mode if not defined
         if (!this.editingItem.config['bridge.mode']) {
-          this.editingItem = Object.assign({}, this.editingItem.config, {
+          this.editingItem.config = Object.assign({}, this.editingItem.config, {
             'bridge.driver': "native",
             'bridge.external_interfaces': "",
             'bridge.mode': "standard",
@@ -356,7 +356,7 @@
         }
 
         // apply change to the model
-        if (this.editingItem.config['ipv4.address'] === 'none') {
+        if (this.editingItem.config['ipv4.address'] && this.editingItem.config['ipv4.address'] === 'none') {
           this.editingItem.config['ipv4.address'] = ''
           this.editingItem.config['ipv4.nat'] = 'false'
           this.editingItem.config['ipv4.routes'] = ''
@@ -368,7 +368,7 @@
           this.editingItem.config['ipv4.dhcp.ranges'] = ''
         }
         
-        if (this.editingItem.config['ipv6.address'] === 'none') {
+        if (this.editingItem.config['ipv6.address'] && this.editingItem.config['ipv6.address'] === 'none') {
           this.editingItem.config['ipv6.address'] = ''
           this.editingItem.config['ipv6.nat'] = 'false'
           this.editingItem.config['ipv6.routes'] = ''
