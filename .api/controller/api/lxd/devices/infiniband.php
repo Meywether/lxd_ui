@@ -136,7 +136,7 @@ class Infiniband extends \Base\Controller
             $f3->response->json([
                 'error' => null,
                 'code'  => 200,
-                'data'  => []
+                'data'  => $result
             ]);
         }
 
@@ -259,7 +259,7 @@ class Infiniband extends \Base\Controller
             $f3->response->json([
                 'error' => null,
                 'code'  => 200,
-                'data'  => []
+                'data'  => $result
             ]);
         }
 
@@ -282,7 +282,7 @@ class Infiniband extends \Base\Controller
             $f3->response->json([
                 'error' => '',
                 'code'  => 200,
-                'data'  => []
+                'data'  => $result
             ]);
         }
     }
