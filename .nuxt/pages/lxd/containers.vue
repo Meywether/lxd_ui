@@ -529,7 +529,6 @@
         this.initialize()
         this.getResources()
         this.getRemotes()
-        this.startPolling()
       })
     },
     watch: {
@@ -555,6 +554,8 @@
           // if no containers dont poll
           if (this.items.length === 0) {
             this.stopPolling()
+          } else {
+            this.startPolling()
           }
         } catch (error) {
           this.items = [];
@@ -765,7 +766,7 @@
           this.snackbarTimeout = 2500
           this.snackbarText = action.msg + ' container.';
 
-          setTimeout(() => this.startPolling(), 2500)
+          setTimeout(() => this.initialize(), 2500)
         } catch (error) {
           this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
         }
