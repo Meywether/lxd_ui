@@ -9,7 +9,6 @@ class Containers extends \Base\Controller
 {
     public function beforeRoute(\Base $f3, $params)
     {
-        // check auth
         try {
             \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
                 // set plinker client
@@ -26,11 +25,6 @@ class Containers extends \Base\Controller
                 'data'  => []
             ]);
         }
-        
-        // tasksource's are the parent to tasks
-        //$this->tasksource = new \Base\Model('tasksource');
-        // tasks are the child to tasksource's
-        //$this->tasks = new \Base\Model('tasks');
     }
 
     /**

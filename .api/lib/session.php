@@ -9,6 +9,11 @@ use RedBeanPHP\R;
  */
 class Session extends \Prefab
 {
+    /*
+     * @var
+     */
+    private $f3; 
+     
     public function __construct(\Base $f3)
     {
         $this->f3 = $f3;

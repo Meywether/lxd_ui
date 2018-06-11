@@ -10,26 +10,26 @@ use PHPMailer\PHPMailer\Exception;
  */
 class Email extends \Base\Controller
 {
+    /*
+     * @var
+     */
+    private $email_provider;
+    
+    /*
+     * @var
+     */
+    private $email_template;
+    
+    /*
+     * @var
+     */
+    private $email_debug;
+    
     /**
      * 
      */
     public function beforeRoute(\Base $f3, $params)
     {
-        /*
-        // check auth
-        try {
-            \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
-
-            });
-        } catch (\Exception $e) {
-            $f3->response->json([
-                'error' => $e->getMessage(),
-                'code'  => $e->getCode(),
-                'data'  => []
-            ]);
-        }
-        */
-        
         $this->email_provider = new \Base\Model('amsemailprovider');
         $this->email_template = new \Base\Model('amsemailtemplate');
         $this->email_debug = new \Base\Model('amsemaildebug');

@@ -6,6 +6,11 @@ namespace Controller\Ams;
  */
 class Data extends \Base\Controller
 {
+    /*
+     * @var
+     */
+    private $ams;
+     
     /**
      *
      */
@@ -79,6 +84,7 @@ class Data extends \Base\Controller
                 return "API Error:\n".$e."\n";
             }
         })($module);
+        
         exit(ob_get_clean());
     }
 

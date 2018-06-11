@@ -7,11 +7,23 @@ namespace Controller\Api\Tasks;
  */
 class Index extends \Base\Controller
 {
+    /*
+     * @var
+     */
+    private $tasksource;
+    
+    /*
+     * @var
+     */
+    private $tasks;  
+    
+    /*
+     * @var
+     */
+    private $system_tasks;
+    
     public function beforeRoute(\Base $f3, $params)
     {
-        //$this->user = new \Model\User($f3);
-        
-        // check auth
         try {
             \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
                 // set plinker client
