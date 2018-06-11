@@ -151,7 +151,7 @@
         this.linkedItem = Object.assign({}, this.linked)
   
         // parse out current sshkeys
-        if (this.linkedItem.config['user.sshkeys']) {
+        if (this.linkedItem.config && this.linkedItem.config['user.sshkeys']) {
           var tmp = this.linkedItem.config['user.sshkeys']
           this.selectedItems = tmp.split("\n")
         } else {
@@ -202,8 +202,6 @@
           'height': 80
         })
 
-        //
-        
         //
         response = await axios.patch(this.loggedUser.sub + '/api/lxd/containers/' + this.linkedItem.name, {
           config: this.linkedItem.config

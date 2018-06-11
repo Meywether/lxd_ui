@@ -81,14 +81,16 @@
         this.lxd = this.$storage.get('lxd')
       }
 
-      this.linkedItem = Object.assign({}, this.linked)
-      
-      // parse out current idmap
-      if (this.linkedItem.expanded_config['raw.idmap']) {
-        var tmp = this.linkedItem.config["raw.idmap"] = this.linkedItem.expanded_config['raw.idmap']
-        this.selectedItems = tmp.split("\n")
-      } else {
-        this.selectedItems = []
+      if (this.linked) {
+        this.linkedItem = Object.assign({}, this.linked)
+        
+        // parse out current idmap
+        if (this.linkedItem.expanded_config && this.linkedItem.expanded_config['raw.idmap']) {
+          var tmp = this.linkedItem.config["raw.idmap"] = this.linkedItem.expanded_config['raw.idmap']
+          this.selectedItems = tmp.split("\n")
+        } else {
+          this.selectedItems = []
+        }
       }
 
       this.$nextTick(() => {
