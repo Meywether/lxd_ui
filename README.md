@@ -160,7 +160,7 @@ Please see [CONTRIBUTING](https://github.com/lcherone/Conext/blob/master/CONTRIB
 
 ## Bespoke System
 
-If you would like a bespoke system created at very competitive rates, with a turn around of a week, contact me via my website @ [https://cherone.co.uk](https://cherone.co.uk) or if you use [Upwork](https://www.upwork.com/o/profiles/users/~01ff0ec055a5895e8f/), though that.
+If you would like a bespoke system created at very competitive rates then contact me via my website @ [https://cherone.co.uk](https://cherone.co.uk) or if you use [Upwork](https://www.upwork.com/o/profiles/users/~01ff0ec055a5895e8f/), though that.
 
 ## Developer Support
 
