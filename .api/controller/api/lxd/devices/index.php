@@ -7,6 +7,11 @@ namespace Controller\Api\Lxd\Devices;
  */
 class Index extends \Base\Controller
 {
+    /*
+     * @var
+     */
+    private $devices;
+    
     public function beforeRoute(\Base $f3, $params)
     {
         try {
@@ -47,7 +52,7 @@ class Index extends \Base\Controller
             $f3->response->json([
                 'error' => null,
                 'code'  => 200,
-                'data'  => $this->devices->findAll();
+                'data'  => $this->devices->findAll()
             ]);
         }
         

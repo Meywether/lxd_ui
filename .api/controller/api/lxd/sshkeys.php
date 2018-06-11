@@ -7,6 +7,11 @@ namespace Controller\Api\Lxd;
  */
 class Sshkeys extends \Base\Controller
 {
+    /*
+     * @var
+     */
+    private $sshkey;
+    
     public function beforeRoute(\Base $f3, $params)
     {
         try {

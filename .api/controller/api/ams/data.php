@@ -7,6 +7,11 @@ namespace Controller\Api\Ams;
  */
 class Data extends \Base\Controller
 {
+    /*
+     * @var
+     */
+    private $ams;
+
     public function beforeRoute(\Base $f3, $params)
     {
         // check auth

@@ -7,6 +7,11 @@ namespace Controller\Api\Lxd\Containers;
  */
 class Index extends \Base\Controller
 {
+    /*
+     * @var
+     */
+    private $lxd;
+    
     /**
      * Before route - check auth and load models
      */

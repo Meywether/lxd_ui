@@ -7,6 +7,16 @@ namespace Controller\Api\Lxd\Images;
  */
 class Index extends \Base\Controller
 {
+    /*
+     * @var
+     */
+    private $cache;
+    
+    /*
+     * @var
+     */
+    private $cache_ttl;
+    
     public function beforeRoute(\Base $f3, $params)
     {
         // check auth

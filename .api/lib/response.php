@@ -4,6 +4,11 @@ namespace Lib;
 
 class Response extends \Prefab
 {
+    /*
+     * @var
+     */
+    protected $f3;
+
     public function __construct(\Base $f3)
     {
         $this->f3 = $f3;

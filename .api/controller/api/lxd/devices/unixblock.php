@@ -7,6 +7,11 @@ namespace Controller\Api\Lxd\Devices;
  */
 class Unixblock extends \Base\Controller
 {
+    /*
+     * @var
+     */
+    private $devices;
+
     public function beforeRoute(\Base $f3, $params)
     {
         try {

@@ -7,6 +7,16 @@ namespace Controller\Api\Ams;
  */
 class Email extends \Base\Controller
 {
+    /*
+     * @var
+     */
+    private $email_provider;
+     
+    /*
+     * @var
+     */
+    private $email_template;
+     
     public function beforeRoute(\Base $f3, $params)
     {
         // check auth

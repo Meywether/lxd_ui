@@ -7,7 +7,7 @@ use RedBeanPHP\R;
 class Model extends \Prefab
 {
     /*
-     * @var $entity
+     * @var
      */
     protected $entity;
 
@@ -250,6 +250,6 @@ class Model extends \Prefab
      */
     public function trash(\RedBeanPHP\OODBBean $row)
     {
-        return R::trash($row);
+        R::trash($row);
     }
 }
