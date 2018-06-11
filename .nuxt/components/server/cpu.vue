@@ -24,19 +24,19 @@
           <div class="control">
             <div class="tags has-addons">
               <span class="tag is-dark">1m</span>
-              <span class="tag is-primary">{{ items.load['1m'] }}</span>
+              <span class="tag is-primary">{{ items.load && items.load['1m'] ? items.load['1m'] : '0.00' }}</span>
             </div>
           </div>
           <div class="control">
             <div class="tags has-addons">
               <span class="tag is-dark">5m</span>
-              <span class="tag is-primary">{{ items.load['5m'] }}</span>
+              <span class="tag is-primary">{{ items.load && items.load['5m'] ? items.load['5m'] : '0.00' }}</span>
             </div>
           </div>
           <div class="control">
             <div class="tags has-addons">
               <span class="tag is-dark">15m</span>
-              <span class="tag is-primary">{{ items.load['15m'] }}</span>
+              <span class="tag is-primary">{{ items.load && items.load['15m'] ? items.load['15m'] : '0.00' }}</span>
             </div>
           </div>
         </div>
@@ -135,8 +135,7 @@
         //
         axios.get(this.loggedUser.sub + '/api/server/information/cpu').then(response => {
           this.items = response.data.data
-        })
-          .catch(error => {
+        }).catch(error => {
           this.items = {
             load : {},
             cpu_info: '',
