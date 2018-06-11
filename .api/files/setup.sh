@@ -107,6 +107,9 @@ install_nodejs() {
 install_project() {
     #
     cd $webroot
+    
+    # checkout master
+    git checkout master
 
     #
     # add tasks cron job
