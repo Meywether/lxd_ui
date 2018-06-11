@@ -126,8 +126,7 @@
         //
         axios.get(this.loggedUser.sub + '/api/server/information/disks').then(response => {
           this.items = response.data.data
-        })
-          .catch(error => {
+        }).catch(error => {
           this.items = []
         })
       },
