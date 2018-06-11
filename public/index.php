@@ -18,8 +18,8 @@ $f3->config('config.ini');
  * Its Plinker!
  */
 if (isset($_SERVER['HTTP_PLINKER'])) {
-  // init plinker server
-  exit((new \Plinker\Core\Server(['secret' => $f3->get('AUTH.secret')]))->listen());
+    // init plinker server
+    exit((new \Plinker\Core\Server(['secret' => $f3->get('AUTH.secret')]))->listen());
 }
 
 /**
@@ -45,7 +45,7 @@ $f3->set('f3', $f3);
 if ($f3->get('db.session')) {
     $f3->set('session', \Lib\Session::instance($f3));
 }
-$f3->set('cache',    \Cache::instance());
+$f3->set('cache', \Cache::instance());
 $f3->set('response', \Lib\Response::instance($f3));
 // $f3->set('helper',   \Lib\helper::instance($f3));
 
