@@ -6,7 +6,6 @@
 
 <script>
   import { mapGetters } from 'vuex'
-
   export default {
     middleware: 'authenticated',
     components: {},
@@ -16,10 +15,7 @@
         loggedUser: 'auth/loggedUser',
         loggedToken: 'auth/loggedToken',
       })
-    },
-    mounted: function () {},
-    data: () => ({}),
-    methods: {}
+    }
   }
 </script>
 
