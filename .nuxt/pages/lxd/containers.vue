@@ -104,7 +104,7 @@
           </v-flex>
         </v-layout>
       </v-container>
-      
+
       <!-- Copy Dialog -->
       <v-dialog v-model="copyDialog" max-width="600px" scrollable>
         <v-card tile>
@@ -130,7 +130,7 @@
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
         </v-card>
-      </v-dialog> 
+      </v-dialog>
 
       <v-dialog v-model="consoleDialog"  fullscreen hide-overlay transition="dialog-bottom-transition" color="black" style="overflow-y:hidden;">
         <v-toolbar card dark color="black">
@@ -316,7 +316,7 @@
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <idmap @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></idmap>
                 </v-card>
-              </v-tab-item>              
+              </v-tab-item>
               <v-tab-item :id="`tab-sshkeys`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <ssh-keys @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></ssh-keys>
@@ -419,7 +419,7 @@
       snackbarColor: 'green',
       snackbarText: '',
       snackbarTimeout: 5000,
-      
+
       publicServers: ['images', 'ubuntu', 'ubuntu-daily'],
 
       // table & items
@@ -490,6 +490,8 @@
         { title: 'Copy', action: 'copy', msg: 'Copying', state: 'Stopped' },
         { title: 'Image', action: 'image', msg: 'Imaging', state: 'Stopped' }
       ],
+
+      websocket: null,
       reconnect: false,
 
       container: container.empty(),
@@ -503,7 +505,7 @@
       ],
       remoteRule: [
         v => !!v || 'Remote is required.'
-      ],  
+      ],
       pollItem: 0
     }),
     beforeDestroy: function() {
@@ -537,6 +539,9 @@
       },
       containerDialog (val) {
         val || this.close()
+      },
+      consoleDialog (val) {
+        val || this.close()
       }
     },
     methods: {
@@ -550,7 +555,7 @@
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers')
           this.items = response.data.data
-          
+
           // if no containers dont poll
           if (this.items.length === 0) {
             this.stopPolling()
@@ -564,11 +569,11 @@
         }
         this.tableLoading = false
       },
-      
+
       stopPolling() {
         clearInterval(this.pollId);
       },
-      
+
       startPolling() {
         this.stopPolling()
         this.pollId = setInterval(function () {
@@ -593,7 +598,7 @@
           this.error = 'Could not fetch data from server.';
         }
       },
-      
+
       async getResources () {
         //
         try {
@@ -645,13 +650,13 @@
                 "stateful": false
               })
             }, timer)
-            timer = timer+750
+            timer = timer+500
           }
         })
-        
+
         setTimeout(() => {
           this.startPolling()
-        }, timer+2000);
+        }, timer);
       },
 
       stopAll() {
@@ -668,12 +673,12 @@
                 "stateful": false
               })
             }, timer)
-            timer = timer+750
+            timer = timer+500
           }
         })
         setTimeout(() => {
           this.startPolling()
-        }, timer+2000);
+        }, timer);
       },
 
       restartAll() {
@@ -690,12 +695,12 @@
                 "stateful": false
               })
             }, timer)
-            timer = timer+750
+            timer = timer+500
           }
         })
         setTimeout(() => {
           this.startPolling()
-        }, timer+2000);
+        }, timer);
       },
 
       async stateContainer (action, item) {
@@ -793,8 +798,13 @@
         if (xterm) {
           xterm.destroy()
         }
+        if (this.websocket !== null) {
+          this.websocket.close()
+        }
+
         var width = 100
         var height = 80
+
         // bash in everything except Alpine which uses Ash
         let command
         if (item.config['image.os'] && item.config['image.os'] === 'Alpine') {
@@ -803,8 +813,8 @@
           command = 'bash'
         }
 
-        var tmp = document.createElement ('a');
-        tmp.href = this.loggedUser.sub;
+        var tmp = document.createElement ('a')
+        tmp.href = this.loggedUser.sub
 
         //
         const response = axios.post(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/exec', {
@@ -833,11 +843,13 @@
           var operationId = response.id
           var secret = response.metadata.fds[0]
           var wssurl = 'wss://'+tmp.hostname+':8443/1.0/operations/' + operationId + '/websocket?secret=' +secret
-          var sock = new WebSocket(wssurl)
-          sock.binaryType = 'blob';
-          sock.rejectUnauthorized = false;
 
-          sock.onopen = e => {
+          //
+          this.websocket = new WebSocket(wssurl)
+          this.websocket.binaryType = 'blob'
+          this.websocket.rejectUnauthorized = false
+
+          this.websocket.onopen = e => {
             //
             var previousResponse = null
             //
@@ -855,61 +867,61 @@
 
             //
             xterm.on('data', data => {
-              sock.send(new Blob([data]))
+              this.websocket.send(new Blob([data]))
             })
 
             //
-            sock.onmessage = function (msg) {
+            this.websocket.onmessage = function (msg) {
               var reader = new FileReader();
               reader.addEventListener("loadend", () => {
                 msg = reader.result
                 if (previousResponse !== null && previousResponse.trim() === 'exit' && msg.trim() === '') {
                   xterm.destroy()
+                  this.websocket.close()
                 }
                 previousResponse = msg
                 xterm.write(msg)
-              });
-              reader.readAsText(msg.data);
+              })
+              if (msg.data) {
+                reader.readAsText(msg.data)
+              }
               xterm.fit()
             }
-            
+
             //
-            sock.onclose = msg => {
+            this.websocket.onclose = msg => {
               xterm.destroy()
               //
-              this.snackbar = true;
+              this.snackbar = true
               this.snackbarTimeout = 5000
-              this.snackbarColor = 'red'
-              this.snackbarText = 'Websocket connection closed.';
-              this.reconnect = true;
-              setTimeout(() => {
-                this.snackbarColor = 'green';
-                this.startPolling()
-              }, 7000)
+              this.snackbarColor = 'green'
+              this.snackbarText = 'Websocket connection closed.'
+              this.reconnect = true
+              this.startPolling()
             }
           }
 
-          sock.onerror = e => {
+          this.websocket.onerror = e => {
             //
-            this.snackbar = true;
+            this.snackbar = true
             this.snackbarTimeout = 10000
             this.snackbarColor = 'red'
-            this.snackbarText = 'Websocket connection failed, you must visit https://'+tmp.hostname+':8443 to accept the SSL certificate.';
+            this.snackbarText = 'Websocket connection failed, you must visit https://'+tmp.hostname+':8443 to accept the SSL certificate.'
             setTimeout(() => {
-              this.snackbarColor = 'green';
+              this.snackbarColor = 'green'
               this.startPolling()
-            }, 12000)
+            }, 11000)
           }
         }).catch(error => {
           //
-          this.snackbar = true;
+          this.snackbar = true
           this.snackbarTimeout = 5000
           this.snackbarColor = 'red'
-          this.snackbarText = 'Websocket connection failed.';
+          this.snackbarText = 'Websocket connection failed.'
           setTimeout(() => {
-            this.snackbarColor = 'green';
+            this.snackbarColor = 'green'
             this.startPolling()
-          }, 7000)
+          }, 6000)
         })
       },
 
@@ -923,10 +935,10 @@
             if (!this.loggedUser) {
               this.$router.replace('/servers')
             }
-  
+
             //
             const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
-            
+
             this.$set(this.container, 'state', item)
             this.$set(this.container, 'info', container.infix(response.data.data))
 
@@ -966,22 +978,22 @@
               stateful: this.container.info.stateful,
               profiles: this.container.info.profiles
             })
-            
+
             // check errors
             if (response.data.code === 422) {
               this.error.editing = response.data.error
             } else {
               //
               this.snackbar = true;
-              this.snackbarText = 'Container '+this.container.info.name+' configuration saved.';
+              this.snackbarText = 'Container '+this.container.info.name+' configuration saved.'
               this.startPolling()
             }
           } catch (error) {
-            this.error.editing = 'Could not save container configuration.';
+            this.error.editing = 'Could not save container configuration.'
           }
         }
       },
-      
+
       // create or edit item
       copyContainer (item, execute) {
         this.stopPolling()
@@ -989,34 +1001,34 @@
           this.copyIndex = this.items.indexOf(item)
           this.copy = Object.assign({}, this.copy, item)
           this.copy.name_alt = this.copy.name
-          this.copyDialog = true;
+          this.copyDialog = true
         } else {
           if (this.$refs.form.validate() && this.valid) {
             axios.post(this.loggedUser.sub + '/api/lxd/containers/'+this.copy.name+'/copy', this.copy).then(response => {
               if (response.data.code === 200) {
                 //
-                this.snackbar = true;
-                this.snackbarText = 'Container copied from local to '+this.copy.remote+'.';
+                this.snackbar = true
+                this.snackbarText = 'Container copied from local to '+this.copy.remote+'.'
               } else {
                 //
-                this.snackbar = true;
-                this.snackbarColor = 'red';
-                this.snackbarText = response.data.error;
+                this.snackbar = true
+                this.snackbarColor = 'red'
+                this.snackbarText = response.data.error
                 setTimeout(() => {
                   this.snackbarColor = 'green';
-                }, 7000)
+                }, 5000)
               }
             }).catch(error => {
               this.error = 'Could not copy container.'
             })
-            
+
             //
             this.snackbar = true;
             this.snackbarText = 'Container queued for copy.';
             this.copyDialog = false
             setTimeout(() => {
               this.startPolling()
-            }, 3000)
+            }, 1000)
           }
         }
       },
@@ -1040,13 +1052,13 @@
           })
 
           this.setSnackbar('Snapshotting container.')
-          
+
           setTimeout(() => {
             this.startPolling()
-          }, 10000)
+          }, 1000)
 
         } catch (error) {
-          this.alert = { msg: 'Could not snapshot container.', outline: false, color: 'error', icon: 'error' };
+          this.alert = { msg: 'Could not snapshot container.', outline: false, color: 'error', icon: 'error' }
         }
       },
 
@@ -1079,13 +1091,13 @@
           })
 
           this.setSnackbar('Imaging container.')
-          
+
           setTimeout(() => {
             this.startPolling()
-          }, 10000)
+          }, 1000)
 
         } catch (error) {
-          this.alert = { msg: 'Could not image container.', outline: false, color: 'error', icon: 'error' };
+          this.alert = { msg: 'Could not image container.', outline: false, color: 'error', icon: 'error' }
         }
       },
 
@@ -1117,12 +1129,12 @@
                   const response = await axios.delete(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
 
                   this.setSnackbar('Container deleted.')
-                  
+
                   setTimeout(() => {
                     this.startPolling()
-                  }, 10000)
+                  }, 1000)
                 } catch (error) {
-                  this.alert = { msg: 'Could not delete container.', outline: false, color: 'error', icon: 'error' };
+                  this.alert = { msg: 'Could not delete container.', outline: false, color: 'error', icon: 'error' }
                 }
               }
             },
@@ -1135,19 +1147,18 @@
       },
 
       close () {
-        this.stopPolling()
-        this.dialog = false
         if (xterm) {
           xterm.destroy()
+        }
+        if (this.websocket !== null) {
+          this.websocket.close()
         }
         setTimeout(() => {
           this.newItem = Object.assign({}, this.defaultItem)
           this.container = container.empty();
-          this.snackbarColor = 'green';
+          this.snackbarColor = 'green'
         }, 300)
-        setTimeout(() => {
-          this.startPolling()
-        }, 2500)
+        this.startPolling()
       },
 
       formatBytes (bytes, decimals) {
@@ -1182,7 +1193,7 @@
     height: calc(100vh - 65px);
     padding-left: 5px;
   }
-  
+
   .tags:last-child {
     margin-bottom: -.5rem;
   }
@@ -1216,7 +1227,7 @@
     background-color: #DCEDC8;
     color: #363636;
   }
-  
+
 
   .tags .tag {
     margin-bottom: .5rem;
