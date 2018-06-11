@@ -155,7 +155,7 @@
             </v-btn>
             <v-toolbar-title>Container: {{ container.state && container.state.name }}</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-toolbar-items v-if="activeTab !== 'tab-snapshots' && activeTab !== 'tab-devices'  && activeTab !== 'tab-idmap'">
+            <v-toolbar-items v-if="activeTab !== 'tab-snapshots' && activeTab !== 'tab-devices' && activeTab !== 'tab-idmap' && activeTab !== 'tab-sshkeys'">
               <v-btn dark flat @click.native="saveContainer()">Save</v-btn>
             </v-toolbar-items>
           </v-toolbar>
@@ -270,21 +270,6 @@
                   </v-card-text>
                 </v-card>
               </v-tab-item>
-              <v-tab-item :id="`tab-idmap`">
-                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <idmap @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></idmap>
-                </v-card>
-              </v-tab-item>              
-              <v-tab-item :id="`tab-sshkeys`">
-                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <ssh-keys @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></ssh-keys>
-                </v-card>
-              </v-tab-item>
-              <v-tab-item :id="`tab-snapshots`">
-                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <snapshots :item="container" :key="editingIndex" @snackbar="setSnackbar"></snapshots>
-                </v-card>
-              </v-tab-item>
               <v-tab-item :id="`tab-devices`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <v-tabs v-model="activeDeviceTab" show-arrows>
@@ -298,33 +283,48 @@
                     <v-tab ripple :href="`#proxy`">Proxy</v-tab>
                     <v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>
                     <v-tab-item :id="`none`" v-if="container.info">
-                      <none @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></none>
+                      <none @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></none>
                     </v-tab-item>
                     <v-tab-item :id="`nic`" v-if="container.info">
-                      <nic @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></nic>
+                      <nic @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></nic>
                     </v-tab-item>
                     <v-tab-item :id="`disk`" v-if="container.info">
-                      <disk @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></disk>
+                      <disk @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></disk>
                     </v-tab-item>
                     <v-tab-item :id="`unixchar`" v-if="container.info">
-                      <unixchar @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></unixchar>
+                      <unixchar @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></unixchar>
                     </v-tab-item>
                     <v-tab-item :id="`unixblock`" v-if="container.info">
-                      <unixblock @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></unixblock>
+                      <unixblock @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></unixblock>
                     </v-tab-item>
                     <v-tab-item :id="`usb`" v-if="container.info">
-                      <usb @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></usb>
+                      <usb @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></usb>
                     </v-tab-item>
                     <v-tab-item :id="`gpu`" v-if="container.info">
-                      <gpu @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></gpu>
+                      <gpu @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></gpu>
                     </v-tab-item>
                     <v-tab-item :id="`proxy`" v-if="container.info">
-                      <proxy @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></proxy>
+                      <proxy @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></proxy>
                     </v-tab-item>
                     <v-tab-item :id="`infiniband`" v-if="container.info">
-                      <infiniband @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></infiniband>
+                      <infiniband @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></infiniband>
                     </v-tab-item>
                   </v-tabs>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item :id="`tab-idmap`">
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
+                  <idmap @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></idmap>
+                </v-card>
+              </v-tab-item>              
+              <v-tab-item :id="`tab-sshkeys`">
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
+                  <ssh-keys @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></ssh-keys>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item :id="`tab-snapshots`">
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
+                  <snapshots :item="container" :key="container.info.name" @snackbar="setSnackbar"></snapshots>
                 </v-card>
               </v-tab-item>
             </v-tabs>
@@ -538,6 +538,9 @@
     },
     watch: {
       dialog (val) {
+        val || this.close()
+      },
+      containerDialog (val) {
         val || this.close()
       }
     },
@@ -1106,6 +1109,7 @@
         }
         setTimeout(() => {
           this.newItem = Object.assign({}, this.defaultItem)
+          this.container = container.empty();
           this.snackbarColor = 'green';
         }, 300)
       },
