@@ -507,7 +507,7 @@
       pollItem: 0
     }),
     beforeDestroy: function() {
-      clearInterval(this.pollId);
+      this.stopPolling()
     },
     mounted: async function () {
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
@@ -529,11 +529,7 @@
         this.initialize()
         this.getResources()
         this.getRemotes()
-
-        clearInterval(this.pollId);
-        this.pollId = setInterval(function () {
-          this.initialize()
-        }.bind(this), 15000);
+        this.startPolling()
       })
     },
     watch: {
@@ -555,12 +551,28 @@
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers')
           this.items = response.data.data
+          
+          // if no containers dont poll
+          if (this.items.length === 0) {
+            this.stopPolling()
+          }
         } catch (error) {
           this.items = [];
           this.tableNoData = 'No data.';
           this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
         }
         this.tableLoading = false
+      },
+      
+      stopPolling() {
+        clearInterval(this.pollId);
+      },
+      
+      startPolling() {
+        this.stopPolling()
+        this.pollId = setInterval(function () {
+          this.initialize()
+        }.bind(this), 10000);
       },
 
       async getRemotes () {
@@ -619,6 +631,7 @@
       },
 
       startAll() {
+        this.stopPolling()
         var timer = 0;
         this.items.forEach((item) => {
           if (item.status === 'Stopped') {
@@ -636,11 +649,12 @@
         })
         
         setTimeout(() => {
-          this.initialize()
+          this.startPolling()
         }, timer+2000);
       },
 
       stopAll() {
+        this.stopPolling()
         var timer = 0;
         this.items.forEach((item) => {
           if (item.status === 'Running') {
@@ -657,11 +671,12 @@
           }
         })
         setTimeout(() => {
-          this.initialize()
+          this.startPolling()
         }, timer+2000);
       },
 
       restartAll() {
+        this.stopPolling()
         var timer = 0;
         this.items.forEach((item) => {
           if (item.status === 'Running') {
@@ -678,11 +693,12 @@
           }
         })
         setTimeout(() => {
-          this.initialize()
+          this.startPolling()
         }, timer+2000);
       },
 
       async stateContainer (action, item) {
+        this.stopPolling()
         // intercept console
         if (action.action === 'console') {
           this.reconnect = false
@@ -749,7 +765,7 @@
           this.snackbarTimeout = 2500
           this.snackbarText = action.msg + ' container.';
 
-          setTimeout(() => this.initialize(), 2500)
+          setTimeout(() => this.startPolling(), 2500)
         } catch (error) {
           this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
         }
@@ -873,6 +889,7 @@
               this.reconnect = true;
               setTimeout(() => {
                 this.snackbarColor = 'green';
+                this.startPolling()
               }, 7000)
             }
           }
@@ -885,6 +902,7 @@
             this.snackbarText = 'Websocket connection failed, you must visit https://'+tmp.hostname+':8443 to accept the SSL certificate.';
             setTimeout(() => {
               this.snackbarColor = 'green';
+              this.startPolling()
             }, 12000)
           }
         }).catch(error => {
@@ -895,11 +913,13 @@
           this.snackbarText = 'Websocket connection failed.';
           setTimeout(() => {
             this.snackbarColor = 'green';
+            this.startPolling()
           }, 7000)
         })
       },
 
       editContainer (item, openDialog = true) {
+        this.stopPolling()
         this.$nextTick(async () => {
           this.getProfiles()
           this.editingIndex = this.items.indexOf(item)
@@ -923,6 +943,7 @@
       },
 
       async saveContainer () {
+        this.stopPolling()
         if (this.$refs.form.validate()) {
 
           // remote
@@ -958,7 +979,7 @@
               //
               this.snackbar = true;
               this.snackbarText = 'Container '+this.container.info.name+' configuration saved.';
-              this.initialize()
+              this.startPolling()
             }
           } catch (error) {
             this.error.editing = 'Could not save container configuration.';
@@ -968,6 +989,7 @@
       
       // create or edit item
       copyContainer (item, execute) {
+        this.stopPolling()
          if (!execute) {
           this.copyIndex = this.items.indexOf(item)
           this.copy = Object.assign({}, this.copy, item)
@@ -998,7 +1020,7 @@
             this.snackbarText = 'Container queued for copy.';
             this.copyDialog = false
             setTimeout(() => {
-              this.initialize()
+              this.startPolling()
             }, 3000)
           }
         }
@@ -1009,6 +1031,7 @@
       },
 
       async snapshotContainer (item) {
+        this.stopPolling()
         //
         try {
           if (!this.loggedUser) {
@@ -1022,6 +1045,10 @@
           })
 
           this.setSnackbar('Snapshotting container.')
+          
+          setTimeout(() => {
+            this.startPolling()
+          }, 10000)
 
         } catch (error) {
           this.alert = { msg: 'Could not snapshot container.', outline: false, color: 'error', icon: 'error' };
@@ -1029,6 +1056,7 @@
       },
 
       async imageContainer (item) {
+        this.stopPolling()
         //
         try {
           if (!this.loggedUser) {
@@ -1056,6 +1084,10 @@
           })
 
           this.setSnackbar('Imaging container.')
+          
+          setTimeout(() => {
+            this.startPolling()
+          }, 10000)
 
         } catch (error) {
           this.alert = { msg: 'Could not image container.', outline: false, color: 'error', icon: 'error' };
@@ -1063,6 +1095,7 @@
       },
 
       deleteContainer (item) {
+        this.stopPolling()
         this.$prompt.show({
           persistent: true,
           width: 400,
@@ -1089,6 +1122,10 @@
                   const response = await axios.delete(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
 
                   this.setSnackbar('Container deleted.')
+                  
+                  setTimeout(() => {
+                    this.startPolling()
+                  }, 10000)
                 } catch (error) {
                   this.alert = { msg: 'Could not delete container.', outline: false, color: 'error', icon: 'error' };
                 }
@@ -1103,6 +1140,7 @@
       },
 
       close () {
+        this.stopPolling()
         this.dialog = false
         if (xterm) {
           xterm.destroy()
@@ -1112,6 +1150,9 @@
           this.container = container.empty();
           this.snackbarColor = 'green';
         }, 300)
+        setTimeout(() => {
+          this.startPolling()
+        }, 2500)
       },
 
       formatBytes (bytes, decimals) {
