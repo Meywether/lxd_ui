@@ -3,7 +3,7 @@
 <img src="https://i.imgur.com/gHhwGG4.png" alt="Screen" title="Screen" align="right" />
 
 [![Build Status](https://travis-ci.org/lcherone/Conext.svg?branch=master)](https://travis-ci.org/plinker/lxd)
-![StyleCI](https://github.styleci.io/repos/133640681/shield?branch=master)](https://github.styleci.io/repos/133640681)
+[![StyleCI](https://github.styleci.io/repos/133640681/shield?branch=master)](https://github.styleci.io/repos/133640681)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/lcherone/Conext.svg/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/lcherone/conext/?branch=master)
 [![Packagist Version](https://img.shields.io/packagist/v/lcherone/conext.svg?style=flat-square)](https://github.com/lcherone/conext/releases)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/lcherone/conext.svg?style=flat-square)](https://packagist.org/packages/lcherone/conext)
