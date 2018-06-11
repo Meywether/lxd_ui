@@ -18,6 +18,15 @@ namespace Lib;
  */
 final class JWT extends \Prefab
 {
+    public static function checkAuth()
+    {
+        try {
+            return self::checkAuthThen(function(){ return true; });
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+    
     public static function checkAuthThen($callback)
     {
         $f3 = \Base::instance();
