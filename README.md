@@ -7,6 +7,7 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/lcherone/Conext/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/lcherone/Conext/?branch=master)
 [![Packagist Version](https://img.shields.io/packagist/v/lcherone/conext.svg?style=flat-square)](https://github.com/lcherone/conext/releases)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/lcherone/conext.svg?style=flat-square)](https://packagist.org/packages/lcherone/conext)
+[![Packagist Downloads](https://img.shields.io/liberapay/receives/lcherone.svg)](https://liberapay.com/lcherone)
 
 A decentralized multi-server LXD server control panel with sugar!
 
