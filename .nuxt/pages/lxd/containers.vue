@@ -270,21 +270,6 @@
                   </v-card-text>
                 </v-card>
               </v-tab-item>
-              <v-tab-item :id="`tab-idmap`">
-                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <idmap @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></idmap>
-                </v-card>
-              </v-tab-item>              
-              <v-tab-item :id="`tab-sshkeys`">
-                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <ssh-keys @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></ssh-keys>
-                </v-card>
-              </v-tab-item>
-              <v-tab-item :id="`tab-snapshots`">
-                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <snapshots :item="container" :key="editingIndex" @snackbar="setSnackbar"></snapshots>
-                </v-card>
-              </v-tab-item>
               <v-tab-item :id="`tab-devices`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <v-tabs v-model="activeDeviceTab" show-arrows>
@@ -325,6 +310,21 @@
                       <infiniband @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></infiniband>
                     </v-tab-item>
                   </v-tabs>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item :id="`tab-idmap`">
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
+                  <idmap @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></idmap>
+                </v-card>
+              </v-tab-item>              
+              <v-tab-item :id="`tab-sshkeys`">
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
+                  <ssh-keys @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></ssh-keys>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item :id="`tab-snapshots`">
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
+                  <snapshots :item="container" :key="editingIndex" @snackbar="setSnackbar"></snapshots>
                 </v-card>
               </v-tab-item>
             </v-tabs>
