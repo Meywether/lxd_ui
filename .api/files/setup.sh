@@ -206,7 +206,7 @@ AUTOLOAD=\".api/\"
 [modules]
 server=\"network-connections\",\"processes\",\"logins\"
 api=\"data\",\"email\"
-lxd=\"containers\",\"images\",\"operations\",\"profiles\",\"networks\",\"devices\",\"certificates\",\"storage\"
+lxd=\"containers\",\"images\",\"operations\",\"profiles\",\"networks\",\"devices\",\"certificates\",\"storage\",\"ssh-keys\"
 routes=\"web\",\"port\"
 tasks=\"user\",\"system\"
 " > $webroot/config.ini

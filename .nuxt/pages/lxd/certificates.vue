@@ -31,7 +31,7 @@
                       <td>
                         <a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.name ? props.item.name : '-' }}</a>
                       </td>
-                      <td>{{ props.item.type ? props.item.type : '-' }}</td>
+                      <td>{{ props.item.type ? ucfirst(props.item.type) : '-' }}</td>
                       <td>{{ props.item.fingerprint ? props.item.fingerprint : '-' }}</td>
                       <td>
                         <v-btn icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)">

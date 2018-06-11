@@ -164,6 +164,7 @@
               <v-tab ripple :href="`#tab-configuration`">Configuration</v-tab>
               <v-tab ripple :href="`#tab-devices`">Devices</v-tab>
               <v-tab ripple :href="`#tab-idmap`">ID Map</v-tab>
+              <v-tab ripple :href="`#tab-sshkeys`">SSH Keys</v-tab>
               <v-tab ripple :href="`#tab-snapshots`">Snapshots</v-tab>
               <v-tab-item :id="`tab-configuration`" v-if="container.info">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
@@ -271,7 +272,12 @@
               </v-tab-item>
               <v-tab-item :id="`tab-idmap`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <idmap @snackbar="setSnackbar" ref="none" :linked="container.info"></idmap>
+                  <idmap @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></idmap>
+                </v-card>
+              </v-tab-item>              
+              <v-tab-item :id="`tab-sshkeys`">
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
+                  <ssh-keys @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></ssh-keys>
                 </v-card>
               </v-tab-item>
               <v-tab-item :id="`tab-snapshots`">
@@ -292,31 +298,31 @@
                     <v-tab ripple :href="`#proxy`">Proxy</v-tab>
                     <v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>
                     <v-tab-item :id="`none`" v-if="container.info">
-                      <none @snackbar="setSnackbar" ref="none" :linked="container.info"></none>
+                      <none @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></none>
                     </v-tab-item>
                     <v-tab-item :id="`nic`" v-if="container.info">
-                      <nic @snackbar="setSnackbar" ref="nic" :linked="container.info"></nic>
+                      <nic @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></nic>
                     </v-tab-item>
                     <v-tab-item :id="`disk`" v-if="container.info">
-                      <disk @snackbar="setSnackbar" ref="disk" :linked="container.info"></disk>
+                      <disk @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></disk>
                     </v-tab-item>
                     <v-tab-item :id="`unixchar`" v-if="container.info">
-                      <unixchar @snackbar="setSnackbar" ref="unixchar" :linked="container.info"></unixchar>
+                      <unixchar @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></unixchar>
                     </v-tab-item>
                     <v-tab-item :id="`unixblock`" v-if="container.info">
-                      <unixblock @snackbar="setSnackbar" ref="unixblock" :linked="container.info"></unixblock>
+                      <unixblock @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></unixblock>
                     </v-tab-item>
                     <v-tab-item :id="`usb`" v-if="container.info">
-                      <usb @snackbar="setSnackbar" ref="usb" :linked="container.info"></usb>
+                      <usb @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></usb>
                     </v-tab-item>
                     <v-tab-item :id="`gpu`" v-if="container.info">
-                      <gpu @snackbar="setSnackbar" ref="gpu" :linked="container.info"></gpu>
+                      <gpu @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></gpu>
                     </v-tab-item>
                     <v-tab-item :id="`proxy`" v-if="container.info">
-                      <proxy @snackbar="setSnackbar" ref="proxy" :linked="container.info"></proxy>
+                      <proxy @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></proxy>
                     </v-tab-item>
                     <v-tab-item :id="`infiniband`" v-if="container.info">
-                      <infiniband @snackbar="setSnackbar" ref="infiniband" :linked="container.info"></infiniband>
+                      <infiniband @snackbar="setSnackbar" ref="editingIndex" :linked="container.info"></infiniband>
                     </v-tab-item>
                   </v-tabs>
                 </v-card>
@@ -347,6 +353,7 @@
   import unixchar from '~/components/lxd/devices/unixchar.vue'
   import unixblock from '~/components/lxd/devices/unixblock.vue'
   import idmap from '~/components/lxd/devices/idmap.vue'
+  import sshKeys from '~/components/lxd/ssh-keys.vue'
 
   import { Terminal } from 'xterm'
   import * as fit from 'xterm/lib/addons/fit/fit'
@@ -362,7 +369,7 @@
       'authenticated'
     ],
     components: {
-      snapshots, none, nic, disk, proxy, infiniband, gpu, usb, unixchar, unixblock, idmap
+      snapshots, none, nic, disk, proxy, infiniband, gpu, usb, unixchar, unixblock, idmap, sshKeys
     },
     computed: {
       ...mapGetters({

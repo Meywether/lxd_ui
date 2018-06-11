@@ -135,7 +135,7 @@
         
         this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
         
-        const index = this.selectedItems.indexOf(item)
+        const index = this.selectedItems.indexOf('both '+item.id+' '+item.id)
         this.selectedItems.splice(index, 1)
 
         // remove from linked item
