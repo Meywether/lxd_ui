@@ -14,6 +14,7 @@ class Helper extends \Prefab
         $this->f3 = $f3;
     }
 
+    /*
     public function format_bytes($bytes = 0)
     {
         if ($bytes < 1024) {
@@ -28,7 +29,9 @@ class Helper extends \Prefab
             return round($bytes / 1099511627776, 2).' TiB';
         }
     }
+    */
 
+    /*
     public function short_number($n = 0)
     {
         // first strip any formatting;
@@ -52,7 +55,9 @@ class Helper extends \Prefab
 
         return number_format($n);
     }
+    */
 
+    /*
     public function time_elapsed_string($ptime, $short = false)
     {
         $etime = time() - $ptime;
@@ -86,7 +91,9 @@ class Helper extends \Prefab
             }
         }
     }
+    */
 
+    /*
     public function slugify($text)
     {
         // replace non letter or digits by -
@@ -105,12 +112,14 @@ class Helper extends \Prefab
 
         return $text;
     }
+    */
 
     /**
      * Attempts to get originating IP address of user,
      * Spoofable, but works load balancing and containers ect.
      * pulls first ip from multi level proxied HTTP_X_FORWARDED_FOR e.g "ip, ip, ip".
      */
+    /*
     public function getIPAddress()
     {
         if (!empty($_SERVER['HTTP_CLIENT_IP']) && filter_var($_SERVER['HTTP_CLIENT_IP'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
@@ -135,7 +144,9 @@ class Helper extends \Prefab
 
         return preg_replace("([^0-9\.])", '', $ip);
     }
+    */
 
+    /*
     public function get_gravatar($email = null, $size = 100)
     {
         if ($email == null) {
@@ -144,7 +155,9 @@ class Helper extends \Prefab
 
         return '//secure.gravatar.com/avatar/'.md5(trim($email)).'?default=mm&secure=true&size='.(int) $size;
     }
+    */
 
+    /*
     public function str_color($str = null)
     {
         $hash = md5($str);
@@ -162,16 +175,21 @@ class Helper extends \Prefab
 
         return '#'.strtoupper(implode($color));
     }
+    */
 
+    /*
     public function random_color()
     {
         return $this->str_color(uniqid(true));
     }
+    */
 
+    /*
     public function strip_extra_spaces($str)
     {
         return preg_replace('/\s+/', ' ', $str);
     }
+    */
 
     /**
      * Validate json, throws exception or returns object/array.
@@ -181,6 +199,7 @@ class Helper extends \Prefab
      *
      * @return mixed
      */
+    /*
     public function json_validate($str, $return_array = false)
     {
         // decode the JSON data
@@ -239,7 +258,9 @@ class Helper extends \Prefab
 
         return $result;
     }
+    */
 
+    /*
     public function http_response_code_text($domain)
     {
         $headers = @get_headers('http://'.$domain);
@@ -265,7 +286,9 @@ class Helper extends \Prefab
             return '<span class="label label-danger">503 ('.$this->response_code_text(503).')</span>';
         }
     }
+    */
 
+    /*
     public function response_code_text($code)
     {
         switch ($code) {
@@ -313,12 +336,14 @@ class Helper extends \Prefab
 
         return $text;
     }
+    */
 
     /**
      * simple encrypt string.
      *
      * iv is stored as part of the returned ciphertext, uses base91 from Plinker lib
      */
+    /*
     public function encrypt($plaintext, $secret = '')
     {
         $mode = 'AES-256-CBC';
@@ -332,10 +357,12 @@ class Helper extends \Prefab
 
         return \Base91\Base91::encode(base64_encode($iv).':'.base64_encode(openssl_encrypt($plaintext, $mode, $secret, 0, $iv)));
     }
+    */
 
     /**
      * simple decrypt string.
      */
+     /*
     public function decrypt($ciphertext, $secret = '')
     {
         $mode = 'AES-256-CBC';
@@ -346,5 +373,6 @@ class Helper extends \Prefab
 
         return openssl_decrypt($ciphertext, $mode, $secret, 0, $iv);
     }
+    */
 
 }
