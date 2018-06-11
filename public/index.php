@@ -47,7 +47,7 @@ if ($f3->get('db.session')) {
 }
 $f3->set('cache', \Cache::instance());
 $f3->set('response', \Lib\Response::instance($f3));
-$f3->set('helper', \Lib\helper::instance($f3));
+// $f3->set('helper',   \Lib\helper::instance($f3));
 
 // run app
 $f3->run();
