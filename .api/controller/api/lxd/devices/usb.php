@@ -81,9 +81,11 @@ class Usb extends \Base\Controller
                 ]); 
             }
             
+            /*
             $body = $f3->recursive((array) $body, function($value) {
             	return trim($value);
             });
+            */
 
             $errors = [];
             //
@@ -189,9 +191,11 @@ class Usb extends \Base\Controller
                 ]); 
             }
             
+            /*
             $body = $f3->recursive((array) $body, function($value) {
             	return trim($value);
             });
+            */
             
             $errors = [];
             //
