@@ -178,6 +178,8 @@
                         <v-flex xs6>
                           <v-card-text class="px-1">
                             <v-text-field v-model="container.info.name" label="Name" :rules="nameRule" @input="container.info.name = safe_name(container.info.name)" required :disabled="container.state.status !== 'Stopped'" :persistent-hint="container.state.status !== 'Stopped'" :hint="`${container.state.status !== 'Stopped' ? 'Container must be stopped to rename.' : 'Enter name for container.'}`"></v-text-field>
+                            <v-text-field v-model="container.info.description" label="Description" hint="Enter a description for the container."></v-text-field>
+
                             <v-select :items="profiles" :rules="profilesRule" v-model="container.info.profiles" label="Profiles" multiple chips required></v-select>
                           </v-card-text>
                         </v-flex>
@@ -972,6 +974,7 @@
 
             //
             var response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name, {
+              description: this.container.info.description,
               config: JSON.parse(JSON.stringify(this.container.info.config)),
               devices: JSON.parse(JSON.stringify(this.container.info.devices)),
               ephemeral: this.container.info.ephemeral,
