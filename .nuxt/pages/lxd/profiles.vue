@@ -20,8 +20,6 @@
                 </v-layout>
               </v-flex>
               <v-flex>
-                 <pre>{{ editingItem }}</pre>
-                
                 <v-alert type="error" :value="error">
                   {{ error }}
                 </v-alert>
