@@ -20,6 +20,8 @@
                 </v-layout>
               </v-flex>
               <v-flex>
+                 <pre>{{ editingItem }}</pre>
+                
                 <v-alert type="error" :value="error">
                   {{ error }}
                 </v-alert>
@@ -247,10 +249,10 @@
         return profile.empty()
       },
       max_memory: function () {
-        return this.resources.memory.total / 1000 / 1000
+        return this.resources.memory.total / 1000 / 1000 || 512
       },
       max_cpu: function () {
-        return Number(this.resources.cpu.total)
+        return Number(this.resources.cpu.total) || 1
       }
     },
     data: () => ({
@@ -270,19 +272,6 @@
       activeTab: 'tab-configuration',
       activeDeviceTab: 'nic',
 
-      // table & items
-      items: [],
-      pools: [],
-      networks: [],
-      resources: {
-        cpu: {
-          total: 0
-        },
-        memory: {
-          total: 0
-        }
-      },
-
       tableLoading: true,
       tableHeaders: [
         { text: 'Name', value: 'name' },
@@ -291,6 +280,37 @@
         { text: 'Network', value: 'network' },
         { text: 'Actions', value: 'id', sortable: false, align: 'right' }
       ],
+      
+      // table & items
+      items: [],
+      pools: [],
+      networks: [],
+      resources: {
+        cpu: {
+          sockets: [{
+            cores: 0,
+            frequency: 0,
+            frequency_turbo: 0,
+            name: "",
+            threads: 0,
+            vendor: ""
+          }],
+          total: 0
+        },
+        memory: {
+            total: 0,
+            used: 0
+        },
+        pool: {
+          inodes: {
+            total: 0,
+            used: 0
+          },
+          space: {
+            total: 0
+          }
+        }
+      },
 
       editingIndex: -1,
       editingItem: profile.empty(),
@@ -318,9 +338,12 @@
         this.lxd = this.$storage.get('lxd')
       }
       
+      this.getResources()
+      this.getStoragePools()
+      this.getNetworks()
+      
       this.$nextTick(() => {
         this.initialize()
-        this.getResources()
       })
     },
     watch: {
@@ -420,9 +443,6 @@
         this.editingItem.config = Object.assign({}, this.empty_profile.config, item.config)
         // set defaults if not set
         this.editingItem = profile.infix(this.editingItem)
-        
-        this.getStoragePools()
-        this.getNetworks()
 
         this.dialog = true
       },
