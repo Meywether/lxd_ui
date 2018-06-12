@@ -15,15 +15,7 @@ class Gpu extends \Base\Controller
     public function beforeRoute(\Base $f3, $params)
     {
         try {
-            \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
-                /*
-                $f3->set('plinker', new \Plinker\Core\Client($server, [
-                    'secret' => $f3->get('AUTH.secret'),
-                    'database' => $f3->get('db'),
-                    'lxc_path' => $f3->get('LXC.path')
-                ]));
-                */
-            });
+            \Lib\JWT::checkAuth();
         } catch (\Exception $e) {
             $f3->response->json([
                 'error' => $e->getMessage(),
@@ -42,9 +34,6 @@ class Gpu extends \Base\Controller
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
-        
-        // plinker client
-        //$client = $f3->get('plinker');
 
         /**
          * GET /api/lxd/devices/gpu
@@ -137,10 +126,7 @@ class Gpu extends \Base\Controller
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
-        
-        // plinker client
-        //$client = $f3->get('plinker');
-        
+
         /**
          * GET /api/lxd/devices/gpu/@id
          */
@@ -163,14 +149,7 @@ class Gpu extends \Base\Controller
                 'data'  => array_values($result)
             ]);
         }
-        
-        /**
-         * POST /api/lxd/devices/gpu/@id
-         */
-        if ($verb === 'POST') {
 
-        }
-        
         /**
          * PUT /api/lxd/devices/gpu/@id
          */
