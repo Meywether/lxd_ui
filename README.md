@@ -37,10 +37,12 @@ apt update
 # install wget
 apt install wget
 
-wget https://gist.githubusercontent.com/lcherone/d7e5ba660bc20d738132ccb1a453459d/raw/ffea4d01806354562ce734260ef269ee9b8385cd/install.sh && bash install.sh
+wget https://gist.githubusercontent.com/lcherone/d7e5ba660bc20d738132ccb1a453459d/raw/8539bb1d34e9a4f9c799c490b2c3156c860db008/install.sh && bash install.sh
 ```
 
 Once complete, you will be able to go to the panel at `http://IP:88`, and then add the server, with the provided key during install.
+
+**Note:** If you install this project in a LXC container, the container must be privileged and have nesting enabled. Also the install will fail first time after installing snap "core", just press up and run it again then it works.
 
 ## Updates
 
