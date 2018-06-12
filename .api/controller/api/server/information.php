@@ -45,7 +45,7 @@ class Information extends \Base\Controller
     {
         $client = $f3->get('plinker');
         $data = $client->system->shell_exec('awk -F: \'{printf "%s:%s\n",$1,$3}\' /etc/passwd');
-        
+
         $lines = explode(PHP_EOL, trim($data));
         $result = [];
         foreach ($lines as $line) {
