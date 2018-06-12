@@ -65,6 +65,7 @@
             <v-tabs v-model="activeTab" show-arrows>
               <v-tab ripple :href="'#tab-configuration'">Configuration</v-tab>
               <v-tab ripple :href="'#tab-devices'">Devices</v-tab>
+              <v-tab ripple :href="`#tab-idmap`">ID Map</v-tab>
               <v-tab-item :id="'tab-configuration'">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <v-card-text>
@@ -176,30 +177,35 @@
                     <v-tab ripple :href="`#proxy`">Proxy</v-tab>
                     <v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>
                     <v-tab-item :id="`nic`" v-if="editingItem">
-                      <nic @snackbar="setSnackbar" ref="nic" :linked="editingItem"></nic>
+                      <nic @snackbar="setSnackbar" :key="editingItem.name" :linked="editingItem"></nic>
                     </v-tab-item>
                     <v-tab-item :id="`disk`" v-if="editingItem">
-                      <disk @snackbar="setSnackbar" ref="disk" :linked="editingItem"></disk>
+                      <disk @snackbar="setSnackbar" :key="editingItem.name" :linked="editingItem"></disk>
                     </v-tab-item>
                     <v-tab-item :id="`unixchar`" v-if="editingItem">
-                      <unixchar @snackbar="setSnackbar" ref="unixchar" :linked="editingItem"></unixchar>
+                      <unixchar @snackbar="setSnackbar" :key="editingItem.name" :linked="editingItem"></unixchar>
                     </v-tab-item>
                     <v-tab-item :id="`unixblock`" v-if="editingItem">
-                      <unixblock @snackbar="setSnackbar" ref="unixblock" :linked="editingItem"></unixblock>
+                      <unixblock @snackbar="setSnackbar" :key="editingItem.name" :linked="editingItem"></unixblock>
                     </v-tab-item>
                     <v-tab-item :id="`usb`" v-if="editingItem">
-                      <usb @snackbar="setSnackbar" ref="usb" :linked="editingItem"></usb>
+                      <usb @snackbar="setSnackbar" :key="editingItem.name" :linked="editingItem"></usb>
                     </v-tab-item>
                     <v-tab-item :id="`gpu`" v-if="editingItem">
-                      <gpu @snackbar="setSnackbar" ref="gpu" :linked="editingItem"></gpu>
+                      <gpu @snackbar="setSnackbar" :key="editingItem.name" :linked="editingItem"></gpu>
                     </v-tab-item>
                     <v-tab-item :id="`proxy`" v-if="editingItem">
-                      <proxy @snackbar="setSnackbar" ref="proxy" :linked="editingItem"></proxy>
+                      <proxy @snackbar="setSnackbar" :key="editingItem.name" :linked="editingItem"></proxy>
                     </v-tab-item>
                     <v-tab-item :id="`infiniband`" v-if="editingItem">
-                      <infiniband @snackbar="setSnackbar" ref="infiniband" :linked="editingItem"></infiniband>
+                      <infiniband @snackbar="setSnackbar" :key="editingItem.name" :linked="editingItem"></infiniband>
                     </v-tab-item>
                   </v-tabs>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item :id="`tab-idmap`">
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
+                  <idmap @snackbar="setSnackbar" @initialize="initialize" :key="editingItem.name" :linked="editingItem"></idmap>
                 </v-card>
               </v-tab-item>
             </v-tabs>
@@ -226,6 +232,7 @@
   import usb from '~/components/lxd/devices/usb.vue'
   import unixchar from '~/components/lxd/devices/unixchar.vue'
   import unixblock from '~/components/lxd/devices/unixblock.vue'
+  import idmap from '~/components/lxd/devices/idmap.vue'
 
   const profile = require('~/components/lxd/profile')
 
@@ -235,7 +242,7 @@
       'authenticated'
     ],
     components: {
-      nic, disk, proxy, infiniband, gpu, usb, unixchar, unixblock
+      nic, disk, proxy, infiniband, gpu, usb, unixchar, unixblock, idmap
     },
     computed: {
       ...mapGetters({

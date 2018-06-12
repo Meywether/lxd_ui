@@ -216,28 +216,64 @@ class Index extends \Base\Controller
         }
         
         /**
+         * PATCH /api/lxd/profiles/@name
+         */
+        if ($verb === 'PATCH') {
+            $body = json_decode($f3->get('BODY'), true);
+
+            if (empty($body) || empty($params['name'])) {
+              $f3->response->json([
+                    'error' => 'Invalid PATCH body, expecting item',
+                    'code'  => 422,
+                    'data'  => []
+                ]); 
+            }
+            
+            try {
+                $result = [
+                    'error' => '',
+                    'code'  => 200,
+                    'data'  => $client->lxd->profiles->update('local', $params['name'], $body)
+                ];
+            } catch (\Exception $e) {
+                $result = [
+                    'error' => $e->getMessage(),
+                    'code'  => 422,
+                    'data'  => []
+                ];
+            }
+            $f3->response->json($result);
+        }
+        
+        /**
          * PUT /api/lxd/profiles/@name
          */
-        /*
         if ($verb === 'PUT') {
+            $body = json_decode($f3->get('BODY'), true);
             
-            $item = json_decode($f3->get('BODY'), true);
-            
-            if (empty($item) || !is_numeric($item['id'])) {
-               $f3->response->json([
+            if (empty($body) || empty($params['name'])) {
+              $f3->response->json([
                     'error' => 'Invalid PUT body, expecting item',
                     'code'  => 422,
                     'data'  => []
                 ]); 
             }
             
-            $f3->response->json([
-                'error' => '',
-                'code'  => 200,
-                'data'  => []
-            ]);
+            try {
+                $result = [
+                    'error' => '',
+                    'code'  => 200,
+                    'data'  => $client->lxd->profiles->replace('local', $params['name'], $body)
+                ];
+            } catch (\Exception $e) {
+                $result = [
+                    'error' => $e->getMessage(),
+                    'code'  => 422,
+                    'data'  => []
+                ];
+            }
+            $f3->response->json($result);
         }
-        */
         
         /**
          * DELETE /api/lxd/profiles/@name
