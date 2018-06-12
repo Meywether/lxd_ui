@@ -80,12 +80,10 @@ class Usb extends \Base\Controller
                     'data'  => []
                 ]); 
             }
-            
-            /*
+
             $body = $f3->recursive((array) $body, function($value) {
             	return trim($value);
             });
-            */
 
             $errors = [];
             //
@@ -190,13 +188,11 @@ class Usb extends \Base\Controller
                     'data'  => []
                 ]); 
             }
-            
-            /*
+
             $body = $f3->recursive((array) $body, function($value) {
             	return trim($value);
             });
-            */
-            
+
             $errors = [];
             //
             if (empty($body['name'])) {
