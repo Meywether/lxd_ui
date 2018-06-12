@@ -44,6 +44,9 @@ class Email extends \Base\Controller
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
         
+        /**
+         * GET /api/ams/email/template
+         */
         if ($verb === 'GET') {
             $result = $this->email_template->findAll();
 
@@ -54,6 +57,9 @@ class Email extends \Base\Controller
             ]);
         }
         
+        /**
+         * POST /api/ams/email/template
+         */
         if ($verb === 'POST') {
             $item = json_decode($f3->get('BODY'), true);
            
@@ -101,11 +107,10 @@ class Email extends \Base\Controller
                 'data'  => []
             ]);
         }
-        
-        if ($verb === 'PUT') {
             
-        }
-        
+        /**
+         * DELETE /api/ams/email/template
+         */
         if ($verb === 'DELETE') {
             $item = json_decode($f3->get('BODY'), true);
             
@@ -138,6 +143,9 @@ class Email extends \Base\Controller
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
         
+        /**
+         * GET /api/ams/email/provider
+         */
         if ($verb === 'GET') {
             $result = $this->email_provider->findAll();
             
@@ -156,6 +164,9 @@ class Email extends \Base\Controller
             ]);
         }
         
+        /**
+         * POST /api/ams/email/provider
+         */
         if ($verb === 'POST') {
             $item = json_decode($f3->get('BODY'), true);
            
@@ -213,11 +224,10 @@ class Email extends \Base\Controller
                 'data'  => []
             ]);
         }
-        
-        if ($verb === 'PUT') {
-            
-        }
-        
+
+        /**
+         * DELETE /api/ams/email/provider
+         */
         if ($verb === 'DELETE') {
             $item = json_decode($f3->get('BODY'), true);
             

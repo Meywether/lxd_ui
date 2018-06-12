@@ -71,7 +71,7 @@ class Data extends \Base\Controller
             // set source into scope
             $source = @$module->source;
             
-            // GET | POST | PUT | DELETE
+            // GET | POST | PUT | DELETE - allows custom code to implement rest
             $verb = $f3->get('VERB');
             
             // unset module variable
