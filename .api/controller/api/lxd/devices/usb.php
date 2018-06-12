@@ -155,7 +155,7 @@ class Usb extends \Base\Controller
                 if (!empty($result->id)) {
                     $result['dict'] = json_decode($result['dict']);
                 } else {
-                    throw \Exception('Not found', 404);
+                    throw new \Exception('Not found', 404);
                 }
             } catch (\Exception $e) {
                 $result = [];

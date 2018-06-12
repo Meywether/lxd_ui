@@ -225,7 +225,6 @@ class Model extends \Prefab
             return $return[0];
         }
 
-        // return multi row export
         return $return;
     }
 

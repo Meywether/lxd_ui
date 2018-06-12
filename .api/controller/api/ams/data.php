@@ -38,6 +38,9 @@ class Data extends \Base\Controller
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
         
+        /**
+         * GET /api/ams/data
+         */
         if ($verb === 'GET') {
             $items = $this->ams->findAll();
             
@@ -55,6 +58,9 @@ class Data extends \Base\Controller
             ]);
         }
         
+        /**
+         * POST /api/ams/data
+         */
         if ($verb === 'POST') {
             $item = json_decode($f3->get('BODY'), true);
            
@@ -97,10 +103,9 @@ class Data extends \Base\Controller
             ]);
         }
         
-        if ($verb === 'PUT') {
-            
-        }
-        
+        /**
+         * DELETE /api/ams/data
+         */
         if ($verb === 'DELETE') {
             $item = json_decode($f3->get('BODY'), true);
             
