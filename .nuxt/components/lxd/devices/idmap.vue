@@ -208,6 +208,8 @@
           // fix multis
           this.linkedItem.config['limits.cpu.allowance'] = this.linkedItem.config['limits.cpu.allowance'].replace('%%', '%')
           this.linkedItem.config['limits.memory'] = this.linkedItem.config['limits.memory'].replace('MBMB', 'MB')
+        } else {
+          this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
         }
 
         //
