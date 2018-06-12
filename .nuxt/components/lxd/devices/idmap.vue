@@ -3,6 +3,20 @@
     <v-alert type="error" :value="error">
       {{ error }}
     </v-alert>
+    <v-card-text>
+    <v-alert :value="true" outline color="info" icon="info" v-if="alreadyRunning">
+      <v-layout row>
+        <v-flex xs11>
+          <p style="padding-top:10px;margin-bottom:10px" v-if="linkedItem.status !== 'Stopped'">Container must be stopped before toggling idmaps.</p>
+          <p style="padding-top:10px;margin-bottom:10px" v-if="linkedItem.status === 'Stopped'">You can now map ids, if container fails to start undo your changes.</p>
+        </v-flex>
+        <v-flex xs1>
+          <v-btn depressed small color="error" style="float:right" v-if="linkedItem.status !== 'Stopped'" @click="stopContainer(linkedItem)" :loading="statusChange" :disabled="statusChange">Stop</v-btn>
+          <v-btn depressed small color="success" style="float:right" v-if="linkedItem.status === 'Stopped'" @click="startContainer(linkedItem)" :loading="statusChange" :disabled="statusChange">Start</v-btn>
+        </v-flex>
+      </v-layout>
+    </v-alert>
+    </v-card-text>
     <v-data-table :headers="tableHeaders" :items="items" hide-actions :loading="tableLoading">
       <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
       <template slot="items" slot-scope="props">
@@ -10,8 +24,8 @@
           <td>{{ props.item.user }}</td>
           <td>{{ props.item.id }}</td>
           <td>
-            <v-btn depressed small @click="attachItem(props.item)" v-if="!selectedItems.includes('both '+props.item.id+' '+props.item.id)">Map</v-btn>
-            <v-btn dark depressed small color="red" @click="detachItem(props.item)" v-if="selectedItems.includes('both '+props.item.id+' '+props.item.id)">Unmap</v-btn>
+            <v-btn depressed small @click="attachItem(props.item)" v-if="!selectedItems.includes('both '+props.item.id+' '+props.item.id)" :disabled="linkedItem.status !== 'Stopped'">Map</v-btn>
+            <v-btn :dark="linkedItem.status === 'Stopped'" depressed small color="red" @click="detachItem(props.item)" v-if="selectedItems.includes('both '+props.item.id+' '+props.item.id)" :disabled="linkedItem.status !== 'Stopped'">Unmap</v-btn>
           </td>
         </tr>
       </template>
@@ -57,6 +71,8 @@
     data: () => ({
       error: false,
       tableLoading: true,
+      alreadyRunning: false,
+      statusChange: false,
       // user/id items
       items: [],
       // user selected mappings
@@ -81,6 +97,7 @@
         this.lxd = this.$storage.get('lxd')
       }
 
+      this.alreadyRunning = this.linked.status === 'Running'
       if (this.linked) {
         this.linkedItem = Object.assign({}, this.linked)
         
@@ -164,6 +181,35 @@
           this.attachError = response.data.error
         }
       },
+      
+      stopContainer (item) {
+        this.statusChange = true
+        axios.put(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/state', {
+          "action": 'stop',
+          "timeout": 30,
+          "force": true,
+          "stateful": false
+        })
+        setTimeout(() => {
+          this.statusChange = false
+          this.$emit('initialize')
+          item.status = 'Stopped';
+        }, 2500);
+      },
+      startContainer (item) {
+        this.statusChange = true
+        axios.put(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/state', {
+          "action": 'start',
+          "timeout": 30,
+          "force": true,
+          "stateful": false
+        })
+        setTimeout(() => {
+          this.statusChange = false
+          this.$emit('initialize')
+          item.status = 'Running';
+        }, 2500);
+      },
 
       openDialog(){
         this.dialog = true
@@ -186,5 +232,7 @@
 </script>
 
 <style>
-
+.btn--disabled .red {
+  background-color: #f44336 !important;
+}
 </style>

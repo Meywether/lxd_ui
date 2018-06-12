@@ -314,7 +314,7 @@
               </v-tab-item>
               <v-tab-item :id="`tab-idmap`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <idmap @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></idmap>
+                  <idmap @snackbar="setSnackbar" @initialize="initialize" :key="container.info.name" :linked="container.info"></idmap>
                 </v-card>
               </v-tab-item>
               <v-tab-item :id="`tab-sshkeys`">
