@@ -299,6 +299,18 @@
         // profile outfix
         if (this.attachType === 'profiles') {
           this.linkedItem = Object.assign({}, profile.outfix(this.linkedItem))
+          delete this.linkedItem.config['image.architecture']
+          delete this.linkedItem.config['image.description']
+          delete this.linkedItem.config['image.label']
+          delete this.linkedItem.config['image.os']
+          delete this.linkedItem.config['image.release']
+          delete this.linkedItem.config['image.serial']
+          delete this.linkedItem.config['image.version']
+          // fix multis
+          this.linkedItem.config['limits.cpu.allowance'] = this.linkedItem.config['limits.cpu.allowance'].replace('%%', '%')
+          this.linkedItem.config['limits.memory'] = this.linkedItem.config['limits.memory'].replace('MBMB', 'MB')
+        } else {
+          this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
         }
         
         //

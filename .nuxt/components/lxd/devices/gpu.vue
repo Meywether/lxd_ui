@@ -255,6 +255,8 @@
         // profile outfix
         if (this.attachType === 'profiles') {
           this.linkedItem = Object.assign({}, profile.outfix(this.linkedItem))
+        } else {
+          this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
         }
 
         //
