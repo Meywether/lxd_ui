@@ -42,7 +42,7 @@ wget https://gist.githubusercontent.com/lcherone/d7e5ba660bc20d738132ccb1a453459
 
 Once complete, you will be able to go to the panel at `http://IP:88`, and then add the server, with the provided key during install.
 
-**Note:** If you install this project in a LXC container, the container must be privalaged and have nesting enabled, also the install will fail after installing snap "core", just press up and run again then it works.
+**Note:** If you install this project in a LXC container, the container must be privileged and have nesting enabled. Also the install will fail first time after installing snap "core", just press up and run it again then it works.
 
 ## Updates
 
