@@ -39,7 +39,7 @@
 
     <!-- Dialog -->
     <v-dialog v-model="dialog" max-width="700px" scrollable :hide-overlay="linkedItem !== null">
-      <v-card flat style="overflow-x:hidden; overflow-y: auto; min-height:calc(100vh - 400px);">
+      <v-card flat>
         <v-toolbar card dark color="light-blue darken-3">
           <v-btn icon @click.native="close()" dark>
             <v-icon>close</v-icon>
@@ -80,6 +80,7 @@
   import axios from 'axios'
 
   const container = require('~/components/lxd/container')
+  const profile = require('~/components/lxd/profile')
 
   export default {
     components: {},
@@ -124,6 +125,7 @@
 
       tableLoading: true,
 
+      attachType: '',
       items: [],
       editingIndex: -1,
       editingItem: {
@@ -191,6 +193,11 @@
       }
 
       this.linkedItem = Object.assign({}, this.linked)
+      
+      // container or profile
+      if (this.linked) {
+        this.attachType = this.linkedItem.status ? 'containers' : 'profiles'
+      }
 
       this.$nextTick(() => {
         this.initialize()
@@ -214,7 +221,13 @@
       },
 
       async attachItem(item) {
-        this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
+        // infix
+        if (this.attachType === 'profiles') {
+          this.linkedItem = Object.assign({}, profile.outfix(this.linkedItem))
+        } else {
+          this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
+        }
+        
         this.linkedItem.devices  = Object.assign({}, this.linkedItem.devices)
 
         this.$set(this.linkedItem.devices, item.name, {
@@ -223,7 +236,7 @@
         })
 
         //
-        const response = await axios.patch(this.loggedUser.sub + '/api/lxd/containers/' + this.linkedItem.name, {
+        const response = await axios.patch(this.loggedUser.sub + '/api/lxd/'+this.attachType+'/' + this.linkedItem.name, {
           // config: this.linkedItem.config,
           devices: this.linkedItem.devices
         })
@@ -239,10 +252,14 @@
         // remove from linked item
         this.$delete(this.linkedItem.devices, item.name)
 
-        this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
+        // profile outfix
+        if (this.attachType === 'profiles') {
+          this.linkedItem = Object.assign({}, profile.outfix(this.linkedItem))
+        }
 
         //
-        const response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + this.linkedItem.name, {
+        const response = await axios.put(this.loggedUser.sub + '/api/lxd/'+this.attachType+'/' + this.linkedItem.name, {
+          description: this.linkedItem.description,
           config: this.linkedItem.config,
           devices: this.linkedItem.devices,
           ephemeral: this.linkedItem.ephemeral,

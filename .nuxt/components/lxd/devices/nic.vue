@@ -1,5 +1,8 @@
 <template>
   <div>
+    <v-alert type="error" :value="attachError">
+      {{ attachError }}
+    </v-alert>
     <v-data-table :headers="tableHeaders" :items="items" hide-actions :loading="tableLoading">
       <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
       <template slot="items" slot-scope="props">
@@ -31,7 +34,7 @@
 
     <!-- Dialog -->
     <v-dialog v-model="dialog" max-width="700px" scrollable :hide-overlay="linkedItem !== null">
-      <v-card flat style="overflow-x:hidden; overflow-y: auto; min-height:calc(100vh - 400px);">
+      <v-card flat>
         <v-toolbar card dark color="light-blue darken-3">
           <v-btn icon @click.native="close()" dark>
             <v-icon>close</v-icon>
@@ -114,6 +117,7 @@
   import axios from 'axios'
   
   const container = require('~/components/lxd/container')
+  const profile = require('~/components/lxd/profile')
 
   export default {
     components: {},
@@ -145,12 +149,14 @@
     },
     data: () => ({
       error: '',
+      attachError: false,
       valid: true,
       dialog: false,
 
       tableLoading: true,
 
       networks: [],
+      attachType: '',
       items: [],
       editingIndex: -1,
       editingItem: {
@@ -237,6 +243,11 @@
       }
 
       this.linkedItem = Object.assign({}, this.linked)
+      
+      // container or profile
+      if (this.linked) {
+        this.attachType = this.linkedItem.status ? 'containers' : 'profiles'
+      }
 
       this.$nextTick(() => {
         this.initialize()
@@ -264,29 +275,52 @@
       },
 
       async attachItem(item) {
+        // infix
+        if (this.attachType === 'profiles') {
+          this.linkedItem = Object.assign({}, profile.outfix(this.linkedItem))
+        } else {
+          this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
+        }
+        
         this.linkedItem.devices  = Object.assign({}, this.linkedItem.devices)
+        
         this.$set(this.linkedItem.devices, item.name, {
           "type": item.type,
           ...item.dict
         })
         //
-        const response = await axios.patch(this.loggedUser.sub + '/api/lxd/containers/' + this.linkedItem.name, {
+        const response = await axios.patch(this.loggedUser.sub + '/api/lxd/'+this.attachType+'/' + this.linkedItem.name, {
           devices: this.linkedItem.devices
         })
+        
+        if (response.data.error) {
+          this.attachError = response.data.error
+        }
       },
 
       async detachItem(item) {
         this.$delete(this.linkedItem.devices, item.name)
         
-        this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
+        // profile outfix
+        if (this.attachType === 'profiles') {
+          this.linkedItem = Object.assign({}, profile.outfix(this.linkedItem))
+        } else {
+          this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
+        }
+        
         //
-        const response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + this.linkedItem.name, {
+        const response = await axios.put(this.loggedUser.sub + '/api/lxd/'+this.attachType+'/' + this.linkedItem.name, {
+          description: this.linkedItem.description,
           config: this.linkedItem.config,
           devices: this.linkedItem.devices,
           ephemeral: this.linkedItem.ephemeral,
           stateful: this.linkedItem.stateful,
           profiles: this.linkedItem.profiles
         })
+        
+        if (response.data.error) {
+          this.attachError = response.data.error
+        }
       },
       
       async getNetworks () {

@@ -41,6 +41,7 @@
   import axios from 'axios'
 
   const container = require('~/components/lxd/container')
+  const profile = require('~/components/lxd/profile')
 
   export default {
     components: {},
@@ -73,6 +74,7 @@
       tableLoading: true,
       alreadyRunning: false,
       statusChange: false,
+      attachType: '',
       // user/id items
       items: [],
       // user selected mappings
@@ -97,16 +99,33 @@
         this.lxd = this.$storage.get('lxd')
       }
 
-      this.alreadyRunning = this.linked.status === 'Running'
+      // container or profile
+      if (this.linked) {
+        this.attachType = this.linkedItem.status ? 'containers' : 'profiles'
+      }
+      
+      // check if profile else running wont be true
       if (this.linked) {
         this.linkedItem = Object.assign({}, this.linked)
-        
-        // parse out current idmap
-        if (this.linkedItem.expanded_config && this.linkedItem.expanded_config['raw.idmap']) {
-          var tmp = this.linkedItem.config["raw.idmap"] = this.linkedItem.expanded_config['raw.idmap']
-          this.selectedItems = tmp.split("\n")
+        if (this.attachType === 'profiles') {
+          this.alreadyRunning = false
+          this.linkedItem.status = 'Stopped'
+          // parse out current idmap
+          if (this.linkedItem.config && this.linkedItem.config['raw.idmap']) {
+            var tmp = this.linkedItem.config["raw.idmap"] = this.linkedItem.config['raw.idmap']
+            this.selectedItems = tmp.split("\n")
+          } else {
+            this.selectedItems = []
+          }
         } else {
-          this.selectedItems = []
+          this.alreadyRunning = this.linked.status === 'Running'
+          // parse out current idmap
+          if (this.linkedItem.expanded_config && this.linkedItem.expanded_config['raw.idmap']) {
+            var tmp = this.linkedItem.config["raw.idmap"] = this.linkedItem.expanded_config['raw.idmap']
+            this.selectedItems = tmp.split("\n")
+          } else {
+            this.selectedItems = []
+          }
         }
       }
 
@@ -132,7 +151,13 @@
       },
 
       async attachItem(item) {
-        this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
+        // infix
+        if (this.attachType === 'profiles') {
+          this.linkedItem = Object.assign({}, profile.outfix(this.linkedItem))
+        } else {
+          this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
+        }
+        
         this.linkedItem.devices = Object.assign({}, this.linkedItem.devices)
         
         this.selectedItems.push('both '+item.id+' '+item.id)
@@ -140,7 +165,7 @@
         this.$set(this.linkedItem.config, "raw.idmap", this.selectedItems.join("\n"))
 
         //
-        const response = await axios.patch(this.loggedUser.sub + '/api/lxd/containers/' + this.linkedItem.name, {
+        const response = await axios.patch(this.loggedUser.sub + '/api/lxd/'+this.attachType+'/' + this.linkedItem.name, {
           config: this.linkedItem.config
         })
 
@@ -152,7 +177,9 @@
       async detachItem(item) {
         this.attachError = false;
         
-        this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
+        if (this.attachType === 'containers') {
+          this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
+        }
         
         const index = this.selectedItems.indexOf('both '+item.id+' '+item.id)
         this.selectedItems.splice(index, 1)
@@ -167,9 +194,25 @@
         if (this.linkedItem.config["raw.idmap"] === '') {
           delete this.linkedItem.config["raw.idmap"]
         }
+        
+        // profile outfix
+        if (this.attachType === 'profiles') {
+          this.linkedItem = Object.assign({}, profile.outfix(this.linkedItem))
+          delete this.linkedItem.config['image.architecture']
+          delete this.linkedItem.config['image.description']
+          delete this.linkedItem.config['image.label']
+          delete this.linkedItem.config['image.os']
+          delete this.linkedItem.config['image.release']
+          delete this.linkedItem.config['image.serial']
+          delete this.linkedItem.config['image.version']
+          // fix multis
+          this.linkedItem.config['limits.cpu.allowance'] = this.linkedItem.config['limits.cpu.allowance'].replace('%%', '%')
+          this.linkedItem.config['limits.memory'] = this.linkedItem.config['limits.memory'].replace('MBMB', 'MB')
+        }
 
         //
-        const response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + this.linkedItem.name, {
+        const response = await axios.put(this.loggedUser.sub + '/api/lxd/'+this.attachType+'/' + this.linkedItem.name, {
+          description: this.linkedItem.description,
           config: this.linkedItem.config,
           devices: this.linkedItem.devices,
           ephemeral: this.linkedItem.ephemeral,
