@@ -141,9 +141,10 @@ class Snapshots extends \Base\Controller
          */
         if ($verb === 'POST') {
             $body = json_decode($f3->get('BODY'), true);
+
             //
             try {
-                $result = $client->lxd->containers->snapshots->rename('local', $params['name'], $params['snapshot'], ['name' => $body['name']]);
+                $result = $client->lxd->containers->snapshots->rename('local', $params['name'], $params['snapshot'], $body['name']);
 
                 $response = [
                     'error' => null,

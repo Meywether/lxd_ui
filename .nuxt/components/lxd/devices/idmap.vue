@@ -8,7 +8,7 @@
       <v-layout row>
         <v-flex xs11>
           <p style="padding-top:10px;margin-bottom:10px" v-if="linkedItem.status !== 'Stopped'">Container must be stopped before toggling idmaps.</p>
-          <p style="padding-top:10px;margin-bottom:10px" v-if="linkedItem.status === 'Stopped'">You can now map ids, if container fails to start undo your changes.</p>
+          <p style="padding-top:10px;margin-bottom:10px" v-if="linkedItem.status === 'Stopped'">You can now map ids, if the container fails to start undo your changes.</p>
         </v-flex>
         <v-flex xs1>
           <v-btn depressed small color="error" style="float:right" v-if="linkedItem.status !== 'Stopped'" @click="stopContainer(linkedItem)" :loading="statusChange" :disabled="statusChange">Stop</v-btn>
