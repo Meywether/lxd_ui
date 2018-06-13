@@ -4,18 +4,18 @@
       {{ error }}
     </v-alert>
     <v-card-text>
-    <v-alert :value="true" outline color="info" icon="info" v-if="alreadyRunning">
-      <v-layout row>
-        <v-flex xs11>
-          <p style="padding-top:10px;margin-bottom:10px" v-if="linkedItem.status !== 'Stopped'">Container must be stopped before toggling idmaps.</p>
-          <p style="padding-top:10px;margin-bottom:10px" v-if="linkedItem.status === 'Stopped'">You can now map ids, if the container fails to start undo your changes.</p>
-        </v-flex>
-        <v-flex xs1>
-          <v-btn depressed small color="error" style="float:right" v-if="linkedItem.status !== 'Stopped'" @click="stopContainer(linkedItem)" :loading="statusChange" :disabled="statusChange">Stop</v-btn>
-          <v-btn depressed small color="success" style="float:right" v-if="linkedItem.status === 'Stopped'" @click="startContainer(linkedItem)" :loading="statusChange" :disabled="statusChange">Start</v-btn>
-        </v-flex>
-      </v-layout>
-    </v-alert>
+      <v-alert :value="true" outline color="info" icon="info" v-if="alreadyRunning">
+        <v-layout row>
+          <v-flex xs11>
+            <p style="padding-top:10px;margin-bottom:10px" v-if="linkedItem.status !== 'Stopped'">Container must be stopped before toggling idmaps.</p>
+            <p style="padding-top:10px;margin-bottom:10px" v-if="linkedItem.status === 'Stopped'">You can now map ids, if the container fails to start undo your changes.</p>
+          </v-flex>
+          <v-flex xs1>
+            <v-btn depressed small color="error" style="float:right" v-if="linkedItem.status !== 'Stopped'" @click="stopContainer(linkedItem)" :loading="statusChange" :disabled="statusChange">Stop</v-btn>
+            <v-btn depressed small color="success" style="float:right" v-if="linkedItem.status === 'Stopped'" @click="startContainer(linkedItem)" :loading="statusChange" :disabled="statusChange">Start</v-btn>
+          </v-flex>
+        </v-layout>
+      </v-alert>
     </v-card-text>
     <v-data-table :headers="tableHeaders" :items="items" hide-actions :loading="tableLoading">
       <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
@@ -98,15 +98,14 @@
       } else {
         this.lxd = this.$storage.get('lxd')
       }
-
-      // container or profile
-      if (this.linked) {
-        this.attachType = this.linkedItem.status ? 'containers' : 'profiles'
-      }
       
+      this.linkedItem = Object.assign({}, this.linked)
+      
+      //
+      this.attachType = this.linkedItem.status ? 'containers' : 'profiles'
+
       // check if profile else running wont be true
       if (this.linked) {
-        this.linkedItem = Object.assign({}, this.linked)
         if (this.attachType === 'profiles') {
           this.alreadyRunning = false
           this.linkedItem.status = 'Stopped'
