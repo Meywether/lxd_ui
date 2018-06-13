@@ -713,7 +713,6 @@
 </script>
 
 <style>
-
   .CodeMirror {
     border: 1px solid #eee;
     min-height:calc(100vh - 350px);
