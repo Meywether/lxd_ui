@@ -17,7 +17,7 @@ class Index extends \Base\Controller
             exit(\View::instance()->render('public/ui/index.html'));
         } 
         // not enabled, with redirect
-        elseif(!$f3->devoid('PANEL.redirect')) {
+        elseif($f3->devoid('PANEL.enabled') && !$f3->devoid('PANEL.redirect')) {
             exit(header("Location: ".$f3->get('PANEL.redirect')));
         } 
         // no content

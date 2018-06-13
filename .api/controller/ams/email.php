@@ -110,11 +110,6 @@ class Email extends \Base\Controller
         $source = preg_replace_callback($placeholder_regex, function ($match) use ($vars) {
             return array_key_exists($match[1], $vars) ? $vars[$match[1]] : '';
         }, $template->source);
-        
-        // send email
-        if (isset($vars['preview'])) {
-            exit($parsed);
-        }
 
         $mail = new PHPMailer(true);                            // Passing `true` enables exceptions
         try {
@@ -135,6 +130,7 @@ class Email extends \Base\Controller
             }
 
             // to
+            $debug_to = null;
             if (is_array($vars['to'])) {
                 $debug_to = $vars['to'][0];
                 foreach ($vars['to'] as $to) {
@@ -191,7 +187,6 @@ class Email extends \Base\Controller
             // update sent
             $provider->limit_sent++;
             $this->email_provider->store($provider);
-            
 
             $f3->response->json([
                 'error' => null,

@@ -101,52 +101,7 @@ class Index extends \Base\Controller
             
             $f3->response->json($result);
         }
-        
-        /**
-         * PUT /api/lxd/profiles
-         */
-        /*
-        if ($verb === 'PUT') {
-            $item = json_decode($f3->get('BODY'), true);
-            
-            if (empty($item) || !is_numeric($item['id'])) {
-               $f3->response->json([
-                    'error' => 'Invalid PUT body, expecting item',
-                    'code'  => 422,
-                    'data'  => []
-                ]); 
-            }
-            
-            $f3->response->json([
-                'error' => '',
-                'code'  => 200,
-                'data'  => []
-            ]);
-        }
-        */
 
-        /**
-         * DELETE /api/lxd/profiles
-         */
-        /*
-        if ($verb === 'DELETE') {
-            $item = json_decode($f3->get('BODY'), true);
-            
-            if (empty($item) || !is_numeric($item['id'])) {
-               $f3->response->json([
-                    'error' => 'Invalid DELETE body, expecting item',
-                    'code'  => 422,
-                    'data'  => []
-                ]); 
-            }
-            
-            $f3->response->json([
-                'error' => '',
-                'code'  => 200,
-                'data'  => []
-            ]);
-        }
-        */
     }
     
     /**
