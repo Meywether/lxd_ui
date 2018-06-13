@@ -12,7 +12,7 @@
 
 A decentralized multi-server LXD server control panel with sugar!
 
-## Features
+## :clipboard: Features
 
 Not going to bore you with stuff you probably won't read, so here is what the system can do:
 
@@ -23,7 +23,7 @@ Not going to bore you with stuff you probably won't read, so here is what the sy
  - Create custom tasks for maintaining containers or project deployments.
  - Create simple API endpoints for stuff the panel does not do, with access to your LXD servers over RPC.
 
-## Install
+## :arrow_forward: Install
 
 Installing the project is easy, it should be done on a **clean ubuntu server**!
 
@@ -44,11 +44,11 @@ Once complete, you will be able to go to the panel at `http://IP:88`, and then a
 
 **Note:** If you install this project in a LXC container, the container must be privileged and have nesting enabled. Also the install will fail first time after installing snap "core", just press up and run it again then it works.
 
-## Updates
+## :fast_forward: Updates
 
 The panel will have *many* updates, as it is very much under construction. But thankfully updating is simple and wont effect your containers.
 
-So to update, enter into /var/www/html and do a git pull.
+So to update, enter into `/var/www/html` and do a `git pull`.
 
 ```
 # switch into root user!
@@ -156,24 +156,24 @@ Once complete, you will be able to go to the panel at `http://IP:88`, and then a
 -->
 
 
-## Contributing
+## :construction: Contributing
 
 Please see [CONTRIBUTING](https://github.com/lcherone/Conext/blob/master/CONTRIBUTING.md) for details.
 
-## Bespoke System
+## :office: Bespoke System
 
 If you would like a bespoke system created at very competitive rates then contact me via my website @ [https://cherone.co.uk](https://cherone.co.uk) or if you use [Upwork](https://www.upwork.com/o/profiles/users/~01ff0ec055a5895e8f/), though that.
 
-## Developer Support
+## :heart: Developer Support
 
-If you want to show your appreciation or you make money where this is used, please make a small donation to help encourage development [https://www.paypal.me/lcherone](https://www.paypal.me/lcherone), cheers. Also help the project get seen by staring it.. thats free just like the hours I have put into making the system.
+If you want to show your appreciation or you make money where this is used, please make a small donation to help encourage development [https://www.paypal.me/lcherone](https://www.paypal.me/lcherone), cheers. Also help the project get seen by :star: staring :star: it.
 
-## Credits
+## :family: Credits
 
 - [Lawrence Cherone](https://github.com/lcherone)
 - [All Contributors](https://github.com/lcherone/Conext/graphs/contributors)
 
-## License
+## :copyright: License
 
 The MIT License (MIT). Please see [License File](https://github.com/lcherone/Conext/blob/master/LICENSE) for more information.
 
@@ -200,3 +200,5 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+:100: :penguin:
