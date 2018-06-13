@@ -77,9 +77,7 @@
         { title: 'Delete',  action: 'delete', msg: 'Deleting', state: '' }
       ],
       nameRule: [
-        v => !!v || 'Name is required.',
-        //v => (v && /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/.test(v)) || 'Only letters, digits or hyphens. No leading hyphen or digit. Dots are converted to hyphens.',
-        //v => (v && isNaN(v.charAt(0))) || 'Only letters, digits or hyphens. No leading hyphen or digit. Dots are converted to hyphens.'
+        v => !!v || 'Name is required.'
       ]
     }),
     beforeDestroy: function() {},
@@ -128,7 +126,7 @@
           })
           
         } catch (error) {
-          this.error = 'Could not fetch data from server.';
+          this.error = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -291,7 +289,6 @@
             item.oldName = this.container.info.name+'/'+item.oldNameNoContainer
             
             this.$emit('snackbar', 'Snapshot renamed.')
-  
           } catch (error) {
             this.$emit('snackbar', 'Failed to rename snapshot.')
           }
@@ -301,7 +298,7 @@
       },   
 
       safe_name(name) {
-        return name.replace(".", "-");
+        return name.replace(".", "-")
       }
 
     }
