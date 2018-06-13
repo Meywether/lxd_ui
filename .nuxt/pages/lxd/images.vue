@@ -82,7 +82,7 @@
       <v-dialog v-model="dialog.copy" max-width="600px" scrollable>
         <v-card tile v-if="copy.properties">
           <v-toolbar card dark color="light-blue darken-3">
-            <v-btn icon @click.native="dialog.create = false" dark>
+            <v-btn icon @click.native="dialog.copy = false" dark>
               <v-icon>close</v-icon>
             </v-btn>
             <v-toolbar-title>Copy Image</v-toolbar-title>
@@ -239,7 +239,7 @@
       ],
 
       // dialog
-      dialog: {create: false, edit: false},
+      dialog: {create: false, edit: false, copy: false},
       
       // item
       editingIndex: {create: -1, edit: -1},
