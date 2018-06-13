@@ -155,7 +155,7 @@
             </v-btn>
             <v-toolbar-title>Container: {{ container.state && container.state.name }}</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-toolbar-items v-if="activeTab !== 'tab-snapshots' && activeTab !== 'tab-devices' && activeTab !== 'tab-idmap' && activeTab !== 'tab-sshkeys'">
+            <v-toolbar-items v-if="activeTab !== 'tab-snapshots' && activeTab !== 'tab-devices' && activeTab !== 'tab-idmap' && activeTab !== 'tab-sshkeys' && activeTab !== 'tab-files'">
               <v-btn dark flat @click.native="saveContainer()">Save</v-btn>
             </v-toolbar-items>
           </v-toolbar>
@@ -166,6 +166,7 @@
               <v-tab ripple :href="`#tab-idmap`">ID Map</v-tab>
               <v-tab ripple :href="`#tab-sshkeys`">SSH Keys</v-tab>
               <v-tab ripple :href="`#tab-snapshots`">Snapshots</v-tab>
+              <v-tab ripple :href="`#tab-files`">Files</v-tab>
               <v-tab-item :id="`tab-configuration`" v-if="container.info">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <v-card-text>
@@ -329,6 +330,11 @@
                   <snapshots :item="container" :key="container.info.name" @snackbar="setSnackbar"></snapshots>
                 </v-card>
               </v-tab-item>
+              <v-tab-item :id="`tab-files`">
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
+                  <files @snackbar="setSnackbar" :key="container.info.name" ref="files[container.info.name]" :linked="container.info"></files>
+                </v-card>
+              </v-tab-item>
             </v-tabs>
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
@@ -356,6 +362,7 @@
   import unixblock from '~/components/lxd/devices/unixblock.vue'
   import idmap from '~/components/lxd/devices/idmap.vue'
   import sshKeys from '~/components/lxd/ssh-keys.vue'
+  import files from '~/components/lxd/files.vue'
 
   import { Terminal } from 'xterm'
   import * as fit from 'xterm/lib/addons/fit/fit'
@@ -371,7 +378,7 @@
       'authenticated'
     ],
     components: {
-      snapshots, none, nic, disk, proxy, infiniband, gpu, usb, unixchar, unixblock, idmap, sshKeys
+      snapshots, none, nic, disk, proxy, infiniband, gpu, usb, unixchar, unixblock, idmap, sshKeys, files
     },
     computed: {
       ...mapGetters({
