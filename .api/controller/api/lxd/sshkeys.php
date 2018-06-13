@@ -80,7 +80,7 @@ class Sshkeys extends \Base\Controller
         $verb = $f3->get('VERB');
         
         // plinker client
-        $client = $f3->get('plinker');
+        // $client = $f3->get('plinker');
 
         /**
          * GET /api/lxd/ssh-keys
@@ -170,10 +170,9 @@ class Sshkeys extends \Base\Controller
             $f3->response->json([
                 'error' => null,
                 'code'  => 200,
-                'data'  => []
+                'data'  => $result
             ]);
         }
-
     }
     
     /**
@@ -185,7 +184,7 @@ class Sshkeys extends \Base\Controller
         $verb = $f3->get('VERB');
         
         // plinker client
-        $client = $f3->get('plinker');
+        // $client = $f3->get('plinker');
         
         /**
          * GET /api/lxd/ssh-keys/@id
@@ -209,14 +208,7 @@ class Sshkeys extends \Base\Controller
                 'data'  => array_values($result)
             ]);
         }
-        
-        /**
-         * POST /api/lxd/ssh-keys/@id
-         */
-        if ($verb === 'POST') {
 
-        }
-        
         /**
          * PUT /api/lxd/ssh-keys/@id
          */
@@ -282,7 +274,7 @@ class Sshkeys extends \Base\Controller
             $f3->response->json([
                 'error' => null,
                 'code'  => 200,
-                'data'  => []
+                'data'  => $result
             ]);
         }
 
@@ -305,7 +297,7 @@ class Sshkeys extends \Base\Controller
             $f3->response->json([
                 'error' => '',
                 'code'  => 200,
-                'data'  => []
+                'data'  => $result
             ]);
         }
     }
