@@ -167,9 +167,11 @@
           
           // as initialize would of got directory listing, set state back to file
           this.type = 'file';
+          
+          this.$emit('snackbar', 'File saved.')
 
         } catch (error) {
-          this.error = 'Could not fetch data from server.';
+          this.error = 'Could not save file.';
         }
         this.tableLoading = false
       },
@@ -180,8 +182,10 @@
           const response = await axios.delete(this.loggedUser.sub + '/api/lxd/containers/'+this.linkedItem.name+'/files?path='+this.currentPath.replace(/\/+$/, '')+'/'+this.filename)
 
           this.setPath(this.currentPath.replace(/\/+$/, ''))
+          
+          this.$emit('snackbar', 'File deleted.')
         } catch (error) {
-          this.error = 'Could not fetch data from server.';
+          this.error = 'Could not delete file.';
         }
         this.tableLoading = false
       },
