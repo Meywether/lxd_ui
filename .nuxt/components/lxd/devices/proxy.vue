@@ -204,6 +204,11 @@
       if (this.linked) {
         this.attachType = this.linkedItem.status ? 'containers' : 'profiles'
       }
+      
+      var tmp = document.createElement ('a')
+      tmp.href = this.loggedUser.sub
+        
+      this.editingItem.dict.listen_ip = tmp.hostname
 
       this.$nextTick(() => {
         this.initialize()
