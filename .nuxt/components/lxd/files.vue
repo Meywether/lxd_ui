@@ -133,7 +133,6 @@
         } catch (error) {
           this.error = 'Could not fetch data from server.';
         }
-        this.tableLoading = false
       },
 
       async setPath (path, activeMenu = 0) {
@@ -173,21 +172,41 @@
         } catch (error) {
           this.error = 'Could not save file.';
         }
-        this.tableLoading = false
       },
       
       async deleteItem () {
-        try {
-          //
-          const response = await axios.delete(this.loggedUser.sub + '/api/lxd/containers/'+this.linkedItem.name+'/files?path='+this.currentPath.replace(/\/+$/, '')+'/'+this.filename)
-
-          this.setPath(this.currentPath.replace(/\/+$/, ''))
-          
-          this.$emit('snackbar', 'File deleted.')
-        } catch (error) {
-          this.error = 'Could not delete file.';
-        }
-        this.tableLoading = false
+        this.$prompt.show({
+          persistent: true,
+          width: 400,
+          toolbar: {
+            color: 'red darken-3',
+            closable: false,
+          },
+          title: 'Delete file?',
+          text: 'Are you sure you want to delete <b>'+this.currentPath.replace(/\/+$/, '')+'/'+this.filename+'</b>?<p class="text-md-center red--text"><br><b>This action cannot be undone!</b></p>',
+          buttons: [
+            {
+              title: 'Yes',
+              color: 'success',
+              handler: async () => {
+                try {
+                  //
+                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/containers/'+this.linkedItem.name+'/files?path='+this.currentPath.replace(/\/+$/, '')+'/'+this.filename)
+        
+                  this.setPath(this.currentPath.replace(/\/+$/, ''))
+                  
+                  this.$emit('snackbar', 'File deleted.')
+                } catch (error) {
+                  this.error = 'Could not delete file.';
+                }
+              }
+            },
+            {
+              title: 'No',
+              color: 'error'
+            }
+          ]
+        })
       },
       
       setActiveMenu(activeMenu) {
