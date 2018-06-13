@@ -34,7 +34,7 @@
     </v-data-table>
 
     <!-- Dialog -->
-    <v-dialog v-model="dialog" max-width="700px" scrollable :hide-overlay="linkedItem !== null">
+    <v-dialog v-model="dialog" max-width="640px" scrollable :hide-overlay="linkedItem !== null">
       <v-card flat>
         <v-toolbar card dark color="light-blue darken-3">
           <v-btn icon @click.native="close()" dark>
@@ -47,7 +47,7 @@
           </v-toolbar-items>
         </v-toolbar>
         <v-card-text>
-          <v-form ref="form" v-model="valid" lazy-validation>
+          <v-form ref="form" v-model="valid">
             <v-alert type="error" :value="error">
               {{ error }}
             </v-alert>
@@ -56,9 +56,21 @@
             <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the proxy device."></v-text-field>
 
             <h3>Device Settings</h3>
-            <v-text-field v-model="editingItem.dict['listen']" :rules="listenRule" label="Listen:" placeholder="" required hint="The address and port to bind and listen."></v-text-field>
-            <v-text-field v-model="editingItem.dict['connect']" :rules="connectRule" label="Connect:" placeholder="" required hint="The address and port to connect to."></v-text-field>
             <v-select :items="['host','container']" v-model="editingItem.dict['bind']" label="Bind:" persistent-hint hint="Which side to bind on."></v-select>
+
+            <v-select :items="containers" item-text="label" item-value="ip" v-model="container" label="Container:" return-object persistent-hint hint="Select container to auto fill IP. Containers which are not running don't have IP addresses, so they are not shown."></v-select>
+
+            <v-layout row wrap style="margin-top:10px">
+              <v-flex xs8>
+                <v-text-field v-model="editingItem.dict['listen_ip']" :rules="listenIPRule" label="Listen IP:" placeholder="" required hint="The IP address to bind and listen."></v-text-field>
+                <v-text-field v-model="editingItem.dict['connect_ip']" :rules="connectIPRule" label="Connect IP:" placeholder="" required hint="The IP address to connect to."></v-text-field>
+              </v-flex>
+              <v-flex xs4>
+                <v-text-field v-model="editingItem.dict['listen_port']" :rules="connectPortRule" label="Port:" placeholder="" required hint="The port to bind to."></v-text-field>
+                <v-text-field v-model="editingItem.dict['connect_port']" :rules="connectPortRule" label="Port:" placeholder="" required hint="The port to connect to."></v-text-field>
+              </v-flex>
+            </v-layout>
+
           </v-form>
         </v-card-text>
         <div style="flex: 1 1 auto;"></div>
@@ -70,11 +82,13 @@
 <script>
   import { mapGetters } from 'vuex'
   import axios from 'axios'
-
+  import helpers from '~/utils/helpers'
+  
   const container = require('~/components/lxd/container')
   const profile = require('~/components/lxd/profile')
 
   export default {
+    mixins: [helpers],
     components: {},
     props: [
       'linked'
@@ -114,14 +128,18 @@
 
       attachType: '',
       items: [],
+      containers: [],
+      container: {},
       editingIndex: -1,
       editingItem: {
         id: -1,
         type: "proxy",
         name: "",
         dict: {
-          "listen": "",
-          "connect": "",
+          "listen_ip": "",
+          "connect_ip": "",
+          "listen_port": "",
+          "connect_port": "",
           "bind": "host"
         }
       },
@@ -130,8 +148,10 @@
         type: "proxy",
         name: "",
         dict: {
-          "listen": "",
-          "connect": "",
+          "listen_ip": "",
+          "connect_ip": "",
+          "listen_port": "",
+          "connect_port": "",
           "bind": "host"
         }
       },
@@ -144,14 +164,22 @@
         v => !!v || 'Name is required',
         v => (v && v.length <= 100) || 'Name must be less than 100 characters'
       ],
-      listenRule: [
+      listenIPRule: [
         v => !!v || 'Listen address is required',
-        v => (v && /^(?!0)(?!\.)((^|\.)([1-9]?\d|1\d\d|2(5[0-5]|[0-4]\d))){4}:\d+$/gm.test(v)) || 'Invalid IP address and port'
+        v => (v && /^(?!0)(?!\.)((^|\.)([1-9]?\d|1\d\d|2(5[0-5]|[0-4]\d))){4}$/gm.test(v)) || 'Invalid IP address'
       ],
-      connectRule: [
+      connectIPRule: [
         v => !!v || 'Connect address is required',
-        v => (v && /^(?!0)(?!\.)((^|\.)([1-9]?\d|1\d\d|2(5[0-5]|[0-4]\d))){4}:\d+$/gm.test(v)) || 'Invalid IP address and port'
-      ]
+        v => (v && /^(?!0)(?!\.)((^|\.)([1-9]?\d|1\d\d|2(5[0-5]|[0-4]\d))){4}$/gm.test(v)) || 'Invalid IP address'
+      ],
+      listenPortRule: [
+        v => !!v || 'Listen port is required',
+        v => (v && !isNaN(v)) || 'Invalid port'
+      ],
+      connectPortRule: [
+        v => !!v || 'Connect port is required',
+        v => (v && !isNaN(v)) || 'Invalid port'
+      ],
     }),
     beforeDestroy: function() {},
     mounted: async function () {
@@ -179,11 +207,32 @@
 
       this.$nextTick(() => {
         this.initialize()
+        this.getContainers()
       })
     },
     watch: {
       dialog (val) {
         val || this.close()
+      },
+      'editingItem.dict.bind': function (val) {
+        var tmp = document.createElement ('a')
+        tmp.href = this.loggedUser.sub
+        
+        this.editingItem.dict.listen_ip = ''
+        this.editingItem.dict.connect_ip = ''
+
+        if (val === 'host') {
+          this.editingItem.dict.listen_ip = tmp.hostname
+        } else {
+          this.editingItem.dict.connect_ip = tmp.hostname
+        }
+      },
+      'container': function (val) {
+        if (this.editingItem.dict.bind === 'host') {
+          this.editingItem.dict.connect_ip = val.ip
+        } else {
+          this.editingItem.dict.listen_ip = val.ip
+        }
       }
     },
     methods: {
@@ -192,6 +241,10 @@
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/devices/proxy')
           this.items = response.data.data
+          //
+          if (this.linked) {
+            this.editingItem.dict.bind = 'host'
+          }
         } catch (error) {
           this.error = 'Could not fetch data from server.';
         }
@@ -255,8 +308,13 @@
         this.editingItem = JSON.parse(JSON.stringify(item));
 
         // remove connection type
-        this.editingItem.dict.listen = this.editingItem.dict.listen.substring(this.editingItem.dict.listen.indexOf(":") + 1)
-        this.editingItem.dict.connect = this.editingItem.dict.connect.substring(this.editingItem.dict.connect.indexOf(":") + 1)
+        let listen = this.editingItem.dict.listen.split(":", 3)
+        let connect = this.editingItem.dict.connect.split(":", 3)
+
+        this.editingItem.dict.listen_ip = listen[1]
+        this.editingItem.dict.listen_port = listen[2]
+        this.editingItem.dict.connect_ip = connect[1]
+        this.editingItem.dict.connect_port = connect[2]
 
         this.dialog = true
       },
@@ -273,8 +331,8 @@
               type: this.editingItem.type,
               name: this.editingItem.name,
               dict: {
-                listen: 'tcp:' + this.editingItem.dict.listen,
-                connect: 'tcp:' + this.editingItem.dict.connect,
+                listen: 'tcp:' + this.editingItem.dict.listen_ip+':'+this.editingItem.dict.listen_port,
+                connect: 'tcp:' + this.editingItem.dict.connect_ip+':'+this.editingItem.dict.connect_port,
                 bind: this.editingItem.dict.bind
               }
             };
@@ -350,6 +408,35 @@
           ]
         })
       },
+      
+      async getContainers () {
+        this.containers = []
+        //
+        try {
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers')
+          
+          if (response.data.data.length > 0) {
+            response.data.data.forEach(item => {
+              if (this.check_started_with_ip(item)) {
+                this.containers.push({label: item.name + ' - ' + item.state.network.eth0.addresses[0].address, name: item.name, ip: item.state.network.eth0.addresses[0].address})
+              }
+            })
+          }
+        } catch (error) {
+          this.containers = []
+        }
+      },
+      
+      check_started_with_ip (container) {
+        return (
+          container.state &&
+          container.state.network &&
+          container.state.network.eth0 &&
+          container.state.network.eth0.addresses.length > 0 &&
+          container.status === 'Running' &&
+          this.isIP4(container.state.network.eth0.addresses[0].address)
+        )
+      },
 
       openDialog(){
         this.dialog = true
@@ -361,6 +448,12 @@
         setTimeout(() => {
           this.editingItem = Object.assign({}, this.defaultItem)
           this.editingIndex = -1
+          this.editingItem.dict.bind = 'host'
+          this.editingItem.dict.listen_ip = ''
+          this.editingItem.dict.listen_port = ''
+          this.editingItem.dict.connect_ip = ''
+          this.editingItem.dict.connect_port = ''
+          this.container = {}
         }, 300)
       },
 
