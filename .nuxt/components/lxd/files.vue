@@ -2,7 +2,7 @@
   <div>
     <v-layout row wrap>
       <v-flex xs3>
-        <v-navigation-drawer stateless value="true">
+        <v-navigation-drawer stateless value="true" class="list__tile__custom">
           <v-list>
             <v-list-tile @click="setPath('/')">
               <v-list-tile-action>
@@ -10,10 +10,10 @@
               </v-list-tile-action>
               <v-list-tile-title style="cursor: pointer;margin-left:-25px">/</v-list-tile-title>
             </v-list-tile>
-            <v-list-tile style="height: 30px;margin-top:10px">
+            <v-list-tile style="height: 30px;margin-top:10px;line-height: 30px;">
               <v-list-tile-title style="margin-left:5px;height: 30px;line-height: 30px;" @click="setPath(displayPath.substr(0, displayPath.lastIndexOf('/')+1).replace(/\/+$/, ''))">{{ displayPath }}</v-list-tile-title>
             </v-list-tile>
-            <v-list-tile v-for="(item, i) in items" :key="i" style="height: 30px;" :class="{ list__tile__active: active[i] }">
+            <v-list-tile v-for="(item, i) in items" :key="i" style="height: 30px;line-height: 30px;" :class="[{ list__tile__active: active[i] }]">
               <v-list-tile-title style="margin-left:10px;height: 30px;line-height: 30px;" v-text="item" @click="setPath(currentPath+(currentPath === '/' ? '' : '/')+item, i)"></v-list-tile-title>
             </v-list-tile>
           </v-list>
@@ -220,11 +220,11 @@
 </script>
 
 <style>
-  .list__tile {
+  .list__tile__custom .list__tile {
     height:30px;
   }
   
-  .list__tile:hover, .list__tile:active, .list__tile:focus, .list__tile__active { 
+  .list__tile__custom .list__tile:hover, .list__tile__custom .list__tile:active, .list__tile__custom .list__tile:focus, .list__tile__custom .list__tile__active { 
     background-color: #ECEFF1;
   }
 
