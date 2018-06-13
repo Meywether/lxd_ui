@@ -255,7 +255,7 @@
             public: false,
             properties: {
               // image name: `container-name (01/01/2018, 01:23:45)`
-              description: item.name.split('/')[0] + ' (' + new Date(item.name.substr(item.name.lastIndexOf('/') + 1)).toLocaleString()+')',
+              description: item.name.split('/')[0] + ' (' + new Date().toLocaleString() + ')',
               label: (item.config['image.label'] ? item.config['image.label'] : ''),
               architecture: (item.config['image.architecture'] ? item.config['image.architecture'] : ''),
               build: new Date(),
