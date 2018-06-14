@@ -66,7 +66,7 @@
                 <v-text-field v-model="editingItem.dict['connect_ip']" :rules="connectIPRule" label="Connect IP:" placeholder="" required hint="The IP address to connect to."></v-text-field>
               </v-flex>
               <v-flex xs4>
-                <v-text-field v-model="editingItem.dict['listen_port']" :rules="connectPortRule" label="Port:" placeholder="" required hint="The port to bind to."></v-text-field>
+                <v-text-field v-model="editingItem.dict['listen_port']" :rules="listenPortRule" label="Port:" placeholder="" required hint="The port to bind to."></v-text-field>
                 <v-text-field v-model="editingItem.dict['connect_port']" :rules="connectPortRule" label="Port:" placeholder="" required hint="The port to connect to."></v-text-field>
               </v-flex>
             </v-layout>
@@ -174,11 +174,17 @@
       ],
       listenPortRule: [
         v => !!v || 'Listen port is required',
-        v => (v && !isNaN(v)) || 'Invalid port'
+        v => (v && !isNaN(v)) || 'Invalid TCP port',
+        v => (v && !isNaN(v) && v != 88) || 'Port is reserved for Conext',
+        v => (v && !isNaN(v) && v != 80) || 'Port is reserved for Web Proxy',
+        v => (v && !isNaN(v) && v != 443) || 'Port is reserved for Web Proxy',
+        v => (v && !isNaN(v) && v != 8443) || 'Port is reserved for LXD',
+        v => (v && !isNaN(v) && v > 0 && v < 65535) || 'Invalid TCP port',
       ],
       connectPortRule: [
         v => !!v || 'Connect port is required',
-        v => (v && !isNaN(v)) || 'Invalid port'
+        v => (v && !isNaN(v)) || 'Invalid TCP port',
+        v => (v && !isNaN(v) && v > 0 && v < 65535) || 'Invalid TCP port',
       ],
     }),
     beforeDestroy: function() {},
