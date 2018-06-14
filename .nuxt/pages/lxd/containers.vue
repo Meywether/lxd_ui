@@ -181,7 +181,7 @@
                             <v-text-field v-model="container.info.name" label="Name" :rules="nameRule" @input="container.info.name = safe_name(container.info.name)" required :disabled="container.state.status !== 'Stopped'" :persistent-hint="container.state.status !== 'Stopped'" :hint="`${container.state.status !== 'Stopped' ? 'Container must be stopped to rename.' : 'Enter name for container.'}`"></v-text-field>
                             <v-text-field v-model="container.info.description" label="Description" hint="Enter a description for the container."></v-text-field>
 
-                            <v-select :items="profiles" :rules="profilesRule" v-model="container.info.profiles" label="Profiles" multiple chips required></v-select>
+                            <v-select :items="profiles" :rules="profilesRule" v-model="container.info.profiles" label="Profiles" multiple chips required :disabled="container.state.status !== 'Stopped'" :persistent-hint="container.state.status !== 'Stopped'" :hint="`${container.state.status !== 'Stopped' ? 'Container must be stopped to change profile/s.' : 'Select profile/s for container.'}`"></v-select>
                           </v-card-text>
                         </v-flex>
                         <v-flex xs6>
