@@ -122,7 +122,7 @@
             <v-alert :value="true" outline color="info" icon="info">
               Copying containers may take a while, be patient.
             </v-alert>
-            <v-form ref="form" v-model="valid" lazy-validation>
+            <v-form ref="copyform" v-model="valid" lazy-validation>
               <v-select :items="[copy.name]" v-model="copy.name" label="Container:" required disabled></v-select>
               <v-text-field v-model="copy.name_alt" label="Name:" :rules="nameRule" @input="copy.name_alt = safe_name(copy.name_alt)" hint="Enter name for new container." required></v-text-field>
               <v-select :items="private_remotes" v-model="copy.remote" :rules="remoteRule" label="To Remote:" required></v-select>
@@ -170,7 +170,7 @@
               <v-tab-item :id="`tab-configuration`" v-if="container.info">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <v-card-text>
-                    <v-form ref="form" v-model="valid" lazy v-if="container.info.config">
+                    <v-form ref="containerform" v-model="valid" lazy v-if="container.info.config">
                       <v-alert type="error" :value="error.editing">
                         {{ error.editing }}
                       </v-alert>
@@ -960,7 +960,7 @@
 
       async saveContainer () {
         this.stopPolling()
-        if (this.$refs.form.validate()) {
+        if (this.$refs.containerform.validate()) {
 
           // remote
           try {
@@ -1013,7 +1013,7 @@
           this.copy.name_alt = this.copy.name
           this.copyDialog = true
         } else {
-          if (this.$refs.form.validate() && this.valid) {
+          if (this.$refs.copyform.validate() && this.valid) {
             axios.post(this.loggedUser.sub + '/api/lxd/containers/'+this.copy.name+'/copy', this.copy).then(response => {
               if (response.data.code === 200) {
                 //
