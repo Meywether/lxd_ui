@@ -157,7 +157,7 @@
       <v-dialog v-model="dialog.used_by" max-width="600px" scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
-            <v-btn icon @click.native="dialog.volumes = false" dark>
+            <v-btn icon @click.native="dialog.used_by = false" dark>
               <v-icon>close</v-icon>
             </v-btn>
             <v-toolbar-title>Used By</v-toolbar-title>
