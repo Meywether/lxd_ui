@@ -24,6 +24,16 @@ class Unixblock extends \Base\Controller
             ]);
         }
         
+        // check feature is enabled
+        if (!in_array('devices', $f3->get('modules.lxd'))) {
+            $f3->status(404);
+            $f3->response->json([
+                'error' => 'Feature not enabled',
+                'code'  => 404,
+                'data'  => []
+            ]);
+        }
+        
         $this->devices = new \Base\Model('devices');
     }
 

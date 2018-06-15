@@ -26,6 +26,18 @@ class Remotes extends \Base\Controller
                 'data'  => []
             ]);
         }
+        
+        // check feature is enabled
+        if (!in_array('images', $f3->get('modules.lxd'))) {
+            $f3->status(404);
+            $f3->response->json([
+                'error' => 'Feature not enabled',
+                'code'  => 404,
+                'data'  => []
+            ]);
+        }
+        
+        $this->remotes = new \Base\Model('remotes');
     }
 
     /**
@@ -44,14 +56,35 @@ class Remotes extends \Base\Controller
          */
         if ($verb === 'GET') {
             //
-            $result = $client->lxd->images->remotes(function ($result) {
-                return explode(PHP_EOL, $result);
-            });
+            $result = $client->lxd->images->remotes();
+            
+            // update remotes database
+            foreach ($result as $row) {
+                $remote = $this->remotes->findOrCreate([
+                    'name' => $row['name']    
+                ]);
+                $remote->import($row);
+                $this->remotes->store($remote);
+            }
+            
+            // handle ?type param
+            if (!$f3->devoid('GET.type')) {
+                // public/private remotes
+                if (in_array($f3->get('GET.type'), ['public', 'private'])) {
+                    $result = $this->remotes->findAll('public = ?', [
+                        ($f3->get('GET.type') == 'public' ? '1' : '0')
+                    ]);
+                } else {
+                    $result = $this->remotes->findAll();
+                }
+            } else {
+                $result = $this->remotes->findAll();
+            }
 
             $f3->response->json([
                 'error' => null,
                 'code'  => 200,
-                'data'  => $result
+                'data'  => array_values($result)
             ]);
         }
         

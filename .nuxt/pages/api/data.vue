@@ -77,7 +77,7 @@
                   </v-layout> 
                   <v-layout row wrap>
                     <v-flex xs6>
-                      <v-select :items="['None', 'JWT']" v-model="editingItem.auth" label="Authentication:"></v-select>
+                      <v-select :items="['None']" v-model="editingItem.auth" label="Authentication:"></v-select>
                       <p v-if="editingItem.auth === 'JWT'" style="margin-top:-20px;color:rgba(0,0,0,0.54);font-size: 12px;">To obtain bearer token, authenticate using POST to {{loggedUser.sub}}/auth/jwt</p>
                     </v-flex>
                     <v-flex xs6>
@@ -166,7 +166,7 @@
         source: "",
         headers: "",
         config: null,
-        auth: null
+        auth: 'None'
       },
       defaultItem: {
         id: -1,
@@ -175,7 +175,7 @@
         source: "",
         headers: "",
         config: null,
-        auth: null
+        auth: 'None'
       },
       
       // item form & validation
@@ -314,6 +314,7 @@
 </script>
 
 <style>
+
   .CodeMirror {
     border: 1px solid #eee;
     min-height:calc(100vh - 350px);
@@ -322,10 +323,13 @@
     font-size: 13px;
     line-height:1.1em;
   }
+  
   .CodeMirror-scroll{
     min-height:calc(100vh - 350px);
   }
+  
   .CodeMirror-gutters {
     left: 0px!important;
   }
+  
 </style>

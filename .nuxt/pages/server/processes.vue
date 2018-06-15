@@ -17,11 +17,11 @@
                     <v-flex xs8>
                     </v-flex>
                     <v-flex xs4>
-                      <v-text-field v-model="search" append-icon="search" label="Search..." single-line hide-details></v-text-field>
+                      <v-text-field v-model="search" append-icon="search" label="Filter..." single-line hide-details></v-text-field>
                     </v-flex>
                   </v-layout>
                 </v-card-title>
-                <v-data-table :headers="tableHeaders" :items="items" hide-actions :search="search"  :loading="tableLoading">
+                <v-data-table :headers="tableHeaders" :items="items" hide-actions :search="search" :loading="tableLoading">
                   <template slot="items" slot-scope="props">
                     <td>{{ props.item['PID'] }}</td>
                     <td>{{ props.item['USER'] }}</td>

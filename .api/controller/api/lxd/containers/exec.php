@@ -26,6 +26,16 @@ class Exec extends \Base\Controller
                 'data'  => []
             ]);
         }
+        
+        // check feature is enabled
+        if (!in_array('containers', $f3->get('modules.lxd'))) {
+            $f3->status(404);
+            $f3->response->json([
+                'error' => 'Feature not enabled',
+                'code'  => 404,
+                'data'  => []
+            ]);
+        }
     }
 
     /**
@@ -43,6 +53,7 @@ class Exec extends \Base\Controller
          * GET /api/lxd/containers/@name/state
          */
         if ($verb === 'GET') {
+            /*
             //
             $result = $client->lxd->containers->getState('local', $params['name']);
 
@@ -51,12 +62,14 @@ class Exec extends \Base\Controller
                 'code'  => 200,
                 'data'  => $result
             ]);
+            */
         }
         
         /**
          * POST /api/lxd/containers/@name/state
          */
         if ($verb === 'POST') {
+            /*
             $body = json_decode($f3->get('BODY'), true);
             //
             $result = $client->lxd->containers->exec('local', $params['name'], $body);
@@ -66,12 +79,14 @@ class Exec extends \Base\Controller
                 'code'  => 200,
                 'data'  => $result
             ]);
+            */
         }
         
         /**
          * PUT /api/lxd/containers/@name/state
          */
         if ($verb === 'PUT') {
+            /*
             $body = json_decode($f3->get('BODY'), true);
             
             if (empty($body)) {
@@ -90,27 +105,7 @@ class Exec extends \Base\Controller
                 'code'  => 200,
                 'data'  => $result
             ]);
-        }
-        
-        /**
-         * DELETE /api/lxd/containers/@name/state
-         */
-        if ($verb === 'DELETE') {
-            $item = json_decode($f3->get('BODY'), true);
-            
-            if (empty($item) || !is_numeric($item['id'])) {
-               $f3->response->json([
-                    'error' => 'Invalid DELETE body, expecting item',
-                    'code'  => 422,
-                    'data'  => []
-                ]); 
-            }
-            
-            $f3->response->json([
-                'error' => '',
-                'code'  => 200,
-                'data'  => []
-            ]);
+            */
         }
     }
 

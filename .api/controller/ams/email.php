@@ -33,6 +33,16 @@ class Email extends \Base\Controller
         $this->email_provider = new \Base\Model('amsemailprovider');
         $this->email_template = new \Base\Model('amsemailtemplate');
         $this->email_debug = new \Base\Model('amsemaildebug');
+        
+        // check feature is enabled
+        if (!in_array('email', $f3->get('modules.api'))) {
+            $f3->status(404);
+            $f3->response->json([
+                'error' => 'Feature not enabled',
+                'code'  => 404,
+                'data'  => []
+            ]);
+        }
     }
     
     /**
@@ -40,6 +50,7 @@ class Email extends \Base\Controller
      */
     public function index(\Base $f3, $params)
     {
+
         $verb = $f3->get('VERB');
         
         // POST only

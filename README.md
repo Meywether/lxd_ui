@@ -156,6 +156,10 @@ Once complete, you will be able to go to the panel at `http://IP:88`, and then a
 -->
 
 
+## :lock: Security
+
+Please see [security](https://github.com/lcherone/Conext/wiki/Security) wiki page for details.
+
 ## :construction: Contributing
 
 Please see [CONTRIBUTING](https://github.com/lcherone/Conext/blob/master/CONTRIBUTING.md) for details.

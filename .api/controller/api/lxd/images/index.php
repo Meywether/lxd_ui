@@ -37,6 +37,16 @@ class Index extends \Base\Controller
             ]);
         }
         
+        // check feature is enabled
+        if (!in_array('images', $f3->get('modules.lxd'))) {
+            $f3->status(404);
+            $f3->response->json([
+                'error' => 'Feature not enabled',
+                'code'  => 404,
+                'data'  => []
+            ]);
+        }
+        
         $this->cache = \Cache::instance();
         $this->cache_ttl = 5;
     }
@@ -102,14 +112,7 @@ class Index extends \Base\Controller
 
             $f3->response->json($response);
         }
-        
-        /**
-         * PUT /api/lxd/images
-         */
-        if ($verb === 'PUT') {
-            
-        }
-        
+
     }
     
     /**
@@ -157,11 +160,13 @@ class Index extends \Base\Controller
          * POST /api/lxd/images/@fingerprint
          */
         if ($verb === 'POST') {
+            /*
             $f3->response->json([
                 'error' => '',
                 'code'  => 200,
                 'data'  => []
             ]);
+            */
         }
         
         /**

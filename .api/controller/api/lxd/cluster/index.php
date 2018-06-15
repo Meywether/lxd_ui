@@ -26,10 +26,20 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
         }
+        
+        // check feature is enabled
+        if (!in_array('cluster', $f3->get('modules.lxd'))) {
+            $f3->status(404);
+            $f3->response->json([
+                'error' => 'Feature not enabled',
+                'code'  => 404,
+                'data'  => []
+            ]);
+        }
     }
 
     /**
-     *
+     * @todo
      */
     public function index(\Base $f3, $params)
     {
@@ -43,6 +53,7 @@ class Index extends \Base\Controller
          * GET /api/lxd
          */
         if ($verb === 'GET') {
+            /*
             // get containers
             $result = $client->lxd->containers->list('local', function ($result) {
                 return str_replace('/1.0/containers/', '', $result);
@@ -53,23 +64,27 @@ class Index extends \Base\Controller
                 'code'  => 200,
                 'data'  => $result
             ]);
+            */
         }
         
         /**
          * POST /api/lxd/containers
          */
         if ($verb === 'POST') {
+            /*
             $f3->response->json([
                 'error' => '',
                 'code'  => 200,
                 'data'  => []
             ]);
+            */
         }
         
         /**
          * PUT /api/lxd/containers
          */
         if ($verb === 'PUT') {
+            /*
             $item = json_decode($f3->get('BODY'), true);
             
             if (empty($item) || !is_numeric($item['id'])) {
@@ -85,12 +100,14 @@ class Index extends \Base\Controller
                 'code'  => 200,
                 'data'  => []
             ]);
+            */
         }
         
         /**
          * DELETE /api/lxd/containers
          */
         if ($verb === 'DELETE') {
+            /*
             $item = json_decode($f3->get('BODY'), true);
             
             if (empty($item) || !is_numeric($item['id'])) {
@@ -106,6 +123,7 @@ class Index extends \Base\Controller
                 'code'  => 200,
                 'data'  => []
             ]);
+            */
         }
     }
 
