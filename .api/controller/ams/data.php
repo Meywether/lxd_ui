@@ -37,7 +37,7 @@ class Data extends \Base\Controller
         }
 
         ob_start();
-        echo (function ($module) use ($f3, $params) {
+        echo (function ($module) use ($f3, /** @scrutinizer ignore-unused */ $params) {
             /**
              * Pre-setup - extract and set variables for source to use
              */
@@ -60,9 +60,7 @@ class Data extends \Base\Controller
             // check auth (JWT)
             if (!empty($module->auth) && $module->auth === 'JWT') {
                 try {
-                    \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
-                        
-                    });
+                    \Lib\JWT::checkAuth();
                 } catch (\Exception $e) {
                     $f3->response->json([
                         'error' => $e->getMessage(),
@@ -88,11 +86,13 @@ class Data extends \Base\Controller
             unset($module);
 
             try {
-                return eval('?>'.@$source);
+                $return = eval('?>'.@$source);
             } catch (\ParseError $e) {
                 header('Content-Type: text/plain');
-                return "API Error:\n".$e."\n";
+                $return = "API Error:\n".$e."\n";
             }
+            
+            return $return;
         })($module);
         
         exit(ob_get_clean());
