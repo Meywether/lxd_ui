@@ -166,10 +166,13 @@ install_project() {
 
     # check config.ini exists
     if [ ! -f "$webroot/config.ini" ]; then
+    
+        # define further charset for random string
+        chars='!#$%&\(\)*+,-.\/0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_abcdefghijklmnopqrstuvwxyz{|}~'
 
-        JWTsecret=$(date +%s%N | sha256sum | base64 | head -c 32 ; echo)
-        sleep .1
-        AUTHsecret=$(date +%s%N | sha256sum | base64 | head -c 16 ; echo)
+        # generate random strings for secrets
+        JWTsecret=$(</dev/urandom tr -dc "$(date +%s%N | base64 | head -c 64 ; echo)$chars" | head -c64; echo "")
+        AUTHsecret=$(</dev/urandom tr -dc "$(date +%s%N | base64 | head -c 32 ; echo)$chars" | head -c32; echo "")
 
         echo -e "[globals]
 
@@ -205,7 +208,7 @@ CACHE=true
 DEBUG=0
 AUTOLOAD=\".api/\"
 
-; System Modules (effects UI menu)
+; System Modules (remove items to remove features)
 [modules]
 server=\"network-connections\",\"processes\",\"logins\"
 api=\"data\",\"email\"

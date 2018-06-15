@@ -125,7 +125,7 @@
             <v-form ref="copyform" v-model="valid" lazy-validation>
               <v-select :items="[copy.name]" v-model="copy.name" label="Container:" required disabled></v-select>
               <v-text-field v-model="copy.name_alt" label="Name:" :rules="nameRule" @input="copy.name_alt = safe_name(copy.name_alt)" hint="Enter name for new container." required></v-text-field>
-              <v-select :items="private_remotes" v-model="copy.remote" :rules="remoteRule" label="To Remote:" required></v-select>
+              <v-select :items="private_remotes" v-model="copy.remote" item-text="name" item-value="name" :rules="remoteRule" label="To Remote:" required></v-select>
             </v-form>
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
@@ -409,7 +409,7 @@
       },
       private_remotes: function () {
         return this.remotes.filter(row => {
-          if (this.publicServers.includes(row) || row === this.activeRemote) {
+          if (this.publicServers.includes(row.name) || row.name === this.activeRemote) {
             return false
           }
           return row
@@ -527,7 +527,7 @@
       if (!this.$storage.isset('lxd')) {
         try {
           const response = await axios.get(this.loggedUser.sub + '/api/lxd')
-          this.$storage.set('lxd', response.data)
+          this.$storage.set('lxd', response.data.data)
           this.lxd = response.data
         } catch (error) {
           this.$storage.remove('lxd')

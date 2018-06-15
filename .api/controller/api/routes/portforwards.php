@@ -23,6 +23,16 @@ class Portforwards extends \Base\Controller
                 'data'  => []
             ]);
         }
+        
+        // check feature is enabled
+        if (!in_array('port', $f3->get('modules.routes'))) {
+            $f3->status(404);
+            $f3->response->json([
+                'error' => 'Feature not enabled',
+                'code'  => 404,
+                'data'  => []
+            ]);
+        }
     }
 
     /**

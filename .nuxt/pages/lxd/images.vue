@@ -15,21 +15,23 @@
               <v-flex tag="h1" class="display mb-2">
                 <v-layout row wrap>
                   <v-flex xs12 sm6>
-                    LXD - Images
+                    LXD - Images <span v-if="state == 'remotes'">- Remotes</span>
                   </v-flex>
                   <v-flex xs12 sm6>
-                    
+                    <!--<v-btn small @click="state = 'images'" v-if="state == 'remotes'" style="float:right">Manage Images</v-btn>-->
+                    <!--<v-btn small @click="state = 'remotes'" v-if="state == 'images'" style="float:right">Manage Remotes</v-btn>-->
+                    <!--<v-btn small color="success" @click="openDialog('remotes')" v-if="state == 'remotes'" style="float:right">Add Remote</v-btn>-->
                   </v-flex>
                 </v-layout>
               </v-flex>
-              <v-flex>
+              <v-flex v-if="state == 'images'">
                 <v-alert type="error" :value="error">
                   {{ error }}
                 </v-alert>
                 <div class="elevation-1">
                   <v-tabs v-model="activeRemote" right @input="loadRemoteImages">
-                    <v-tab ripple :href="`#${item}`" v-for="item in remotes" :key="item">{{ item }}</v-tab>
-                    <v-tab-item :id="`${item}`" v-for="item in remotes" :key="item"></v-tab-item>
+                    <v-tab ripple :href="`#${item.name}`" v-for="item in remotes" :key="item.name">{{ item.name }}</v-tab>
+                    <v-tab-item :id="`${item.name}`" v-for="item in remotes" :key="item.name"></v-tab-item>
                   </v-tabs>
                   <v-tabs v-model="activeDistro" show-arrows>
                     <v-tab ripple :href="`#${dist}`" v-for="dist in distros_list" :key="dist">{{ dist }}</v-tab>
@@ -73,6 +75,9 @@
                   </template>
                 </v-data-table>
               </v-flex>
+              <v-flex v-if="state == 'remotes'">
+                <remotes @snackbar="setSnackbar" ref="remotes"></remotes>
+              </v-flex> 
             </v-layout>
           </v-flex>
         </v-layout>
@@ -98,7 +103,7 @@
             <v-form ref="form" v-model="valid" lazy-validation>
               <v-select :items="[copy.properties.description]" v-model="copy.properties.description" label="Image:" required disabled></v-select>
               <v-select :items="[activeRemote]" v-model="activeRemote" label="From Remote:" required disabled></v-select>
-              <v-select :items="private_remotes" v-model="copy.remote" :rules="remoteRule" label="To Remote:" required></v-select>
+              <v-select :items="private_remotes" v-model="copy.remote" item-text="name" item-value="name" :rules="remoteRule" label="To Remote:" required></v-select>
             </v-form>
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
@@ -168,12 +173,16 @@
   import { mapGetters, mapMutations } from 'vuex'
   import { setToken } from '~/utils/auth'
   import axios from 'axios'
+  
+  import remotes from '~/components/lxd/remotes.vue'
 
   export default {
     middleware: [
       'authenticated'
     ],
-    components: {},
+    components: {
+      remotes
+    },
     computed: {
       ...mapGetters({
         isAuthenticated: 'auth/isAuthenticated',
@@ -193,7 +202,7 @@
       },
       private_remotes: function () {
         return this.remotes.filter(row => {
-          if (this.publicServers.includes(row) || row === this.activeRemote) {
+          if (this.publicServers.includes(row.name) || row.name === this.activeRemote) {
             return false
           }
           return row
@@ -203,6 +212,7 @@
     data: () => ({
       // global error
       error: '',
+      state: 'images',
 
       // snackbar (notification)
       snackbar: false,
@@ -294,7 +304,7 @@
       if (!this.$storage.isset('lxd')) {
         try {
           const response = await axios.get(this.loggedUser.sub + '/api/lxd')
-          this.$storage.set('lxd', response.data)
+          this.$storage.set('lxd', response.data.data)
           this.lxd = response.data
         } catch (error) {
           this.$storage.remove('lxd')
@@ -584,6 +594,22 @@
           this.editingItem = Object.assign({}, this.defaultItem)
           this.editingIndex = {create: -1, edit: -1}
         }, 300)
+      },
+      
+      // set snackbar (invoked from components)
+      setSnackbar (msg) {
+        this.snackbar = true
+        this.snackbarTimeout = 2500
+        this.snackbarText = msg
+      },
+      
+      // set error (invoked from components)
+      setError (msg) {
+        this.error = msg
+      },
+      
+      openDialog (ref) {
+        this.$refs[ref].openDialog()
       },
       
       formatBytes (bytes, decimals) {

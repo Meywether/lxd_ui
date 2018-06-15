@@ -154,7 +154,7 @@
       if (!this.$storage.isset('lxd')) {
         try {
           const response = await axios.get(this.loggedUser.sub + '/api/lxd')
-          this.$storage.set('lxd', response.data)
+          this.$storage.set('lxd', response.data.data)
           this.lxd = response.data
         } catch (error) {
           this.$storage.remove('lxd')

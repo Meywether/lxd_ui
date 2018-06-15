@@ -16,6 +16,16 @@ class Data extends \Base\Controller
      */
     public function index(\Base $f3, $params)
     {
+        // check feature is enabled
+        if (!in_array('data', $f3->get('modules.api'))) {
+            $f3->status(404);
+            $f3->response->json([
+                'error' => 'Feature not enabled',
+                'code'  => 404,
+                'data'  => []
+            ]);
+        }
+        
         $this->ams = new \Base\Model('ams');
         
         // load module

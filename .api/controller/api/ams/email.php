@@ -32,6 +32,16 @@ class Email extends \Base\Controller
             ]);
         }
         
+        // check feature is enabled
+        if (!in_array('email', $f3->get('modules.api'))) {
+            $f3->status(404);
+            $f3->response->json([
+                'error' => 'Feature not enabled',
+                'code'  => 404,
+                'data'  => []
+            ]);
+        }
+        
         $this->email_provider = new \Base\Model('amsemailprovider');
         $this->email_template = new \Base\Model('amsemailtemplate');
     }

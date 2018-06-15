@@ -26,6 +26,16 @@ class State extends \Base\Controller
                 'data'  => []
             ]);
         }
+        
+        // check feature is enabled
+        if (!in_array('containers', $f3->get('modules.lxd'))) {
+            $f3->status(404);
+            $f3->response->json([
+                'error' => 'Feature not enabled',
+                'code'  => 404,
+                'data'  => []
+            ]);
+        }
     }
 
     /**
@@ -57,11 +67,13 @@ class State extends \Base\Controller
          * POST /api/lxd/containers/@name/state
          */
         if ($verb === 'POST') {
+            /*
             $f3->response->json([
                 'error' => '',
                 'code'  => 200,
                 'data'  => []
             ]);
+            */
         }
         
         /**

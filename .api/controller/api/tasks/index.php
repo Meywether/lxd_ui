@@ -77,12 +77,12 @@ class Index extends \Base\Controller
             foreach ($client->tasks->getTaskSources() as $row) {
                 // decode params
                 $row->params = !empty($row->params) ? json_decode($row->params, JSON_FORCE_OBJECT) : [];
-                
-                // grouping [user/system_tasks]
-                if (in_array($row->name, $this->system_tasks)) {
+
+                // grouping [user/system_tasks]if () {
+                if (in_array($row->name, $this->system_tasks) && in_array('system', $f3->get('modules.tasks'))) {
                     $row->system = true;
                     $result['system'][] = $row;
-                } else {
+                } elseif (in_array('user', $f3->get('modules.tasks'))) {
                     $row->system = false;
                     $result['user'][] = $row;
                 }
@@ -99,6 +99,7 @@ class Index extends \Base\Controller
         }
         
         if ($verb === 'POST') {
+
             $item = json_decode($f3->get('BODY'), true);
            
             if (empty($item) || !is_numeric($item['id'])) {
@@ -160,6 +161,7 @@ class Index extends \Base\Controller
         }
         
         if ($verb === 'DELETE') {
+
             $item = json_decode($f3->get('BODY'), true);
             
             if (empty($item) || !is_numeric($item['id'])) {
