@@ -21,17 +21,14 @@
               </v-flex>
               <v-flex>
                 <p>SSH keys allow you to login to the containers using a standard SSH client.</p>
-
                 <v-alert type="error" :value="error">
                   {{ error }}
                 </v-alert>
-                
                 <v-card>
                   <v-card-text style="padding:0">
                     <ssh-keys @snackbar="setSnackbar" ref="none"></ssh-keys>
                   </v-card-text>
                 </v-card>
-                
               </v-flex>
             </v-layout>
           </v-flex>
