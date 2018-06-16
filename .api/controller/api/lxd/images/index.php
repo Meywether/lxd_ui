@@ -72,20 +72,29 @@ class Index extends \Base\Controller
                     'data'  => []
                 ]);
             }
-            
-            // cache remote images if not local
-            if ($f3->get('GET.remote') === 'local' || !$this->cache->exists('images.'.$f3->get('GET.remote'), $result)) {
-                // get images filter by architecture (may add as a parameter if ever needed)
-                $result = $this->lxd->images->list($f3->get('GET.remote'), 'architecture="'.implode('|', ['x86_64', 'i686', 'amd64']).'"');
-                //
-                $this->cache->set('images.'.$f3->get('GET.remote'), $result, 3600);
-            }
 
-            $f3->response->json([
-                'error' => null,
-                'code'  => 200,
-                'data'  => $result
-            ]);
+            try {
+                // cache remote images if not local
+                if ($f3->get('GET.remote') === 'local' || !$this->cache->exists('images.'.$f3->get('GET.remote'), $result)) {
+                    // get images filter by architecture (may add as a parameter if ever needed)
+                    $result = $this->lxd->images->list($f3->get('GET.remote'), 'architecture="'.implode('|', ['x86_64', 'i686', 'amd64']).'"');
+                    //
+                    $this->cache->set('images.'.$f3->get('GET.remote'), $result, 3600);
+                }
+                
+                $result = [
+                    'error' => null,
+                    'code'  => 200,
+                    'data'  => $result
+                ];
+            } catch (\Exception $e) {
+                $result = [
+                    'error' => $e->getMessage(),
+                    'code'  => $e->getCode(),
+                    'data'  => []
+                ];
+            }
+            $f3->response->json($result);
         }
         
         /**

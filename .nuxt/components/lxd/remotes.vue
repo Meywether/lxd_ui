@@ -22,7 +22,9 @@
               <td>{{ props.item.protocol }}</td>
               <td>{{ props.item.auth_type.toUpperCase() }}</td>
               <td>
-                <v-btn dark depressed small color="red" @click="actionItem('remove', props.item)">Remove</v-btn>
+                <v-btn icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)" :disabled="props.item.static === '1'">
+                  <v-icon color="pink">delete</v-icon>
+                </v-btn>
               </td>
             </tr>
           </template>
@@ -371,43 +373,25 @@
       },
 */
       // save
-      /*
+   
       async saveItem () {
         if (this.$refs.form.validate()) {
-          
-          this.editingItem.name = this.editingItem.dict.name
-
-          // remote
           try {
-
-            var body = {
-              id: this.editingItem.id,
-              type: this.editingItem.type,
-              name: this.editingItem.name,
-              dict: {
-                name: this.editingItem.dict.name
-              }
-            };
 
             // edit
             if (this.editingIndex > -1) {
-              var response = await axios.put(this.loggedUser.sub + '/api/lxd/devices/none/'+this.editingItem.id, body)
+              var response = await axios.put(this.loggedUser.sub + '/api/lxd/images/remotes/'+this.editingItem.name, this.editingItem)
             }
             // add
             else {
-              var response = await axios.post(this.loggedUser.sub + '/api/lxd/devices/none', body)
+              var response = await axios.post(this.loggedUser.sub + '/api/lxd/images/remotes', this.editingItem)
             }
 
             if (response.data.error) {
-              if (response.data.error.name) {
-                this.error = response.data.error.name
-              }
-              if (response.data.error.dict.name) {
-                this.error = response.data.error.dict.name
-              }
+              this.error = response.data.error
             } else {
               //
-              this.$emit('snackbar', 'Device successfully saved.')
+              this.$emit('snackbar', 'Remote successfully saved.')
 
               if (this.editingIndex === -1) {
                 this.close()
@@ -416,11 +400,10 @@
               this.initialize()
             }
           } catch (error) {
-            this.error = 'Could not save device to server.';
+            this.error = 'Could not save remote to server.'+error;
           }
         }
       },
-      */
 
       async deleteItem (item) {
         this.$prompt.show({
@@ -430,8 +413,8 @@
             color: 'red darken-3',
             closable: false,
           },
-          title: 'Delete device?',
-          text: 'Are you sure you want to delete the <b>'+item.name+'</b> device?<p class="text-md-center red--text"><br><b>Devices are not removed from containers!</b></p>',
+          title: 'Delete remote?',
+          text: 'Are you sure you want to delete the <b>'+item.name+'</b> remote?',
           buttons: [
             {
               title: 'Yes',
@@ -444,13 +427,13 @@
                 // remote
                 try {
                   //
-                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/devices/none/'+item.id)
+                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/images/remotes/'+item.name)
 
                   //
-                  this.$emit('snackbar', 'Device successfully deleted.')
+                  this.$emit('snackbar', 'Remote successfully deleted.')
                 } catch (error) {
                   //
-                  this.error = 'Failed to delete device.';
+                  this.error = 'Failed to delete remote.';
                 }
               }
             },

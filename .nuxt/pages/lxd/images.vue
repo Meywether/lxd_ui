@@ -18,9 +18,9 @@
                     LXD - Images <span v-if="state == 'remotes'">- Remotes</span>
                   </v-flex>
                   <v-flex xs12 sm6>
-                    <!--<v-btn small @click="state = 'images'" v-if="state == 'remotes'" style="float:right">Manage Images</v-btn>-->
-                    <!--<v-btn small @click="state = 'remotes'" v-if="state == 'images'" style="float:right">Manage Remotes</v-btn>-->
-                    <!--<v-btn small color="success" @click="openDialog('remotes')" v-if="state == 'remotes'" style="float:right">Add Remote</v-btn>-->
+                    <v-btn small @click="state = 'images'" v-if="state == 'remotes'" style="float:right">Manage Images</v-btn>
+                    <v-btn small @click="state = 'remotes'" v-if="state == 'images'" style="float:right">Manage Remotes</v-btn>
+                    <v-btn small color="success" @click="openDialog('remotes')" v-if="state == 'remotes'" style="float:right">Add Remote</v-btn>
                   </v-flex>
                 </v-layout>
               </v-flex>
@@ -33,7 +33,7 @@
                     <v-tab ripple :href="`#${item.name}`" v-for="item in remotes" :key="item.name">{{ item.name }}</v-tab>
                     <v-tab-item :id="`${item.name}`" v-for="item in remotes" :key="item.name"></v-tab-item>
                   </v-tabs>
-                  <v-tabs v-model="activeDistro" show-arrows>
+                  <v-tabs v-model="activeDistro" show-arrows v-if="distros_list.length > 0">
                     <v-tab ripple :href="`#${dist}`" v-for="dist in distros_list" :key="dist">{{ dist }}</v-tab>
                     <v-tab-item :id="`${dist}`" v-for="dist in distros_list" :key="dist"></v-tab-item>
                   </v-tabs>
@@ -389,7 +389,11 @@
         //
         this.items = []
         //
+        this.distros = []
+        //
         this.tableLoading = true
+        //
+        this.error = false
         //
         try {
           if (!this.loggedUser) {
@@ -398,23 +402,28 @@
 
           //
           var response = await axios.get(this.loggedUser.sub + '/api/lxd/images?remote='+remote)
+          
           this.items = response.data.data
           
-          // assign distro list in background
-          setTimeout(() => {
+          //
+          if (response.data.error) {
+            this.error = response.data.error;
             this.distros = [];
-            for (var key in this.items) {
-              this.distros.push(this.items[key].properties.os.toLowerCase())
-            }
-          }, 0)
-          
-          // show delete button
-          this.show_delete = this.items.length > 0 && !this.publicServers.includes(this.activeRemote)
-          
-          //
-          this.activeDistro = 'ubuntu';
-
-          //
+          } else {
+            // assign distro list in background
+            setTimeout(() => {
+              this.distros = [];
+              for (var key in this.items) {
+                this.distros.push(this.items[key].properties.os.toLowerCase())
+              }
+            }, 0)
+            
+            // show delete button
+            this.show_delete = this.items.length > 0 && !this.publicServers.includes(this.activeRemote)
+            
+            //
+            this.activeDistro = 'ubuntu';
+          }
         } catch (error) {
           this.tableNoData = 'No data.';
           this.error = 'Could not fetch data from server.';
@@ -422,7 +431,7 @@
         this.tableLoading = false
       },
       
-     createContainer (item, launch = false) {
+      createContainer (item, launch = false) {
         if (!launch) {
           this.getStoragePools()
           this.getProfiles()
