@@ -17,6 +17,12 @@ class Index extends \Base\Controller
      */
     private $cache_ttl;
     
+    /*
+     * @var
+     */
+    private $lxd;
+    
+    
     public function beforeRoute(\Base $f3)
     {
         // check auth

@@ -7,6 +7,11 @@ namespace Controller\Api\Lxd\Images;
  */
 class Remotes extends \Base\Controller
 {
+    /*
+     * @var
+     */
+    private $remotes;
+    
     public function beforeRoute(\Base $f3)
     {
         // check auth

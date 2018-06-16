@@ -7,6 +7,11 @@ namespace Controller\Api\Lxd;
  */
 class Index extends \Base\Controller
 {
+    /*
+     * @var
+     */
+    private $lxd;
+    
     public function beforeRoute(\Base $f3)
     {
         // check auth
