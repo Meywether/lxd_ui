@@ -22,7 +22,7 @@ namespace Controller\Api\Lxd\Certificates;
 /**
  *
  */
-class Index extends \Base\Controller
+class Generate extends \Base\Controller
 {
     /*
      * @var
@@ -77,54 +77,38 @@ class Index extends \Base\Controller
     }
 
     /**
-     * GET /api/lxd/certificates
+     * POST /api/lxd/certificates/generate
      *
+     * @param object $f3
      * @return void
      */
-    public function get()
+    public function post(\Base $f3)
     {
         try {
-            $certificates = $this->lxd->certificates->list('local', function ($result) {
-                return str_replace('/1.0/certificates/', '', $result);
+            $tmpname = tempnam("/tmp", "cert");
+            
+            // protect from nastys
+            $this->body = (array) $f3->recursive($this->body, function ($value) {
+            	return trim(preg_replace("/[^a-z0-9 \.-]/i", '', $value));
             });
 
-            foreach ((array) $certificates as $fingerprint) {
-                $this->result[] = $this->lxd->certificates->info('local', $fingerprint);
-            }
+            $subject = "/C={$this->body['subject']['c']}/ST={$this->body['subject']['st']}/L={$this->body['subject']['l']}/O={$this->body['subject']['o']}/OU={$this->body['subject']['ou']}/CN={$this->body['subject']['cn']}";
 
+            // generate
+            `openssl genrsa {$this->body['bits']} > "$tmpname.key"`;
+            `openssl req -new -x509 -nodes -sha256 -days {$this->body['days']} -key "$tmpname.key" -out "$tmpname.crt" -subj "$subject"`;
+            
+            $this->result = [
+                'key' => file_get_contents("$tmpname.key"),
+                'pem' => file_get_contents("$tmpname.crt"),
+            ]+$this->body;
+            
             $this->result = [
                 'error' => '',
                 'code'  => 200,
                 'data'  => $this->result
             ];
-        } catch (\Exception $e) {
-            $this->result = [
-                'error' => $e->getMessage(),
-                'code'  => 422,
-                'data'  => []
-            ];
-        }
-    }
-
-    /**
-     * POST /api/lxd/certificates
-     *
-     * @return void
-     */
-    public function post()
-    {
-        try {
-            $this->body['certificate'] = trim(str_replace(
-                ['-----BEGIN CERTIFICATE-----', '-----END CERTIFICATE-----'],
-                '', 
-                trim($this->body['certificate'])
-            ));
-
-            $this->result = [
-                'error' => '',
-                'code'  => 200,
-                'data'  => $this->lxd->query('local:/1.0/certificates', 'POST', $this->body)
-            ];
+            
         } catch (\Exception $e) {
             $this->result = [
                 'error' => $e->getMessage(),
