@@ -37,7 +37,7 @@ class Data extends \Base\Controller
         }
 
         ob_start();
-        echo (function ($module) use ($f3, /** @scrutinizer ignore-unused */ $params) {
+        echo (function ($module) use ($f3, $params) {
             /**
              * Pre-setup - extract and set variables for source to use
              */
