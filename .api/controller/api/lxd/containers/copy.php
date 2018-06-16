@@ -10,6 +10,11 @@ class Copy extends \Base\Controller
     /*
      * @var
      */
+    private $lxd;
+    
+    /*
+     * @var
+     */
     private $cache;
     
     /*
@@ -39,6 +44,8 @@ class Copy extends \Base\Controller
             ]);
         }
         
+        $this->lxd = new \Model\LXD($f3);
+        
         $this->cache = \Cache::instance();
         $this->cache_ttl = 5;
     }
@@ -50,10 +57,7 @@ class Copy extends \Base\Controller
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
-        
-        // plinker client
-        $client = $f3->get('plinker');
-        
+
         /**
          * POST /api/lxd/containers/@name/copy
          */
@@ -69,7 +73,7 @@ class Copy extends \Base\Controller
                 $response = [
                     'error' => null,
                     'code'  => 200,
-                    'data'  => $client->lxd->local('lxc copy local:'.$params['name'].' '.$body['remote'].':'.$params['container'].' --container-only')
+                    'data'  => $this->lxd->local('lxc copy local:'.$params['name'].' '.$body['remote'].':'.$params['container'].' --container-only')
                 ];
             } catch (\Exception $e) {
                 $response = [

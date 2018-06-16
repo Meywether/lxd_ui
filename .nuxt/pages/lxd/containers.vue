@@ -155,7 +155,7 @@
             </v-btn>
             <v-toolbar-title>Container: {{ container.state && container.state.name }}</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-toolbar-items v-if="activeTab !== 'tab-snapshots' && activeTab !== 'tab-devices' && activeTab !== 'tab-idmap' && activeTab !== 'tab-sshkeys' && activeTab !== 'tab-files'">
+            <v-toolbar-items v-if="['tab-configuration'].includes(activeTab)">
               <v-btn dark flat @click.native="saveContainer()">Save</v-btn>
             </v-toolbar-items>
           </v-toolbar>
@@ -181,7 +181,6 @@
                           <v-card-text class="px-1">
                             <v-text-field v-model="container.info.name" label="Name" :rules="nameRule" @input="container.info.name = safe_name(container.info.name)" required :disabled="container.state.status !== 'Stopped'" :persistent-hint="container.state.status !== 'Stopped'" :hint="`${container.state.status !== 'Stopped' ? 'Container must be stopped to rename.' : 'Enter name for container.'}`"></v-text-field>
                             <v-text-field v-model="container.info.description" label="Description" hint="Enter a description for the container."></v-text-field>
-
                             <v-select :items="profiles" :rules="profilesRule" v-model="container.info.profiles" label="Profiles" multiple chips required :disabled="container.state.status !== 'Stopped'" :persistent-hint="container.state.status !== 'Stopped'" :hint="`${container.state.status !== 'Stopped' ? 'Container must be stopped to change profile/s.' : 'Select profile/s for container.'}`"></v-select>
                           </v-card-text>
                         </v-flex>
@@ -354,9 +353,9 @@
   import { mapGetters, mapMutations } from 'vuex'
   import { setToken } from '~/utils/auth'
   import axios from 'axios'
+  
   // components
   import snapshots from '~/components/lxd/snapshots.vue'
-  // devices components
   import none from '~/components/lxd/devices/none.vue'
   import nic from '~/components/lxd/devices/nic.vue'
   import disk from '~/components/lxd/devices/disk.vue'
@@ -1143,7 +1142,7 @@
                   }
 
                   //
-                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
+                  await axios.delete(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
 
                   this.setSnackbar('Container deleted.')
 
