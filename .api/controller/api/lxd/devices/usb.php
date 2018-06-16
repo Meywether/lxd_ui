@@ -70,7 +70,7 @@ class Usb extends \Base\Controller
          * POST /api/lxd/devices/usb
          */
         if ($verb === 'POST') {
-            $body = json_decode($f3->get('BODY'), true);
+            $body = (array) json_decode($f3->get('BODY'), true);
             
             if (empty($body) || !is_numeric($body['id'])) {
                $f3->response->json([
@@ -80,7 +80,7 @@ class Usb extends \Base\Controller
                 ]); 
             }
 
-            $body = $f3->recursive((array) $body, function($value) {
+            $body = (array) $f3->recursive((array) $body, function($value) {
             	return trim($value);
             });
 
@@ -168,7 +168,7 @@ class Usb extends \Base\Controller
          * PUT /api/lxd/devices/usb/@id
          */
         if ($verb === 'PUT') {
-            $body = json_decode($f3->get('BODY'), true);
+            $body = (array) json_decode($f3->get('BODY'), true);
             
             if (empty($body) || !is_numeric($body['id'])) {
                $f3->response->json([
@@ -178,7 +178,7 @@ class Usb extends \Base\Controller
                 ]); 
             }
 
-            $body = $f3->recursive((array) $body, function($value) {
+            $body = (array) $f3->recursive((array) $body, function($value) {
             	return trim($value);
             });
 

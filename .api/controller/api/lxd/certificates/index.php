@@ -219,12 +219,12 @@ class Index extends \Base\Controller
          * POST /api/lxd/certificates/generate
          */
         if ($verb === 'POST') {
-            $body = json_decode($f3->get('BODY'), true);
+            $body = (array) json_decode($f3->get('BODY'), true);
             
             $tmpname = tempnam("/tmp", "cert");
             
             // protect from nastys
-            $body = $f3->recursive($body, function($value) {
+            $body = (array) $f3->recursive($body, function($value) {
             	return trim(preg_replace("/[^a-z0-9 \.-]/i", '', $value));
             });
 
