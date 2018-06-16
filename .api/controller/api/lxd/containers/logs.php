@@ -7,6 +7,11 @@ namespace Controller\Api\Lxd\Containers;
  */
 class Logs extends \Base\Controller
 {
+    /*
+     * @var
+     */
+    private $lxd;
+    
     public function beforeRoute(\Base $f3)
     {
         // check auth
@@ -83,10 +88,7 @@ class Logs extends \Base\Controller
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
-        
-        // plinker client
-        $client = $f3->get('plinker');
-        
+
         /**
          * GET /api/lxd/containers/@name/logs/@logfile
          */
