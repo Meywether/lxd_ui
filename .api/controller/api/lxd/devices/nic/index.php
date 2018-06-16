@@ -141,23 +141,7 @@ class Index extends \Base\Controller
             $this->result->import([
                 'type' => 'nic',
                 'name' => $this->body['name'],
-                'dict' => json_encode([
-                    "nictype" => $this->body['dict']['nictype'],
-                    "limits.ingress" => $this->body['dict']['limits.ingress'],
-                    "limits.egress" => $this->body['dict']['limits.egress'],
-                    "limits.max" => $this->body['dict']['limits.max'],
-                    "name" => $this->body['dict']['name'],
-                    "host_name" => $this->body['dict']['host_name'],
-                    "hwaddr" => $this->body['dict']['hwaddr'],
-                    "mtu" => $this->body['dict']['mtu'],
-                    "vlan" => $this->body['dict']['vlan'],
-                    "ipv4.address" => $this->body['dict']['ipv4.address'],
-                    "ipv6.address" => $this->body['dict']['ipv6.address'],
-                    "security.mac_filtering" => $this->body['dict']['security.mac_filtering'],
-                    "maas.subnet.ipv4" => $this->body['dict']['maas.subnet.ipv4'],
-                    "maas.subnet.ipv6" => $this->body['dict']['maas.subnet.ipv6'],
-                    "parent" => $this->body['dict']['parent']
-                ], JSON_PRETTY_PRINT)
+                'dict' => json_encode($this->body['dict'])
             ]);
 
             $this->devices->store($this->result);
