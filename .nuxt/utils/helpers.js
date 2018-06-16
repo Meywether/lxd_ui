@@ -11,11 +11,7 @@ export default {
       return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
     },
     isIP4 (ipv4) {
-      if (/^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$/.test(ipv4)) {
-        return true
-      } else {
-        return false
-      }
+      return /^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$/.test(ipv4)
     },
     uniqueId (length) {
       if (!length) {

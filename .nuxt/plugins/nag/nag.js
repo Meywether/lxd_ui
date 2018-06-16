@@ -1,7 +1,7 @@
 import nag from '~/plugins/nag/nag.vue'
 
 const Plugin = {
-  install(Vue, options) {
+  install(Vue) {
     /**
      * Makes sure that plugin can be installed only once
      */
