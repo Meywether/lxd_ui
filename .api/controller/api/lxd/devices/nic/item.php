@@ -25,22 +25,22 @@ namespace Controller\Api\Lxd\Devices\Nic;
 class Item extends \Base\Controller
 {
     /*
-     * @var \Base\Controller::$body
+     * @var array \Base\Controller::$body
      */
     protected $body = []; 
 
     /*
-     * @var \Base\Controller::$result
+     * @var mixed \Base\Controller::$result
      */
     protected $result = []; 
     
     /*
-     * @var \Base\Controller::$errors
+     * @var array \Base\Controller::$errors
      */
     protected $errors = []; 
     
     /*
-     * @var \Base\Model
+     * @var object \Base\Model
      */
     private $devices;
 
