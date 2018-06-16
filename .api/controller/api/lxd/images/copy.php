@@ -17,7 +17,7 @@ class Copy extends \Base\Controller
      */
     private $cache_ttl;
     
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         try {
             \Lib\JWT::checkAuthThen(function ($server) use ($f3) {

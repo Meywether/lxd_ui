@@ -7,7 +7,7 @@ namespace Controller\Api\Lxd\Containers;
  */
 class Files extends \Base\Controller
 {
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         try {
             \Lib\JWT::checkAuth();
@@ -41,8 +41,6 @@ class Files extends \Base\Controller
         $verb = $f3->get('VERB');
         //
         $body = !$f3->devoid('BODY') ? (array) json_decode($f3->get('BODY')) : [];
-        //
-        $errors = [];
         //
         $result = [];
 

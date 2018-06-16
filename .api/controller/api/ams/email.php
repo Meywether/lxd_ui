@@ -17,13 +17,11 @@ class Email extends \Base\Controller
      */
     private $email_template;
      
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         // check auth
         try {
-            \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
-
-            });
+            \Lib\JWT::checkAuth();
         } catch (\Exception $e) {
             $f3->response->json([
                 'error' => $e->getMessage(),
@@ -49,7 +47,7 @@ class Email extends \Base\Controller
     /**
      *
      */
-    public function template(\Base $f3, $params)
+    public function template(\Base $f3)
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');

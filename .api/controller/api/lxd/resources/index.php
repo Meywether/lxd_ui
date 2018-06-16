@@ -7,7 +7,7 @@ namespace Controller\Api\Lxd\Resources;
  */
 class Index extends \Base\Controller
 {
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         try {
             \Lib\JWT::checkAuth();
@@ -25,7 +25,7 @@ class Index extends \Base\Controller
     /**
      *
      */
-    public function index(\Base $f3, $params)
+    public function index(\Base $f3)
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');

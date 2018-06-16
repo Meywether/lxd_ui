@@ -7,7 +7,7 @@ namespace Controller\Auth;
  */
 class Jwt
 {
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         $this->user = new \Model\User($f3);
 
@@ -15,7 +15,7 @@ class Jwt
         $this->jwt_ttl = 604800;
     }
 
-    public function index(\Base $f3, $params)
+    public function index(\Base $f3)
     {
         $post = json_decode($f3->get('BODY'), true);
 
@@ -136,7 +136,7 @@ class Jwt
     /**
      * Extends/Renewal JWT.
      */
-    public function extend(\Base $f3, $params)
+    public function extend(\Base $f3)
     {
         $post = json_decode($f3->get('BODY'), true);
 

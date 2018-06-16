@@ -17,7 +17,7 @@ class Index extends \Base\Controller
      */
     private $cache_ttl;
     
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         // check auth
         try {
@@ -49,7 +49,7 @@ class Index extends \Base\Controller
     /**
      *
      */
-    public function index(\Base $f3, $params)
+    public function index(\Base $f3)
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');

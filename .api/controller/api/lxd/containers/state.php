@@ -7,7 +7,7 @@ namespace Controller\Api\Lxd\Containers;
  */
 class State extends \Base\Controller
 {
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         // check auth
         try {

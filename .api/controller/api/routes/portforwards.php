@@ -7,7 +7,7 @@ namespace Controller\Api\Routes;
  */
 class Portforwards extends \Base\Controller
 {
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         try {
             \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
@@ -38,7 +38,7 @@ class Portforwards extends \Base\Controller
     /**
      *
      */
-    public function index(\Base $f3, $params)
+    public function index(\Base $f3)
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
@@ -120,7 +120,7 @@ class Portforwards extends \Base\Controller
     /**
      *
      */
-    public function check_port_in_use(\Base $f3, $params)
+    public function check_port_in_use(\Base $f3)
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
@@ -150,7 +150,7 @@ class Portforwards extends \Base\Controller
     /**
      *
      */
-    public function check_allowed_port(\Base $f3, $params)
+    public function check_allowed_port(\Base $f3)
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');

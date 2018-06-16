@@ -17,7 +17,7 @@ class Information extends \Base\Controller
      */
     private $cache_ttl;
     
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         try {
             \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
@@ -41,7 +41,7 @@ class Information extends \Base\Controller
     /**
      *
      */
-    public function idmap(\Base $f3, $params)
+    public function idmap(\Base $f3)
     {
         $client = $f3->get('plinker');
         $data = $client->system->shell_exec('awk -F: \'{printf "%s:%s\n",$1,$3}\' /etc/passwd');
@@ -63,7 +63,7 @@ class Information extends \Base\Controller
     /**
      *
      */
-    public function networkConnections(\Base $f3, $params)
+    public function networkConnections(\Base $f3)
     {
         $data = [];
         if (!$this->cache->exists(__FUNCTION__, $data)) {
@@ -85,7 +85,7 @@ class Information extends \Base\Controller
     /**
      *
      */
-    public function cpu(\Base $f3, $params)
+    public function cpu(\Base $f3)
     {
         $data = [];
         if (!$this->cache->exists(__FUNCTION__, $data)) {
@@ -107,7 +107,7 @@ class Information extends \Base\Controller
     /**
      *
      */
-    public function disks(\Base $f3, $params)
+    public function disks(\Base $f3)
     {
         $data = [];
         if (!$this->cache->exists(__FUNCTION__, $data)) {
@@ -130,7 +130,7 @@ class Information extends \Base\Controller
     /**
      *
      */
-    public function logins(\Base $f3, $params)
+    public function logins(\Base $f3)
     {
         $data = [];
         if (!$this->cache->exists(__FUNCTION__, $data)) {
@@ -156,7 +156,7 @@ class Information extends \Base\Controller
     /**
      *
      */
-    public function memory(\Base $f3, $params)
+    public function memory(\Base $f3)
     {
         $data = [];
         if (!$this->cache->exists(__FUNCTION__, $data)) {
@@ -178,7 +178,7 @@ class Information extends \Base\Controller
     /**
      *
      */
-    public function processTree(\Base $f3, $params)
+    public function processTree(\Base $f3)
     {
         $data = [];
         if (!$this->cache->exists(__FUNCTION__, $data)) {
@@ -200,7 +200,7 @@ class Information extends \Base\Controller
     /**
      *
      */
-    public function top(\Base $f3, $params)
+    public function top(\Base $f3)
     {
         $data = [];
         if (!$this->cache->exists(__FUNCTION__, $data)) {
