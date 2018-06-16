@@ -7,6 +7,21 @@ namespace Controller\Auth;
  */
 class Index
 {
+    /*
+     * @var
+     */
+    private $user;
+    
+    /*
+     * @var
+     */
+    private $jwt_secret;
+        
+    /*
+     * @var
+     */
+    private $jwt_ttl;
+    
     /**
      *
      */

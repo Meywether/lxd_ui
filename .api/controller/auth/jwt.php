@@ -7,6 +7,21 @@ namespace Controller\Auth;
  */
 class Jwt
 {
+    /*
+     * @var
+     */
+    private $user;
+    
+    /*
+     * @var
+     */
+    private $jwt_secret;
+        
+    /*
+     * @var
+     */
+    private $jwt_ttl;
+    
     public function beforeRoute(\Base $f3)
     {
         $this->user = new \Model\User($f3);

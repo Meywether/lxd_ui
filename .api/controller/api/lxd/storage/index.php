@@ -7,6 +7,11 @@ namespace Controller\Api\Lxd\Storage;
  */
 class Index extends \Base\Controller
 {
+    /*
+     * @var
+     */
+    private $lxd;
+    
     public function beforeRoute(\Base $f3)
     {
         try {
