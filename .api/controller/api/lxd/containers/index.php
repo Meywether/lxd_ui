@@ -106,7 +106,7 @@ class Index extends \Base\Controller
                 ]);
             }
 
-            // build out array of arguments which wil make the final lxc launch command
+            // build out array of arguments which will make the final lxc launch command
             $cmd = [
                 'lxc launch',
                 // remote & image fingerprint
@@ -116,7 +116,7 @@ class Index extends \Base\Controller
                 // ephemeral
                 !empty($body['ephemeral']) ? '-e' : '',
                 // profiles
-                '-p '.implode(' -p ', $f3->recursive((array) $body['profile'], function ($value) {
+                '-p '.implode(' -p ', (array) $f3->recursive((array) $body['profile'], function ($value) {
                 	return  escapeshellarg($value);
                 })),
                 // storage pool
