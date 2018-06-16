@@ -5,17 +5,17 @@ namespace Base;
 class Controller extends \Prefab
 {
     /*
-     * @var
+     * @var array
      */
     protected $body = [];
     
     /*
-     * @var
+     * @var mixed
      */
     protected $result = []; 
     
     /*
-     * @var
+     * @var array
      */
     protected $errors = [];
     
@@ -25,8 +25,8 @@ class Controller extends \Prefab
     public function beforeRoute(\Base $f3)
     {
         // decode json body & trim
-        $this->body = json_decode($f3->get('BODY'), true);
-        $this->body = (array) $f3->recursive((array) $this->body, function($value) {
+        $this->body = (array) json_decode($f3->get('BODY'), true);
+        $this->body = (array) $f3->recursive($this->body, function ($value) {
             return trim($value);
         });
     }

@@ -30,9 +30,7 @@ $f3->set('CORS.credentials', true);
 $f3->set('CORS.expose', true);
 $f3->set('CORS.ttl', 600);
 
-// add hive
-$f3->set('f3', $f3);
-$f3->set('cache', \Cache::instance());
+// add response helper to hive
 $f3->set('response', \Lib\Response::instance($f3));
 
 // run app
