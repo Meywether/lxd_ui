@@ -17,18 +17,11 @@ class Index extends \Base\Controller
      */
     private $cache_ttl;
     
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         // check auth
         try {
-            \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
-                // set plinker client
-                $f3->set('plinker', new \Plinker\Core\Client($server, [
-                    'secret' => $f3->get('AUTH.secret'),
-                    'database' => $f3->get('db'),
-                    'lxc_path' => $f3->get('LXC.path')
-                ]));
-            });
+            \Lib\JWT::checkAuth();
         } catch (\Exception $e) {
             $f3->response->json([
                 'error' => $e->getMessage(),
@@ -47,6 +40,8 @@ class Index extends \Base\Controller
             ]);
         }
         
+        $this->lxd = new \Model\LXD($f3);
+        
         $this->cache = \Cache::instance();
         $this->cache_ttl = 5;
     }
@@ -54,14 +49,11 @@ class Index extends \Base\Controller
     /**
      *
      */
-    public function index(\Base $f3, $params)
+    public function index(\Base $f3)
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
-        
-        // plinker client
-        $client = $f3->get('plinker');
-        
+
         /**
          * GET /api/lxd/images?remote=local
          */
@@ -78,7 +70,7 @@ class Index extends \Base\Controller
             // cache remote images if not local
             if ($f3->get('GET.remote') === 'local' || !$this->cache->exists('images.'.$f3->get('GET.remote'), $result)) {
                 // get images filter by architecture (may add as a parameter if ever needed)
-                $result = $client->lxd->images->list($f3->get('GET.remote'), 'architecture="'.implode('|', ['x86_64', 'i686', 'amd64']).'"');
+                $result = $this->lxd->images->list($f3->get('GET.remote'), 'architecture="'.implode('|', ['x86_64', 'i686', 'amd64']).'"');
                 //
                 $this->cache->set('images.'.$f3->get('GET.remote'), $result, 3600);
             }
@@ -100,7 +92,7 @@ class Index extends \Base\Controller
                 $response = [
                     'error' => null,
                     'code'  => 200,
-                    'data'  => $client->lxd->images->create('local', $options)
+                    'data'  => $this->lxd->images->create('local', $options)
                 ];
             } catch (\Exception $e) {
                 $response = [
@@ -112,7 +104,6 @@ class Index extends \Base\Controller
 
             $f3->response->json($response);
         }
-
     }
     
     /**
@@ -122,10 +113,7 @@ class Index extends \Base\Controller
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
-        
-        // plinker client
-        $client = $f3->get('plinker');
-        
+
         /**
          * GET /api/lxd/images/@fingerprint
          */
@@ -143,7 +131,7 @@ class Index extends \Base\Controller
             // cache remote images if not local
             if ($f3->get('GET.remote') === 'local' || !$this->cache->exists('images.'.$f3->get('GET.remote'), $result)) {
                 // get images filter by architecture (may add as a parameter if ever needed)
-                $result = $client->lxd->images->list($f3->get('GET.remote'), 'architecture="'.implode('|', ['x86_64', 'i686', 'amd64']).'"');
+                $result = $this->lxd->images->list($f3->get('GET.remote'), 'architecture="'.implode('|', ['x86_64', 'i686', 'amd64']).'"');
                 //
                 $this->cache->set('images.'.$f3->get('GET.remote'), $result, 3600);
             }
@@ -179,7 +167,7 @@ class Index extends \Base\Controller
                 $response = [
                     'error' => null,
                     'code'  => 200,
-                    'data'  => $client->lxd->images->replace($f3->get('GET.remote'), $params['fingerprint'], $options)
+                    'data'  => $this->lxd->images->replace($f3->get('GET.remote'), $params['fingerprint'], $options)
                 ];
                 
                 $this->cache->clear('images.'.$f3->get('GET.remote'));
@@ -209,7 +197,7 @@ class Index extends \Base\Controller
             
             //
             try {
-                $result = $client->lxd->images->delete($f3->get('GET.remote'), $params['fingerprint']);
+                $result = $this->lxd->images->delete($f3->get('GET.remote'), $params['fingerprint']);
 
                 $response = [
                     'error' => null,

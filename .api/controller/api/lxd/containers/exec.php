@@ -7,7 +7,7 @@ namespace Controller\Api\Lxd\Containers;
  */
 class Exec extends \Base\Controller
 {
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         // check auth
         try {
@@ -41,13 +41,13 @@ class Exec extends \Base\Controller
     /**
      *
      */
-    public function index(\Base $f3, $params)
+    public function index(\Base $f3)
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
         
         // plinker client
-        $client = $f3->get('plinker');
+        //$client = $f3->get('plinker');
         
         /**
          * GET /api/lxd/containers/@name/state

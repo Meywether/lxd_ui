@@ -22,7 +22,7 @@ class Index extends \Base\Controller
      */
     private $system_tasks;
     
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         try {
             \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
@@ -64,7 +64,7 @@ class Index extends \Base\Controller
     /**
      *
      */
-    public function index(\Base $f3, $params)
+    public function index(\Base $f3)
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');

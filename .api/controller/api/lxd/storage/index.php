@@ -7,16 +7,10 @@ namespace Controller\Api\Lxd\Storage;
  */
 class Index extends \Base\Controller
 {
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         try {
-            \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
-                $f3->set('plinker', new \Plinker\Core\Client($server, [
-                    'secret' => $f3->get('AUTH.secret'),
-                    'database' => $f3->get('db'),
-                    'lxc_path' => $f3->get('LXC.path')
-                ]));
-            });
+            \Lib\JWT::checkAuth();
         } catch (\Exception $e) {
             $f3->response->json([
                 'error' => $e->getMessage(),
@@ -34,19 +28,18 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
         }
+        
+        $this->lxd = new \Model\LXD($f3);
     }
 
     /**
      *
      */
-    public function index(\Base $f3, $params)
+    public function index(\Base $f3)
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
-        
-        // plinker client
-        $client = $f3->get('plinker');
-        
+
         /**
          * GET /api/lxd/storage
          */
@@ -54,7 +47,7 @@ class Index extends \Base\Controller
             $types = (array) $f3->get('GET.types');
             
             //
-            $pools = $client->lxd->query('local:/1.0/storage-pools', 'GET', [], function ($result) {
+            $pools = $this->lxd->query('local:/1.0/storage-pools', 'GET', [], function ($result) {
                 return str_replace('/1.0/storage-pools/', '', $result);
             });
 
@@ -73,21 +66,21 @@ class Index extends \Base\Controller
                     // get info
                     if (in_array('info', $types)) {
                         foreach ($pools as $i => $pool) {
-                            $result[$i]['info'] = $client->lxd->query('local:/1.0/storage-pools/'.$pool, 'GET', []);
+                            $result[$i]['info'] = $this->lxd->query('local:/1.0/storage-pools/'.$pool, 'GET', []);
                         }
                     }
                     
                     // get resources
                     if (in_array('resources', $types)) {
                         foreach ($pools as $i => $pool) {
-                            $result[$i]['resources'] = $client->lxd->query('local:/1.0/storage-pools/'.$pool.'/resources', 'GET', []);
+                            $result[$i]['resources'] = $this->lxd->query('local:/1.0/storage-pools/'.$pool.'/resources', 'GET', []);
                         }
                     }    
                     
                     // get volumes
                     if (in_array('volumes', $types)) {
                         foreach ($pools as $i => $pool) {
-                            $volumes = $client->lxd->query('local:/1.0/storage-pools/'.$pool.'/volumes', 'GET', [], function ($result) {
+                            $volumes = $this->lxd->query('local:/1.0/storage-pools/'.$pool.'/volumes', 'GET', [], function ($result) {
                                 $result = str_replace('/1.0/storage-pools/', '', $result);
                                 foreach ($result as &$row) {
                                     $row = explode('/', $row);
@@ -142,7 +135,7 @@ class Index extends \Base\Controller
             
             try {
                 //
-                $pool = $client->lxd->query('local:/1.0/storage-pools', 'POST', $body);
+                $pool = $this->lxd->query('local:/1.0/storage-pools', 'POST', $body);
 
                 $result = [
                     'error' => '',
@@ -159,7 +152,6 @@ class Index extends \Base\Controller
             
             $f3->response->json($result);
         }
-        
     }
     
     /**
@@ -169,16 +161,13 @@ class Index extends \Base\Controller
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
-        
-        // plinker client
-        $client = $f3->get('plinker');
-        
+
         /**
          * GET /api/lxd/storage/@name
          */
         if ($verb === 'GET') {
             //
-            $result = $client->lxd->query('local:/1.0/storage-pools/'.$params['name'], 'GET', []);
+            $result = $this->lxd->query('local:/1.0/storage-pools/'.$params['name'], 'GET', []);
 
             $f3->response->json([
                 'error' => null,
@@ -208,7 +197,7 @@ class Index extends \Base\Controller
 
             try {
                 //
-                $pool = $client->lxd->query('local:/1.0/storage-pools/'.$params['name'], 'POST', $body);
+                $pool = $this->lxd->query('local:/1.0/storage-pools/'.$params['name'], 'POST', $body);
 
                 $result = [
                     'error' => '',
@@ -252,7 +241,7 @@ class Index extends \Base\Controller
             
             try {
                 //
-                $pool = $client->lxd->query('local:/1.0/storage-pools/'.$params['name'], 'PUT', $body);
+                $pool = $this->lxd->query('local:/1.0/storage-pools/'.$params['name'], 'PUT', $body);
 
                 $result = [
                     'error' => '',
@@ -278,7 +267,7 @@ class Index extends \Base\Controller
                 $result = [
                     'error' => '',
                     'code'  => 200,
-                    'data'  => $client->lxd->query('local:/1.0/storage-pools/'.$params['name'], 'DELETE')
+                    'data'  => $this->lxd->query('local:/1.0/storage-pools/'.$params['name'], 'DELETE')
                 ];
             } catch (\Exception $e) {
                 $result = [

@@ -10,7 +10,7 @@ class Index
     /**
      *
      */
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         $this->user = new \Model\User($f3);
 
@@ -21,7 +21,7 @@ class Index
     /**
      *
      */
-    public function index(\Base $f3, $params)
+    public function index(\Base $f3)
     {
         $post = json_decode($f3->get('BODY'), true);
 
@@ -101,7 +101,7 @@ class Index
     /**
      * Extends/Renewal JWT
      */
-    public function extend(\Base $f3, $params)
+    public function extend(\Base $f3)
     {
         $post = json_decode($f3->get('BODY'), true);
 

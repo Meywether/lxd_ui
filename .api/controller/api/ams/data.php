@@ -12,13 +12,11 @@ class Data extends \Base\Controller
      */
     private $ams;
 
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         // check auth
         try {
-            \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
-
-            });
+            \Lib\JWT::checkAuth();
         } catch (\Exception $e) {
             $f3->response->json([
                 'error' => $e->getMessage(),
@@ -43,7 +41,7 @@ class Data extends \Base\Controller
     /**
      *
      */
-    public function index(\Base $f3, $params)
+    public function index(\Base $f3)
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
@@ -55,7 +53,7 @@ class Data extends \Base\Controller
             $items = $this->ams->findAll();
             
             // force float 1.0 precision
-            array_walk($items, function (&$value, $key) {
+            array_walk($items, function (&$value) {
                 if ($value['version'] === 1) {
                     $value['version'] = sprintf("%.1f", $value['version']);
                 }

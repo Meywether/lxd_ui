@@ -7,17 +7,10 @@ namespace Controller\Api\Lxd\Resources;
  */
 class Index extends \Base\Controller
 {
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         try {
-            \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
-                // set plinker client
-                $f3->set('plinker', new \Plinker\Core\Client($server, [
-                    'secret' => $f3->get('AUTH.secret'),
-                    'database' => $f3->get('db'),
-                    'lxc_path' => $f3->get('LXC.path')
-                ]));
-            });
+            \Lib\JWT::checkAuth();
         } catch (\Exception $e) {
             $f3->response->json([
                 'error' => $e->getMessage(),
@@ -25,25 +18,24 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
         }
+        
+        $this->lxd = new \Model\LXD($f3);
     }
 
     /**
      *
      */
-    public function index(\Base $f3, $params)
+    public function index(\Base $f3)
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
-        
-        // plinker client
-        $client = $f3->get('plinker');
-        
+
         /**
          * GET /api/lxd/resources
          */
         if ($verb === 'GET') {
             // get containers
-            $result = $client->lxd->resources->list('local');
+            $result = $this->lxd->resources->list('local');
 
             $f3->response->json([
                 'error' => null,
