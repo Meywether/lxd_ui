@@ -32,17 +32,17 @@ class Index extends \Base\Controller
     /*
      * @var
      */
-    protected $body;
+    protected $body = [];
     
     /*
      * @var
      */
-    protected $result; 
+    protected $result = []; 
     
     /*
      * @var
      */
-    protected $errors; 
+    protected $errors = []; 
 
     /**
      * @param object $f3
