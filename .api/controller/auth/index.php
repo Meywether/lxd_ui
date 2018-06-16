@@ -10,11 +10,6 @@ class Index
     /*
      * @var
      */
-    private $user;
-    
-    /*
-     * @var
-     */
     private $jwt_secret;
         
     /*
@@ -27,8 +22,6 @@ class Index
      */
     public function beforeRoute(\Base $f3)
     {
-        $this->user = new \Model\User($f3);
-
         $this->jwt_secret = hash('sha512', $f3->get('JWT.secret'));
         $this->jwt_ttl = 604800;
     }    
