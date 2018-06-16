@@ -111,7 +111,6 @@ class Index extends \Base\Controller
     /**
      * POST /api/lxd/profiles
      *
-     * @param object $f3
      * @return void
      */
     public function post()
