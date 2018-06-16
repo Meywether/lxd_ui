@@ -3,7 +3,7 @@
  +----------------------------------------------------------------------+
  | Conext LXD Control Panel
  +----------------------------------------------------------------------+
- | Copyright (c)2018 (https://github.com/lcherone/lxc-query)
+ | Copyright (c)2018 (https://github.com/lcherone/conext)
  +----------------------------------------------------------------------+
  | This source file is subject to MIT License
  | that is bundled with this package in the file LICENSE.
@@ -79,10 +79,9 @@ class Index extends \Base\Controller
     /**
      * GET /api/lxd/profiles
      *
-     * @param object $f3
      * @return void
      */
-    public function get(\Base $f3)
+    public function get()
     {
         try {
             //
@@ -112,10 +111,9 @@ class Index extends \Base\Controller
     /**
      * POST /api/lxd/profiles
      *
-     * @param object $f3
      * @return void
      */
-    public function post(\Base $f3)
+    public function post()
     {
         try {
             if (empty($this->body['name'])) {
