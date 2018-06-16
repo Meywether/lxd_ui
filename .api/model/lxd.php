@@ -46,7 +46,7 @@ class LXD
      *
      * @param string $action
      * @param array  $params
-     * @return array
+     * @return mixed
      */
     public function __call($action, $params)
     {

@@ -159,7 +159,7 @@ class Email extends \Base\Controller
             
             $email_provider = $this->email_provider;
             //
-            array_walk($result, function (&$value, $key) use ($email_provider) {
+            array_walk($result, function (&$value) use ($email_provider) {
                 $value['debug'] = $value['debug'] == '0' ? 'No' : 'Yes';
                 
                 $value = $email_provider->export($value, true);
