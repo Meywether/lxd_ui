@@ -9,16 +9,8 @@ class Index extends \Base\Controller
 {
     public function beforeRoute(\Base $f3, $params)
     {
-        // check auth
         try {
-            \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
-                // set plinker client
-                $f3->set('plinker', new \Plinker\Core\Client($server, [
-                    'secret' => $f3->get('AUTH.secret'),
-                    'database' => $f3->get('db'),
-                    'lxc_path' => $f3->get('LXC.path')
-                ]));
-            });
+            \Lib\JWT::checkAuth();
         } catch (\Exception $e) {
             $f3->response->json([
                 'error' => $e->getMessage(),
@@ -36,6 +28,8 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
         }
+        
+        $this->lxd = new \Model\LXD($f3);
     }
 
     /**
@@ -45,23 +39,20 @@ class Index extends \Base\Controller
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
-        
-        // plinker client
-        $client = $f3->get('plinker');
-        
+
         /**
          * GET /api/lxd/profiles
          */
         if ($verb === 'GET') {
             //
-            $profiles = $client->lxd->profiles->list('local', function ($result) {
+            $profiles = $this->lxd->profiles->list('local', function ($result) {
                 return str_replace('/1.0/profiles/', '', $result);
             });
             
             // get state
             $result = [];
             foreach ($profiles as $i => $profile) {
-            	$result[$i] = $client->lxd->profiles->info('local', $profile);
+            	$result[$i] = $this->lxd->profiles->info('local', $profile);
             }
 
             $f3->response->json([
@@ -99,7 +90,7 @@ class Index extends \Base\Controller
                 $result = [
                     'error' => '',
                     'code'  => 200,
-                    'data'  => $client->lxd->profiles->create('local', $body)
+                    'data'  => $this->lxd->profiles->create('local', $body)
                 ];
             } catch (\Exception $e) {
                 $result = [
@@ -121,16 +112,13 @@ class Index extends \Base\Controller
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
-        
-        // plinker client
-        $client = $f3->get('plinker');
-        
+
         /**
          * GET /api/lxd/profiles/@name
          */
         if ($verb === 'GET') {
             // get containers
-            $result = $client->lxd->profiles->info('local', $params['name']);
+            $result = $this->lxd->profiles->info('local', $params['name']);
 
             $f3->response->json([
                 'error' => null,
@@ -167,7 +155,7 @@ class Index extends \Base\Controller
                 $result = [
                     'error' => '',
                     'code'  => 200,
-                    'data'  => $client->lxd->profiles->replace('local', $params['name'], $body)
+                    'data'  => $this->lxd->profiles->replace('local', $params['name'], $body)
                 ];
             } catch (\Exception $e) {
                 $result = [
@@ -198,7 +186,7 @@ class Index extends \Base\Controller
                 $result = [
                     'error' => '',
                     'code'  => 200,
-                    'data'  => $client->lxd->profiles->update('local', $params['name'], $body)
+                    'data'  => $this->lxd->profiles->update('local', $params['name'], $body)
                 ];
             } catch (\Exception $e) {
                 $result = [
@@ -228,7 +216,7 @@ class Index extends \Base\Controller
                 $result = [
                     'error' => '',
                     'code'  => 200,
-                    'data'  => $client->lxd->profiles->replace('local', $params['name'], $body)
+                    'data'  => $this->lxd->profiles->replace('local', $params['name'], $body)
                 ];
             } catch (\Exception $e) {
                 $result = [
@@ -248,7 +236,7 @@ class Index extends \Base\Controller
                 $result = [
                     'error' => '',
                     'code'  => 200,
-                    'data'  => $client->lxd->profiles->delete('local', $params['name'])
+                    'data'  => $this->lxd->profiles->delete('local', $params['name'])
                 ];
             } catch (\Exception $e) {
                 $result = [

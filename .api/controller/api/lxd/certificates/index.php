@@ -10,13 +10,7 @@ class Index extends \Base\Controller
     public function beforeRoute(\Base $f3, $params)
     {
         try {
-            \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
-                $f3->set('plinker', new \Plinker\Core\Client($server, [
-                    'secret' => $f3->get('AUTH.secret'),
-                    'database' => $f3->get('db'),
-                    'lxc_path' => $f3->get('LXC.path')
-                ]));
-            });
+            \Lib\JWT::checkAuth();
         } catch (\Exception $e) {
             $f3->response->json([
                 'error' => $e->getMessage(),
@@ -34,6 +28,8 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
         }
+        
+        $this->lxd = new \Model\LXD($f3);
     }
 
     /**
@@ -43,21 +39,18 @@ class Index extends \Base\Controller
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
-        
-        // plinker client
-        $client = $f3->get('plinker');
-        
+
         /**
          * GET /api/lxd/certificates
          */
         if ($verb === 'GET') {
-            $certificates = $client->lxd->certificates->list('local', function ($result) {
+            $certificates = $this->lxd->certificates->list('local', function ($result) {
                 return str_replace('/1.0/certificates/', '', $result);
             });
             
             $result = [];
             foreach ((array) $certificates as $fingerprint) {
-                $result[] = $client->lxd->certificates->info('local', $fingerprint);
+                $result[] = $this->lxd->certificates->info('local', $fingerprint);
             }
 
             $f3->response->json([
@@ -83,7 +76,7 @@ class Index extends \Base\Controller
                 $result = [
                     'error' => '',
                     'code'  => 200,
-                    'data'  => $client->lxd->query('local:/1.0/certificates', 'POST', $item)
+                    'data'  => $this->lxd->query('local:/1.0/certificates', 'POST', $item)
                 ];
                 
             } catch (\Exception $e) {
@@ -106,21 +99,18 @@ class Index extends \Base\Controller
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
-        
-        // plinker client
-        $client = $f3->get('plinker');
-        
+
         /**
          * GET /api/lxd/certificates/@fingerprint
          */
         if ($verb === 'GET') {
-            $certificates = $client->lxd->certificates->list('local', function ($result) {
+            $certificates = $this->lxd->certificates->list('local', function ($result) {
                 return str_replace('/1.0/certificates/', '', $result);
             });
             
             $result = [];
             foreach ((array) $certificates as $fingerprint) {
-                $result[] = $client->lxd->certificates->info('local', $fingerprint);
+                $result[] = $this->lxd->certificates->info('local', $fingerprint);
             }
 
             $f3->response->json([
@@ -146,7 +136,7 @@ class Index extends \Base\Controller
                 $result = [
                     'error' => '',
                     'code'  => 200,
-                    'data'  => $client->lxd->query('local:/1.0/certificates/'.$params['fingerprint'], 'PUT', $item)
+                    'data'  => $this->lxd->query('local:/1.0/certificates/'.$params['fingerprint'], 'PUT', $item)
                 ];
                 
             } catch (\Exception $e) {
@@ -176,7 +166,7 @@ class Index extends \Base\Controller
                 $result = [
                     'error' => '',
                     'code'  => 200,
-                    'data'  => $client->lxd->query('local:/1.0/certificates/'.$params['fingerprint'], 'PATCH', $item)
+                    'data'  => $this->lxd->query('local:/1.0/certificates/'.$params['fingerprint'], 'PATCH', $item)
                 ];
                 
             } catch (\Exception $e) {
@@ -202,7 +192,7 @@ class Index extends \Base\Controller
                 ]); 
             }
             
-            $client->lxd->certificates->delete('local', $params['fingerprint']);
+            $this->lxd->certificates->delete('local', $params['fingerprint']);
             
             $f3->response->json([
                 'error' => '',

@@ -31,8 +31,9 @@
                       <td>{{ props.item.description }}</td>
                       <td>{{ props.item.devices.root && props.item.devices.root.pool ? props.item.devices.root.pool : '-' }}</td>
                       <td>{{ props.item.devices.eth0 && props.item.devices.eth0.parent ? props.item.devices.eth0.parent : '-' }}</td>
+                      <td><a href="javascript:void(0)" @click.stop="showUsedBy(props.item)">{{ props.item.used_by.length }}</a></td>
                       <td>
-                        <v-btn icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)">
+                        <v-btn icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)" :disabled="props.item.used_by.length > 0">
                           <v-icon color="pink">delete</v-icon>
                         </v-btn>
                       </td>
@@ -49,10 +50,10 @@
       </v-container>
 
       <!-- Add/Edit Dialog -->
-      <v-dialog v-model="dialog" max-width="750px" scrollable>
+      <v-dialog v-model="dialog.editing" max-width="750px" scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
-            <v-btn icon @click.native="dialog = false" dark>
+            <v-btn icon @click.native="dialog.editing = false" dark>
               <v-icon>close</v-icon>
             </v-btn>
             <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Profile</v-toolbar-title>
@@ -165,7 +166,7 @@
                   </v-card-text>
                 </v-card>
               </v-tab-item>
-              <v-tab-item :id="`tab-devices`">
+              <v-tab-item :id="`tab-devices`" v-if="editingItem.name">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <v-tabs v-model="activeDeviceTab" show-arrows>
                     <v-tab ripple :href="`#nic`">Nic</v-tab>
@@ -209,6 +210,32 @@
                 </v-card>
               </v-tab-item>
             </v-tabs>
+          </v-card-text>
+          <div style="flex: 1 1 auto;"></div>
+        </v-card>
+      </v-dialog>
+      
+      <!-- Used by Dialog -->
+      <v-dialog v-model="dialog.used_by" max-width="600px" scrollable>
+        <v-card tile>
+          <v-toolbar card dark color="light-blue darken-3">
+            <v-btn icon @click.native="dialog.used_by = false" dark>
+              <v-icon>close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Used By</v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-toolbar>
+          <v-card-text style="padding:0px" v-if="used_by">
+            <v-data-table :headers="usedByTableHeaders" :items="used_by" hide-actions class="elevation-1">
+              <template slot="items" slot-scope="props">
+                <tr>
+                  <td>{{ props.item.name }}</td>
+                </tr>
+              </template>
+              <template slot="no-data">
+                Profile is not being used by any containers.
+              </template>
+            </v-data-table>
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
         </v-card>
@@ -261,7 +288,7 @@
       }
     },
     data: () => ({
-      dialog: false,
+      dialog: { editing: false, used_by: false },
       valid: true,
 
       // global error
@@ -283,13 +310,18 @@
         { text: 'Description', value: 'description' },
         { text: 'Storage Pool', value: 'pool' },
         { text: 'Network', value: 'network' },
+        { text: 'Used By', value: 'used_by' },
         { text: 'Actions', value: 'id', sortable: false, align: 'right' }
+      ],
+      usedByTableHeaders: [
+        { text: 'Container', value: 'container' }
       ],
       
       // table & items
       items: [],
       pools: [],
       networks: [],
+      used_by: [],
       resources: {
         cpu: {
           sockets: [{
@@ -352,7 +384,7 @@
       })
     },
     watch: {
-      dialog (val) {
+      'dialog.editing': function (val) {
         val || this.close()
       }
     },
@@ -426,7 +458,7 @@
       
       // new item init
       newItem() {
-        this.dialog = true
+        this.dialog.editing = true
       },
 
       // create or edit item
@@ -449,7 +481,7 @@
         // set defaults if not set
         this.editingItem = profile.infix(this.editingItem)
 
-        this.dialog = true
+        this.dialog.editing = true
       },
 
       // save
@@ -565,8 +597,25 @@
         })
       },
       
+      // show used by
+      showUsedBy (item) {
+        this.editingIndex = this.items.indexOf(item)
+        this.editingItem = JSON.parse(JSON.stringify(item));
+
+        this.used_by = []
+        if (this.editingItem.used_by.length > 0) {
+          this.editingItem.used_by.forEach(value => {
+            let tmp = value.split('/')
+            this.used_by.push({
+              name: tmp[2] ? tmp[2] : '-'
+            })
+          })
+        }
+
+        this.dialog.used_by = true
+      },
+      
       setSnackbar (msg) {
-        //
         this.snackbar = true;
         this.snackbarTimeout = 2500
         this.snackbarText = msg;
@@ -574,7 +623,7 @@
 
       // close item dialog, and reset to default item
       close () {
-        this.dialog = false
+        this.dialog.editing = false
         setTimeout(() => {
           this.editingItem = Object.assign({}, this.defaultItem)
           this.editingIndex = -1

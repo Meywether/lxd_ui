@@ -12,7 +12,7 @@ class Disk extends \Base\Controller
      */
     private $devices;
     
-    public function beforeRoute(\Base $f3, $params)
+    public function beforeRoute(\Base $f3)
     {
         try {
             \Lib\JWT::checkAuth();

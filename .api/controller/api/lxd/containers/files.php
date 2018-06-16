@@ -10,13 +10,7 @@ class Files extends \Base\Controller
     public function beforeRoute(\Base $f3, $params)
     {
         try {
-            \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
-                $f3->set('plinker', new \Plinker\Core\Client($server, [
-                    'secret' => $f3->get('AUTH.secret'),
-                    'database' => $f3->get('db'),
-                    'lxc_path' => $f3->get('LXC.path')
-                ]));
-            });
+            \Lib\JWT::checkAuth();
         } catch (\Exception $e) {
             $f3->response->json([
                 'error' => $e->getMessage(),
@@ -34,6 +28,8 @@ class Files extends \Base\Controller
                 'data'  => []
             ]);
         }
+        
+        $this->lxd = new \Model\LXD($f3);
     }
 
     /**
@@ -43,65 +39,83 @@ class Files extends \Base\Controller
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
-        
-        // plinker client
-        $client = $f3->get('plinker');
-        
+        //
+        $body = !$f3->devoid('BODY') ? (array) json_decode($f3->get('BODY')) : [];
+        //
+        $errors = [];
+        //
+        $result = [];
+
         /**
          * GET /api/lxd/containers/@name/files?path=*
          */
         if ($verb === 'GET') {
-            
-            $items = $client->lxd->containers->files->list('local', $params['name'], $f3->get('GET.path'));
-            
-            if (is_array($items)) {
-                $items = [
-                    'type' => 'listing',
-                    'data' => array_values($items)
-                ];
-            } else {
-                $items = [
-                    'type' => 'file',
-                    'data' => $items
+            try {
+                $result = $this->lxd->containers->files->list('local', $params['name'], $f3->get('GET.path'));
+                
+                if (is_array($result)) {
+                    $result = [
+                        'type' => 'listing',
+                        'data' => array_values($result)
+                    ];
+                } else {
+                    $result = [
+                        'type' => 'file',
+                        'data' => $result
+                    ];
+                }
+            } catch (\Exception $e) {
+                $result = [
+                    'error' => $e->getMessage(),
+                    'code'  => 422,
+                    'data'  => []
                 ];
             }
-
-            $f3->response->json([
-                'error' => null,
-                'code'  => 200,
-                'data'  => $items
-            ]);
         }
         
         /**
          * POST /api/lxd/containers/@name/files?path=*
          */
         if ($verb === 'POST') {
-            
-            $body = json_decode($f3->get('BODY'), true);
-
-            $items = $client->lxd->containers->files->push('local', $params['name'], $body['source'], $f3->get('GET.path'));
-
-            $f3->response->json([
-                'error' => null,
-                'code'  => 200,
-                'data'  => $items
-            ]);
+            try {
+                $result = $this->lxd->containers->files->push('local', $params['name'], $body['source'], $f3->get('GET.path'));
+                
+                $result = [
+                    'error' => '',
+                    'code'  => 200,
+                    'data'  => $result
+                ];
+            } catch (\Exception $e) {
+                $result = [
+                    'error' => $e->getMessage(),
+                    'code'  => 422,
+                    'data'  => []
+                ];
+            }
         }
 
         /**
          * DELETE /api/lxd/containers/@name/files?path=*
          */
         if ($verb === 'DELETE') {
-            $items = $client->lxd->containers->files->remove('local', $params['name'], $f3->get('GET.path'));
-
-            $f3->response->json([
-                'error' => null,
-                'code'  => 200,
-                'data'  => $items
-            ]);
+            try {
+                $result = $this->lxd->containers->files->remove('local', $params['name'], $f3->get('GET.path'));
+                
+                $result = [
+                    'error' => '',
+                    'code'  => 200,
+                    'data'  => $result
+                ];
+            } catch (\Exception $e) {
+                $result = [
+                    'error' => $e->getMessage(),
+                    'code'  => 422,
+                    'data'  => []
+                ];
+            }
         }
-
+        
+        $f3->response->json($result);
     }
 
 }

@@ -11,14 +11,7 @@ class Index extends \Base\Controller
     {
         // check auth
         try {
-            \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
-                // set plinker client
-                $f3->set('plinker', new \Plinker\Core\Client($server, [
-                    'secret' => $f3->get('AUTH.secret'),
-                    'database' => $f3->get('db'),
-                    'lxc_path' => $f3->get('LXC.path')
-                ]));
-            });
+            \Lib\JWT::checkAuth();
         } catch (\Exception $e) {
             $f3->response->json([
                 'error' => $e->getMessage(),
@@ -26,6 +19,8 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
         }
+        
+        $this->lxd = new \Model\LXD($f3);
     }
 
     /**
@@ -35,16 +30,13 @@ class Index extends \Base\Controller
     {
         // GET | POST | PUT | DELETE
         $verb = $f3->get('VERB');
-        
-        // plinker client
-        $client = $f3->get('plinker');
-        
+
         /**
          * GET /api/lxd
          */
         if ($verb === 'GET') {
             // get containers
-            $result = $client->lxd->list('local');
+            $result = $this->lxd->list('local');
 
             $f3->response->json([
                 'error' => null,
@@ -56,7 +48,7 @@ class Index extends \Base\Controller
         /**
          * POST /api/lxd
          */
-        if ($verb === 'POST') {
+        //if ($verb === 'POST') {
             /*
             $f3->response->json([
                 'error' => '',
@@ -64,12 +56,12 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
             */
-        }
+        //}
         
         /**
          * PUT /api/lxd
          */
-        if ($verb === 'PUT') {
+        //if ($verb === 'PUT') {
             /*
             $item = json_decode($f3->get('BODY'), true);
             
@@ -87,12 +79,12 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
             */
-        }
+        //}
         
         /**
          * DELETE /api/lxd/containers
          */
-        if ($verb === 'DELETE') {
+        //if ($verb === 'DELETE') {
             /*
             $item = json_decode($f3->get('BODY'), true);
             
@@ -110,7 +102,7 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
             */
-        }
+        //}
     }
 
 }
