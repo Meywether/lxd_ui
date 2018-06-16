@@ -167,6 +167,7 @@
               <v-tab ripple :href="`#tab-sshkeys`">SSH Keys</v-tab>
               <v-tab ripple :href="`#tab-snapshots`">Snapshots</v-tab>
               <v-tab ripple :href="`#tab-files`">Files</v-tab>
+              <v-tab ripple :href="`#tab-logs`">Logs</v-tab>
               <v-tab-item :id="`tab-configuration`" v-if="container.info">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <v-card-text>
@@ -332,7 +333,12 @@
               </v-tab-item>
               <v-tab-item :id="`tab-files`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <files @snackbar="setSnackbar" :key="container.info.name" ref="files[container.info.name]" :linked="container.info"></files>
+                  <files @snackbar="setSnackbar" :key="container.info.name" ref="`${files[container.info.name]}_files`" :linked="container.info"></files>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item :id="`tab-logs`">
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
+                  <logs @snackbar="setSnackbar" :key="container.info.name" ref="`${files[container.info.name]}_logs`" :linked="container.info"></logs>
                 </v-card>
               </v-tab-item>
             </v-tabs>
@@ -363,6 +369,7 @@
   import idmap from '~/components/lxd/devices/idmap.vue'
   import sshKeys from '~/components/lxd/ssh-keys.vue'
   import files from '~/components/lxd/files.vue'
+  import logs from '~/components/lxd/logs.vue'
 
   import { Terminal } from 'xterm'
   import * as fit from 'xterm/lib/addons/fit/fit'
@@ -378,7 +385,7 @@
       'authenticated'
     ],
     components: {
-      snapshots, none, nic, disk, proxy, infiniband, gpu, usb, unixchar, unixblock, idmap, sshKeys, files
+      snapshots, none, nic, disk, proxy, infiniband, gpu, usb, unixchar, unixblock, idmap, sshKeys, files, logs
     },
     computed: {
       ...mapGetters({
