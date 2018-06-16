@@ -3,8 +3,8 @@
     <v-alert type="error" :value="attachError">
       {{ attachError }}
     </v-alert>
-    <v-card-text>
-      <v-alert :value="true" outline color="info" icon="info" v-if="notRunning">
+    <v-card-text v-if="notRunning">
+      <v-alert :value="true" outline color="info" icon="info">
         <v-layout row>
           <v-flex xs11>
             <p style="padding-top:10px;margin-bottom:10px" v-if="linkedItem.status !== 'Running'">Container must be running before toggling SSH keys.</p>
@@ -25,9 +25,7 @@
             <span v-if="linkedItem.devices">{{ props.item.name }}</span>
             <span v-else><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.name }}</a></span>
           </td>
-          <td>
-            {{ props.item.fingerprint }}
-          </td>
+          <td>{{ props.item.fingerprint }}</td>
           <td>
             <span v-if="linkedItem.devices">
               <v-btn depressed small @click="attachItem(props.item)" v-if="!selectedItems.includes(props.item.id)" :disabled="linkedItem.status !== 'Running'">Add</v-btn>
