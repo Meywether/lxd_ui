@@ -1,11 +1,28 @@
 <?php
+/*
+ +----------------------------------------------------------------------+
+ | Conext LXD Control Panel
+ +----------------------------------------------------------------------+
+ | Copyright (c)2018 (https://github.com/lcherone/conext)
+ +----------------------------------------------------------------------+
+ | This source file is subject to MIT License
+ | that is bundled with this package in the file LICENSE.
+ |
+ | If you did not receive a copy of the license and are unable to
+ | obtain it through the world-wide-web, please send an email
+ | to lawrence@cherone.co.uk so we can send you a copy immediately.
+ +----------------------------------------------------------------------+
+ | Authors:
+ |   Lawrence Cherone <lawrence@cherone.co.uk>
+ +----------------------------------------------------------------------+
+ */
 
 namespace Model;
 
 /**
- * System model class
- * - An adapter for the \Plinker\System component so it can bypass the RPC calls.
- **/
+ * System adapter model class
+ * - For the \Plinker\System component so can use it and bypass the RPC call.
+ */
 class System
 {
     /**
@@ -23,11 +40,19 @@ class System
       */
     private $component = [];
 
+    /**
+     * @param object $f3
+     * @return void
+     */
     public function __construct(\Base $f3)
     {
         $this->f3 = $f3;
     }
 
+    /**
+     * @param string $component
+     * @return object
+     */
     public function __get($component)
     {
         // on first call reset component array and enable chaining
