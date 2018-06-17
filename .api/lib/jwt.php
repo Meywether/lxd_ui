@@ -1,4 +1,21 @@
 <?php
+/*
+ +----------------------------------------------------------------------+
+ | Conext LXD Control Panel
+ +----------------------------------------------------------------------+
+ | Copyright (c)2018 (https://github.com/lcherone/conext)
+ +----------------------------------------------------------------------+
+ | This source file is subject to MIT License
+ | that is bundled with this package in the file LICENSE.
+ |
+ | If you did not receive a copy of the license and are unable to
+ | obtain it through the world-wide-web, please send an email
+ | to lawrence@cherone.co.uk so we can send you a copy immediately.
+ +----------------------------------------------------------------------+
+ | Authors:
+ |   Lawrence Cherone <lawrence@cherone.co.uk>
+ +----------------------------------------------------------------------+
+ */
 
 namespace Lib;
 
@@ -18,6 +35,9 @@ namespace Lib;
  */
 final class JWT extends \Prefab
 {
+    /**
+     * @return bool|void
+     */
     public static function checkAuth()
     {
         try {
@@ -26,7 +46,11 @@ final class JWT extends \Prefab
             throw $e;
         }
     }
-    
+
+    /**
+     * @param callable $callback
+     * @return mixed|void
+     */
     public static function checkAuthThen($callback)
     {
         $f3 = \Base::instance();
@@ -82,17 +106,23 @@ final class JWT extends \Prefab
     public static function decode($jwt, $key = null, $verify = true)
     {
         $tks = explode('.', $jwt);
+        
         if (count($tks) != 3) {
             throw new \UnexpectedValueException('Wrong number of segments');
         }
+        
         list($headb64, $bodyb64, $cryptob64) = $tks;
+        
         if (null === ($header = self::jsonDecode(self::urlsafeB64Decode($headb64)))) {
             throw new \UnexpectedValueException('Invalid segment encoding');
         }
+        
         if (null === $payload = self::jsonDecode(self::urlsafeB64Decode($bodyb64))) {
             throw new \UnexpectedValueException('Invalid segment encoding');
         }
+        
         $sig = self::urlsafeB64Decode($cryptob64);
+        
         if ($verify) {
             if (empty($header->alg)) {
                 throw new \DomainException('Empty algorithm');
@@ -142,7 +172,6 @@ final class JWT extends \Prefab
      *                       algorithms are 'HS256', 'HS384' and 'HS512'
      *
      * @throws DomainException Unsupported algorithm was specified
-     *
      * @return string An encrypted message
      */
     private static function sign($msg, $key, $method = 'HS256')
@@ -163,14 +192,13 @@ final class JWT extends \Prefab
      * Decode a JSON string into a PHP object.
      *
      * @param string $input JSON string
-     *
      * @throws DomainException Provided string was invalid JSON
-     *
      * @return object Object representation of JSON string
      */
     private static function jsonDecode($input)
     {
         $obj = json_decode($input);
+        
         if (function_exists('json_last_error') && $errno = json_last_error()) {
             self::_handleJsonError($errno);
         } elseif ($obj === null && $input !== 'null') {
@@ -184,9 +212,7 @@ final class JWT extends \Prefab
      * Encode a PHP object into a JSON string.
      *
      * @param object|array $input A PHP object or array
-     *
      * @throws DomainException Provided object could not be encoded to valid JSON
-     *
      * @return string JSON representation of the PHP object or array
      */
     private static function jsonEncode($input)
@@ -205,7 +231,6 @@ final class JWT extends \Prefab
      * Decode a string with URL-safe Base64.
      *
      * @param string $input A Base64 encoded string
-     *
      * @return string A decoded string
      */
     private static function urlsafeB64Decode($input)
@@ -223,7 +248,6 @@ final class JWT extends \Prefab
      * Encode a string with URL-safe Base64.
      *
      * @param string $input The string you want encoded
-     *
      * @return string The base64 encode of what you passed in
      */
     private static function urlsafeB64Encode($input)
@@ -235,7 +259,6 @@ final class JWT extends \Prefab
      * Helper method to create a JSON error.
      *
      * @param int $errno An error number from json_last_error()
-     *
      * @return void
      */
     private static function _handleJsonError($errno)

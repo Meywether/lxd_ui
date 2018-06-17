@@ -133,7 +133,7 @@
         //
         axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
         //
-        axios.get(this.loggedUser.sub + '/api/server/information/cpu').then(response => {
+        axios.get(this.loggedUser.sub + '/api/server/cpu').then(response => {
           this.items = response.data.data
         }).catch(error => {
           this.items = {

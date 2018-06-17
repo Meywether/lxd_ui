@@ -171,7 +171,7 @@
       async initialize () {
         try {
           //
-          const response = await axios.get(this.loggedUser.sub + '/api/server/information/idmap')
+          const response = await axios.get(this.loggedUser.sub + '/api/server/idmap')
           this.items = response.data.data
         } catch (error) {
           this.error = 'Could not fetch data from server.';

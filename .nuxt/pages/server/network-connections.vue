@@ -92,7 +92,7 @@
         // set jwt into request header
         axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
         //
-        const response = await axios.get(this.loggedUser.sub + '/api/server/information/network-connections')
+        const response = await axios.get(this.loggedUser.sub + '/api/server/network-connections')
         this.items = response.data.data
         //
         this.tableLoading = false

@@ -1,4 +1,21 @@
 <?php
+/*
+ +----------------------------------------------------------------------+
+ | Conext LXD Control Panel
+ +----------------------------------------------------------------------+
+ | Copyright (c)2018 (https://github.com/lcherone/conext)
+ +----------------------------------------------------------------------+
+ | This source file is subject to MIT License
+ | that is bundled with this package in the file LICENSE.
+ |
+ | If you did not receive a copy of the license and are unable to
+ | obtain it through the world-wide-web, please send an email
+ | to lawrence@cherone.co.uk so we can send you a copy immediately.
+ +----------------------------------------------------------------------+
+ | Authors:
+ |   Lawrence Cherone <lawrence@cherone.co.uk>
+ +----------------------------------------------------------------------+
+ */
 
 namespace Controller;
 
@@ -8,26 +25,33 @@ namespace Controller;
 class Index extends \Base\Controller
 {
     /**
-     * Handles sending the SPA entry page
+     * Serves the SPA entry page, redirects or sends 204
+     * 
+     * @param object $f3
+     * @return void
      */
     public function index(\Base $f3)
     {
         // load spa if exists, and enabled
         if (file_exists('public/ui/index.html') && !$f3->devoid('PANEL.enabled')) {
-            exit(\View::instance()->render('public/ui/index.html'));
+            echo \View::instance()->render('public/ui/index.html');
         } 
         // not enabled, with redirect
         elseif($f3->devoid('PANEL.enabled') && !$f3->devoid('PANEL.redirect')) {
-            exit(header("Location: ".$f3->get('PANEL.redirect')));
+            header("Location: ".$f3->get('PANEL.redirect'));
         } 
         // no content
         else {
-            exit(header("HTTP/1.1 204 No Content"));
+            header("HTTP/1.1 204 No Content");
         }
+        exit;
     }
-    
+
     /**
-     * Handles favicon
+     * Serves favicon
+     * 
+     * @param object $f3
+     * @return void
      */
     public function favicon(\Base $f3)
     {
@@ -40,7 +64,10 @@ class Index extends \Base\Controller
     }
 
     /**
-     * Handles pong'ing back, for status check
+     * Send pong, for connection check
+     * 
+     * @param object $f3
+     * @return void
      */
     public function ping(\Base $f3)
     {

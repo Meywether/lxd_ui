@@ -1,4 +1,5 @@
 <?php
+
 if (php_sapi_name() != 'cli') {
     header('HTTP/1.0 403 Forbidden');
     exit('No web access, this is a cli script!');
@@ -18,7 +19,7 @@ $task = new Plinker\Tasks\Runner([
     'log'         => true,
     'sleep_time'  => 1,
     'tmp_path'    => './.plinker',
-    'auto_update' => 0
+    'auto_update' => 0,
 ]);
 
 $task->daemon('Queue');

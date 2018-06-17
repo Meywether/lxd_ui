@@ -20,10 +20,10 @@
 namespace Model;
 
 /**
- * LXD adapter model class
- * - For the \Plinker\Lxd component so can use it and bypass the RPC call.
+ * System adapter model class
+ * - For the \Plinker\System component so can use it and bypass the RPC call.
  */
-class LXD
+class System
 {
     /**
      * @var
@@ -42,13 +42,13 @@ class LXD
 
     /**
      * @param object $f3
-     * @return object
+     * @return void
      */
     public function __construct(\Base $f3)
     {
         $this->f3 = $f3;
     }
-    
+
     /**
      * @param string $component
      * @return object
@@ -84,18 +84,16 @@ class LXD
         
         // handle root, and add lxd namespace so its not lxd->lxd
         if (empty($this->component)) {
-            $this->component = ['lxd'];
+            $this->component = ['system'];
         }
 
         // define plinker component namespace
-        $ns = rtrim('\\Plinker\\Lxd\\'.ucfirst(implode('\\', $this->component)), '\\');
+        $ns = rtrim('\\Plinker\\System\\'.ucfirst(implode('\\', $this->component)), '\\');
 
         $response = null;
         if (class_exists($ns)) {
             // init component
-            $component = new $ns([
-                'lxc_path' => $this->f3->get('LXC.path')
-            ]);
+            $component = new $ns();
 
             // call method, if exception return exception class
             try {
@@ -108,14 +106,14 @@ class LXD
                         $params
                     );
                 } else {
-                    $response = sprintf('LXD model action (%s) not implemented in: %s', $action, $ns);
+                    $response = sprintf('System model action (%s) not implemented in: %s', $action, $ns);
                 }
             } catch (\Exception $e) {
                 throw $e;
             }
             return $response;
         }
-        throw new \Exception(sprintf('LXD model (%s) not implemented', $ns));
+        throw new \Exception(sprintf('System model (%s) not implemented', $ns));
     }
 
 }
