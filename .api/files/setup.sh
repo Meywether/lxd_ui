@@ -184,7 +184,6 @@ db.username=\"\"
 db.password=\"\"
 db.freeze=false
 db.debug=false
-db.session=false
 
 ; Enable/disable panel
 PANEL.enabled=true
@@ -200,14 +199,6 @@ AUTH.secret=\"$AUTHsecret\"
 ; JWT
 JWT.secret=\"$JWTsecret\"
 
-; CORS
-CORS.enabled=true
-
-; Framework
-CACHE=true
-DEBUG=0
-AUTOLOAD=\".api/\"
-
 ; System Modules (remove items to remove features)
 [modules]
 server=\"network-connections\",\"processes\",\"logins\"
@@ -215,6 +206,11 @@ api=\"data\",\"email\"
 lxd=\"containers\",\"images\",\"operations\",\"profiles\",\"networks\",\"devices\",\"certificates\",\"storage\",\"ssh-keys\"
 routes=\"web\",\"port\"
 tasks=\"user\",\"system\"
+
+; Framework
+CACHE=true
+DEBUG=0
+AUTOLOAD=\".api/\"
 " > $webroot/config.ini
     fi
     

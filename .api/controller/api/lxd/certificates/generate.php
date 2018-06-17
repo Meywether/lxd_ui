@@ -17,22 +17,32 @@
  +----------------------------------------------------------------------+
  */
  
-namespace Controller\Api\Lxd\Devices;
+namespace Controller\Api\Lxd\Certificates;
 
 /**
  *
  */
-class Index extends \Base\Controller
+class Generate extends \Base\Controller
 {
     /*
-     * @var object \Base\Model
+     * @var
      */
-    private $devices;
+    private $lxd;
 
     /*
-     * @var mixed
+     * @var
+     */
+    protected $body = [];
+    
+    /*
+     * @var
      */
     protected $result = []; 
+    
+    /*
+     * @var
+     */
+    protected $errors = []; 
 
     /**
      * @param object $f3
@@ -53,7 +63,7 @@ class Index extends \Base\Controller
         }
 
         // check feature is enabled
-        if (!in_array('devices', $f3->get('modules.lxd'))) {
+        if (!in_array('certificates', $f3->get('modules.lxd'))) {
             $f3->status(404);
             $f3->response->json([
                 'error' => 'Feature not enabled',
@@ -61,23 +71,44 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
         }
-        
-        $this->devices = new \Base\Model('devices');
+
+        // define model/s
+        $this->lxd = new \Model\LXD($f3);
     }
 
     /**
-     * GET /api/lxd/devices
+     * POST /api/lxd/certificates/generate
      *
+     * @param object $f3
      * @return void
      */
-    public function get()
+    public function post(\Base $f3)
     {
         try {
+            $tmpname = tempnam("/tmp", "cert");
+            
+            // protect from nastys
+            $this->body = (array) $f3->recursive($this->body, function ($value) {
+            	return trim(preg_replace("/[^a-z0-9 \.-]/i", '', $value));
+            });
+
+            $subject = "/C={$this->body['subject']['c']}/ST={$this->body['subject']['st']}/L={$this->body['subject']['l']}/O={$this->body['subject']['o']}/OU={$this->body['subject']['ou']}/CN={$this->body['subject']['cn']}";
+
+            // generate
+            `openssl genrsa {$this->body['bits']} > "$tmpname.key"`;
+            `openssl req -new -x509 -nodes -sha256 -days {$this->body['days']} -key "$tmpname.key" -out "$tmpname.crt" -subj "$subject"`;
+            
+            $this->result = [
+                'key' => file_get_contents("$tmpname.key"),
+                'pem' => file_get_contents("$tmpname.crt"),
+            ]+$this->body;
+            
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $this->devices->findAll()
+                'data'  => $this->result
             ];
+            
         } catch (\Exception $e) {
             $this->result = [
                 'error' => $e->getMessage(),

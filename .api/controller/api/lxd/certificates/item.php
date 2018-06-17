@@ -22,7 +22,7 @@ namespace Controller\Api\Lxd\Certificates;
 /**
  *
  */
-class Index extends \Base\Controller
+class Item extends \Base\Controller
 {
     /*
      * @var
@@ -42,7 +42,7 @@ class Index extends \Base\Controller
     /*
      * @var
      */
-    protected $errors = []; 
+    protected $errors = [];  
 
     /**
      * @param object $f3
@@ -77,25 +77,17 @@ class Index extends \Base\Controller
     }
 
     /**
-     * GET /api/lxd/certificates
+     * GET /api/lxd/certificates/@fingerprint
      *
      * @return void
      */
-    public function get()
+    public function get(\Base $f3)
     {
         try {
-            $certificates = $this->lxd->certificates->list('local', function ($result) {
-                return str_replace('/1.0/certificates/', '', $result);
-            });
-
-            foreach ((array) $certificates as $fingerprint) {
-                $this->result[] = $this->lxd->certificates->info('local', $fingerprint);
-            }
-
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $this->result
+                'data'  => $this->lxd->certificates->info('local', $f3->get('PARAMS.fingerprint'))
             ];
         } catch (\Exception $e) {
             $this->result = [
@@ -107,11 +99,12 @@ class Index extends \Base\Controller
     }
 
     /**
-     * POST /api/lxd/certificates
-     *
+     * PUT /api/lxd/certificates/@fingerprint
+     * 
+     * @params object $f3
      * @return void
      */
-    public function post()
+    public function put(\Base $f3)
     {
         try {
             $this->body['certificate'] = trim(str_replace(
@@ -123,7 +116,59 @@ class Index extends \Base\Controller
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $this->lxd->query('local:/1.0/certificates', 'POST', $this->body)
+                'data'  => $this->lxd->query('local:/1.0/certificates/'.$f3->get('PARAMS.fingerprint'), 'PUT', $this->body)
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
+        }
+    }
+    
+    /**
+     * PATCH /api/lxd/certificates/@fingerprint
+     * 
+     * @params object $f3
+     * @return void
+     */
+    public function patch(\Base $f3)
+    {
+        try {
+            $this->body['certificate'] = trim(str_replace(
+                ['-----BEGIN CERTIFICATE-----', '-----END CERTIFICATE-----'],
+                '', 
+                trim($this->body['certificate'])
+            ));
+
+            $this->result = [
+                'error' => '',
+                'code'  => 200,
+                'data'  => $this->lxd->query('local:/1.0/certificates/'.$f3->get('PARAMS.fingerprint'), 'PATCH', $this->body)
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
+        }
+    }  
+    
+    /**
+     * DELETE /api/lxd/certificates/@fingerprint
+     *
+     * @params object $f3
+     * @return void
+     */
+    public function delete(\Base $f3)
+    {
+        try {
+            $this->result = [
+                'error' => '',
+                'code'  => 200,
+                'data'  => $this->lxd->certificates->delete('local', $f3->get('PARAMS.fingerprint'))
             ];
         } catch (\Exception $e) {
             $this->result = [

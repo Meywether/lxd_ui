@@ -68,19 +68,13 @@
                 </v-alert>
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-layout row wrap>
-                    <v-flex xs6>
+                    <v-flex xs4>
                       <v-text-field v-model="editingItem.module" :rules="moduleRules" label="Name:" placeholder="" required hint="Enter the name of the endpoint."></v-text-field>
                     </v-flex>
-                    <v-flex xs6>
+                    <v-flex xs4>
                       <v-text-field v-model="editingItem.version" :rules="versionRules" label="Version:" placeholder="e.g: 1.0" required hint="Enter the version of the endpoint."></v-text-field>
                     </v-flex>
-                  </v-layout> 
-                  <v-layout row wrap>
-                    <v-flex xs6>
-                      <v-select :items="['None']" v-model="editingItem.auth" label="Authentication:"></v-select>
-                      <p v-if="editingItem.auth === 'JWT'" style="margin-top:-20px;color:rgba(0,0,0,0.54);font-size: 12px;">To obtain bearer token, authenticate using POST to {{loggedUser.sub}}/auth/jwt</p>
-                    </v-flex>
-                    <v-flex xs6>
+                    <v-flex xs4>
                       <v-select :items="['None', 'JSON', 'HTML', 'TEXT', 'JS', 'XML']" v-model="editingItem.header" label="Response Content Type:" hint="Select response content-type."></v-select>
                     </v-flex>
                   </v-layout> 

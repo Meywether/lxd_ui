@@ -16,8 +16,8 @@
  |   Lawrence Cherone <lawrence@cherone.co.uk>
  +----------------------------------------------------------------------+
  */
- 
-namespace Controller\Api\Lxd\Certificates;
+
+namespace Controller\Api\Lxd\Devices\None;
 
 /**
  *
@@ -25,24 +25,24 @@ namespace Controller\Api\Lxd\Certificates;
 class Index extends \Base\Controller
 {
     /*
-     * @var
+     * @var array \Base\Controller::$body
      */
-    private $lxd;
+    protected $body = []; 
 
     /*
-     * @var
-     */
-    protected $body = [];
-    
-    /*
-     * @var
+     * @var mixed \Base\Controller::$result
      */
     protected $result = []; 
     
     /*
-     * @var
+     * @var array \Base\Controller::$errors
      */
     protected $errors = []; 
+    
+    /*
+     * @var object \Base\Model
+     */
+    private $devices;
 
     /**
      * @param object $f3
@@ -51,7 +51,7 @@ class Index extends \Base\Controller
     public function beforeRoute(\Base $f3)
     {
         parent::beforeRoute($f3);
-        
+
         try {
             \Lib\JWT::checkAuth();
         } catch (\Exception $e) {
@@ -63,7 +63,7 @@ class Index extends \Base\Controller
         }
 
         // check feature is enabled
-        if (!in_array('certificates', $f3->get('modules.lxd'))) {
+        if (!in_array('devices', $f3->get('modules.lxd'))) {
             $f3->status(404);
             $f3->response->json([
                 'error' => 'Feature not enabled',
@@ -72,25 +72,79 @@ class Index extends \Base\Controller
             ]);
         }
 
-        // define model/s
-        $this->lxd = new \Model\LXD($f3);
+        $this->devices = new \Base\Model('devices');
     }
 
     /**
-     * GET /api/lxd/certificates
+     * GET /api/lxd/devices/none
      *
      * @return void
      */
     public function get()
     {
         try {
-            $certificates = $this->lxd->certificates->list('local', function ($result) {
-                return str_replace('/1.0/certificates/', '', $result);
-            });
+            $this->result = (array) $this->devices->findAll('type = "none"');
 
-            foreach ((array) $certificates as $fingerprint) {
-                $this->result[] = $this->lxd->certificates->info('local', $fingerprint);
+            foreach ($this->result as &$row) {
+                $row['dict'] = json_decode($row['dict']);
             }
+
+            $this->result = [
+                'error' => '',
+                'code'  => 200,
+                'data'  => array_values($this->result)
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
+        }
+    }
+
+    /**
+     * POST /api/lxd/devices/none
+     *
+     * @return void
+     */
+    public function post()
+    {
+        try {
+            if (empty($this->body) || !is_numeric($this->body['id'])) {
+                throw new \Exception('Invalid PUT body', 422);
+            }
+
+            //
+            if (empty($this->body['name'])) {
+                $this->errors['name'] = 'Device name cannot be empty';
+            }
+            
+            //
+            if (empty($this->body['dict']['name'])) {
+                $this->errors['dict'] = [
+                    'parent' => 'Blocked device name cannot be empty'
+                ];
+            }
+ 
+            if (!empty($this->errors)) {
+                $this->result = [
+                    'error' => $this->errors,
+                    'code'  => 422,
+                    'data'  => []
+                ];
+                return;
+            }
+
+            $this->result = $this->devices->create(['name' => $this->body['name']]);
+
+            $this->result->import([
+                'type' => 'none',
+                'name' => $this->body['name'],
+                'dict' => json_encode($this->body['dict'])
+            ]);
+
+            $this->devices->store($this->result);
 
             $this->result = [
                 'error' => '',
@@ -100,35 +154,7 @@ class Index extends \Base\Controller
         } catch (\Exception $e) {
             $this->result = [
                 'error' => $e->getMessage(),
-                'code'  => 422,
-                'data'  => []
-            ];
-        }
-    }
-
-    /**
-     * POST /api/lxd/certificates
-     *
-     * @return void
-     */
-    public function post()
-    {
-        try {
-            $this->body['certificate'] = trim(str_replace(
-                ['-----BEGIN CERTIFICATE-----', '-----END CERTIFICATE-----'],
-                '', 
-                trim($this->body['certificate'])
-            ));
-
-            $this->result = [
-                'error' => '',
-                'code'  => 200,
-                'data'  => $this->lxd->query('local:/1.0/certificates', 'POST', $this->body)
-            ];
-        } catch (\Exception $e) {
-            $this->result = [
-                'error' => $e->getMessage(),
-                'code'  => 422,
+                'code'  => $e->getCode(),
                 'data'  => []
             ];
         }
