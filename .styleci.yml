@@ -1,3 +1,1 @@
-php:
-  preset: psr2
-  risky: true
+preset: psr2
