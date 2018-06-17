@@ -93,6 +93,14 @@ class Generate extends \Base\Controller
             });
 
             $subject = "/C={$this->body['subject']['c']}/ST={$this->body['subject']['st']}/L={$this->body['subject']['l']}/O={$this->body['subject']['o']}/OU={$this->body['subject']['ou']}/CN={$this->body['subject']['cn']}";
+            
+            if (!in_array($this->body['bits'], ['2048', '4096', '4192'])) {
+                $this->body['bits'] = '2048';
+            }
+            
+            if (!is_numeric($this->body['days']) || $this->body['days'] < 1 || $this->body['days'] > 3650) {
+                $this->body['days'] = '3650';
+            }
 
             // generate
             `openssl genrsa {$this->body['bits']} > "$tmpname.key"`;
@@ -103,6 +111,9 @@ class Generate extends \Base\Controller
                 'pem' => file_get_contents("$tmpname.crt"),
             ]+$this->body;
             
+            unlink("$tmpname.key");
+            unlink("$tmpname.crt");
+
             $this->result = [
                 'error' => '',
                 'code'  => 200,

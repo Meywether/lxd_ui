@@ -1,5 +1,22 @@
 <?php
-
+/*
+ +----------------------------------------------------------------------+
+ | Conext LXD Control Panel
+ +----------------------------------------------------------------------+
+ | Copyright (c)2018 (https://github.com/lcherone/conext)
+ +----------------------------------------------------------------------+
+ | This source file is subject to MIT License
+ | that is bundled with this package in the file LICENSE.
+ |
+ | If you did not receive a copy of the license and are unable to
+ | obtain it through the world-wide-web, please send an email
+ | to lawrence@cherone.co.uk so we can send you a copy immediately.
+ +----------------------------------------------------------------------+
+ | Authors:
+ |   Lawrence Cherone <lawrence@cherone.co.uk>
+ +----------------------------------------------------------------------+
+ */
+ 
 namespace Controller\Api\Lxd\Containers;
 
 /**
@@ -11,12 +28,30 @@ class Index extends \Base\Controller
      * @var
      */
     private $lxd;
+
+    /*
+     * @var
+     */
+    protected $body = [];
     
+    /*
+     * @var
+     */
+    protected $result = []; 
+    
+    /*
+     * @var
+     */
+    protected $errors = []; 
+
     /**
-     * Before route - check auth and load models
+     * @param object $f3
+     * @return void
      */
     public function beforeRoute(\Base $f3)
     {
+        parent::beforeRoute($f3);
+        
         try {
             \Lib\JWT::checkAuth();
         } catch (\Exception $e) {
@@ -36,263 +71,102 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
         }
-        
+
+        // define model/s
         $this->lxd = new \Model\LXD($f3);
     }
 
     /**
+     * GET /api/lxd/containers
      *
+     * @return void
      */
-    public function index(\Base $f3)
+    public function get()
     {
-        // GET | POST | PUT | DELETE
-        $verb = $f3->get('VERB');
-        //
-        $body = !$f3->devoid('BODY') ? (array) json_decode($f3->get('BODY')) : [];
-        //
-        $errors = [];
-        //
-        $result = [];
-
-        /**
-         * GET /api/lxd/containers
-         */
-        if ($verb === 'GET') {
-            try {
-                $result = [
-                    'error' => '',
-                    'code'  => 200,
-                    'data'  => $this->lxd->local('lxc list --format json')
-                ];
-            } catch (\Exception $e) {
-                $result = [
-                    'error' => $e->getMessage(),
-                    'code'  => 422,
-                    'data'  => []
-                ];
-            }
+        try {
+            $this->result = [
+                'error' => '',
+                'code'  => 200,
+                'data'  => $this->lxd->local('lxc list --format json')
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
         }
-        
-        /**
-         * POST /api/lxd/containers
-         */
-        if ($verb === 'POST') {
+    }
 
-            if (empty($body['name'])) {
-                $errors['name'] = 'Container name cannot be empty'; 
+    /**
+     * POST /api/lxd/containers
+     *
+     * @return void
+     */
+    public function post()
+    {
+        try {
+            if (empty($this->body['name'])) {
+                $this->errors['name'] = 'Container name cannot be empty'; 
             }
             
-            if (empty($body['image_fingerprint'])) {
-                $errors['image_fingerprint'] = 'Image fingerprint cannot be empty'; 
+            if (empty($this->body['image_fingerprint'])) {
+                $this->errors['image_fingerprint'] = 'Image fingerprint cannot be empty'; 
             }
             
-            if (empty($body['profile'])) {
-                $errors['profile'] = 'Container requires at least one profile'; 
+            if (empty($this->body['profile'])) {
+                $this->errors['profile'] = 'Container requires at least one profile'; 
             }
             
-            if (empty($body['pool'])) {
-                $errors['pool'] = 'Container requires a storage pool'; 
+            if (empty($this->body['pool'])) {
+                $this->errors['pool'] = 'Container requires a storage pool'; 
             }
             
-            if (empty($body['remote'])) {
-                $errors['remote'] = 'Remote cannot be empty'; 
+            if (empty($this->body['remote'])) {
+                $this->errors['remote'] = 'Remote cannot be empty'; 
             }
             
-            if (!empty($errors)) {
-                $f3->response->json([
-                    'error' => $errors,
+            if (!empty($this->errors)) {
+                $this->result = [
+                    'error' => $this->errors,
                     'code'  => 400,
                     'data'  => []
-                ]);
+                ];
+                return;
             }
 
             // build out array of arguments which will make the final lxc launch command
             $cmd = [
                 'lxc launch',
                 // remote & image fingerprint
-                escapeshellarg($body['remote']).':'.escapeshellarg($body['image_fingerprint']),
+                escapeshellarg($this->body['remote']).':'.escapeshellarg($this->body['image_fingerprint']),
                 // container name
-                escapeshellarg($body['name']),
+                escapeshellarg($this->body['name']),
                 // ephemeral
-                !empty($body['ephemeral']) ? '-e' : '',
+                !empty($this->body['ephemeral']) ? '-e' : '',
                 // profiles
-                '-p '.implode(' -p ', (array) $f3->recursive((array) $body['profile'], function ($value) {
+                '-p '.implode(' -p ', (array) $f3->recursive((array) $this->body['profile'], function ($value) {
                 	return  escapeshellarg($value);
                 })),
                 // storage pool
-                '-s '.escapeshellarg($body['pool'])
+                '-s '.escapeshellarg($this->body['pool'])
             ];
 
-            try {
-                $result = [
-                    'error' => '',
-                    'code'  => 200,
-                    'data'  => $this->lxd->local(implode(' ', $cmd))
-                ];
-            } catch (\Exception $e) {
-                if (($error = stristr($e->getMessage(), 'Error:')) === false) {
-                    $error = $e->getMessage();
-                }
-                $result = [
-                    'error' => $error,
-                    'code'  => 422,
-                    'data'  => []
-                ];
+            $this->result = [
+                'error' => '',
+                'code'  => 200,
+                'data'  => $this->lxd->local(implode(' ', $cmd))
+            ];
+        } catch (\Exception $e) {
+            if (($error = stristr($e->getMessage(), 'Error:')) === false) {
+                $error = $e->getMessage();
             }
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
         }
-
-        $f3->response->json($result);
-    }
-    
-    /**
-     *
-     */
-    public function item(\Base $f3, $params)
-    {
-        // GET | POST | PUT | DELETE
-        $verb = $f3->get('VERB');
-        //
-        $body = !$f3->devoid('BODY') ? (array) json_decode($f3->get('BODY')) : [];
-        //
-        $errors = [];
-        //
-        $result = [];
-        
-        /**
-         * GET /api/lxd/containers/@name
-         */
-        if ($verb === 'GET') {
-            try {
-                $result = [
-                    'error' => '',
-                    'code'  => 200,
-                    'data'  => $this->lxd->containers->info('local', $params['name'])
-                ];
-            } catch (\Exception $e) {
-                $result = [
-                    'error' => $e->getMessage(),
-                    'code'  => 422,
-                    'data'  => []
-                ];
-            }
-        }
-        
-        /**
-         * POST /api/lxd/containers/@name
-         */
-        if ($verb === 'POST') {
-
-            if (empty($body) || empty($params['name'])) {
-              $f3->response->json([
-                    'error' => 'Invalid POST body, expecting item',
-                    'code'  => 422,
-                    'data'  => []
-                ]); 
-            }
-            
-            if (empty($body['name'])) {
-                $errors['name'] = 'Containers new name cannot be empty'; 
-            }
-
-            if (!empty($errors)) {
-                $f3->response->json([
-                    'error' => $errors,
-                    'code'  => 400,
-                    'data'  => []
-                ]);
-            }
-            
-            try {
-                $result = [
-                    'error' => '',
-                    'code'  => 200,
-                    'data'  => $this->lxd->containers->rename('local', $params['name'], $body['name'])
-                ];
-            } catch (\Exception $e) {
-                $result = [
-                    'error' => $e->getMessage(),
-                    'code'  => 422,
-                    'data'  => []
-                ];
-            }
-        }
-
-        /**
-         * PATCH /api/lxd/containers/@name
-         */
-        if ($verb === 'PATCH') {
-
-            if (empty($body) || empty($params['name'])) {
-              $f3->response->json([
-                    'error' => 'Invalid PATCH body, expecting item',
-                    'code'  => 422,
-                    'data'  => []
-                ]); 
-            }
-            
-            try {
-                $result = [
-                    'error' => '',
-                    'code'  => 200,
-                    'data'  => $this->lxd->containers->update('local', $params['name'], $body)
-                ];
-            } catch (\Exception $e) {
-                $result = [
-                    'error' => $e->getMessage(),
-                    'code'  => 422,
-                    'data'  => []
-                ];
-            }
-        }
-        
-        /**
-         * PUT /api/lxd/containers/@name
-         */
-        if ($verb === 'PUT') {
-
-            if (empty($body) || empty($params['name'])) {
-              $f3->response->json([
-                    'error' => 'Invalid PUT body, expecting item',
-                    'code'  => 422,
-                    'data'  => []
-                ]); 
-            }
-            
-            try {
-                $result = [
-                    'error' => '',
-                    'code'  => 200,
-                    'data'  => $this->lxd->containers->replace('local', $params['name'], $body)
-                ];
-            } catch (\Exception $e) {
-                $result = [
-                    'error' => $e->getMessage(),
-                    'code'  => 422,
-                    'data'  => []
-                ];
-            }
-        }
-        
-        /**
-         * DELETE /api/lxd/containers/@name
-         */
-        if ($verb === 'DELETE') {
-            try {
-                $result = [
-                    'error' => '',
-                    'code'  => 200,
-                    'data'  => $this->lxd->containers->delete('local', $params['name'])
-                ];
-            } catch (\Exception $e) {
-                $result = [
-                    'error' => $e->getMessage(),
-                    'code'  => 422,
-                    'data'  => []
-                ];
-            }
-        }
-        
-        $f3->response->json($result);
     }
 
 }

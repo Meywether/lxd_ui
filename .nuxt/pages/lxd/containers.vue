@@ -286,58 +286,58 @@
                     <v-tab ripple :href="`#proxy`">Proxy</v-tab>
                     <v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>
                     <v-tab-item :id="`none`" v-if="container.info">
-                      <none @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></none>
+                      <none @snackbar="setSnackbar" :key="component_key" :linked="container.info"></none>
                     </v-tab-item>
                     <v-tab-item :id="`nic`" v-if="container.info">
-                      <nic @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></nic>
+                      <nic @snackbar="setSnackbar" :key="component_key" :linked="container.info"></nic>
                     </v-tab-item>
                     <v-tab-item :id="`disk`" v-if="container.info">
-                      <disk @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></disk>
+                      <disk @snackbar="setSnackbar" :key="component_key" :linked="container.info"></disk>
                     </v-tab-item>
                     <v-tab-item :id="`unixchar`" v-if="container.info">
-                      <unixchar @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></unixchar>
+                      <unixchar @snackbar="setSnackbar" :key="component_key" :linked="container.info"></unixchar>
                     </v-tab-item>
                     <v-tab-item :id="`unixblock`" v-if="container.info">
-                      <unixblock @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></unixblock>
+                      <unixblock @snackbar="setSnackbar" :key="component_key" :linked="container.info"></unixblock>
                     </v-tab-item>
                     <v-tab-item :id="`usb`" v-if="container.info">
-                      <usb @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></usb>
+                      <usb @snackbar="setSnackbar" :key="component_key" :linked="container.info"></usb>
                     </v-tab-item>
                     <v-tab-item :id="`gpu`" v-if="container.info">
-                      <gpu @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></gpu>
+                      <gpu @snackbar="setSnackbar" :key="component_key" :linked="container.info"></gpu>
                     </v-tab-item>
                     <v-tab-item :id="`proxy`" v-if="container.info">
-                      <proxy @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></proxy>
+                      <proxy @snackbar="setSnackbar" :key="component_key" :linked="container.info"></proxy>
                     </v-tab-item>
                     <v-tab-item :id="`infiniband`" v-if="container.info">
-                      <infiniband @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></infiniband>
+                      <infiniband @snackbar="setSnackbar" :key="component_key" :linked="container.info"></infiniband>
                     </v-tab-item>
                   </v-tabs>
                 </v-card>
               </v-tab-item>
               <v-tab-item :id="`tab-idmap`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <idmap @snackbar="setSnackbar" @initialize="initialize" :key="container.info.name" :linked="container.info"></idmap>
+                  <idmap @snackbar="setSnackbar" @initialize="initialize" :key="component_key" :linked="container.info"></idmap>
                 </v-card>
               </v-tab-item>
               <v-tab-item :id="`tab-sshkeys`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <ssh-keys @snackbar="setSnackbar" :key="container.info.name" :linked="container.info"></ssh-keys>
+                  <ssh-keys @snackbar="setSnackbar" :key="component_key" :linked="container.info"></ssh-keys>
                 </v-card>
               </v-tab-item>
               <v-tab-item :id="`tab-snapshots`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <snapshots :item="container" :key="container.info.name" @snackbar="setSnackbar"></snapshots>
+                  <snapshots :item="container" :key="component_key" @snackbar="setSnackbar"></snapshots>
                 </v-card>
               </v-tab-item>
               <v-tab-item :id="`tab-files`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <files @snackbar="setSnackbar" :key="container.info.name" ref="`${files[container.info.name]}_files`" :linked="container.info"></files>
+                  <files @snackbar="setSnackbar" :key="component_key" ref="`${files[container.info.name]}_files`" :linked="container.info"></files>
                 </v-card>
               </v-tab-item>
               <v-tab-item :id="`tab-logs`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <logs @snackbar="setSnackbar" :key="container.info.name" ref="`${files[container.info.name]}_logs`" :linked="container.info"></logs>
+                  <logs @snackbar="setSnackbar" :key="component_key" ref="`${files[container.info.name]}_logs`" :linked="container.info"></logs>
                 </v-card>
               </v-tab-item>
             </v-tabs>
@@ -424,6 +424,7 @@
     },
     data: () => ({
       valid: true,
+      component_key:'',
 
       //
       alert: { msg: '', outline: false, color: 'info', icon: 'info' },
@@ -940,28 +941,30 @@
         })
       },
 
-      editContainer (item, openDialog = true) {
-        this.stopPolling()
-        this.$nextTick(async () => {
-          this.getProfiles()
-          this.editingIndex = this.items.indexOf(item)
-          //
-          try {
-            if (!this.loggedUser) {
-              this.$router.replace('/servers')
-            }
-
-            //
-            const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
-
-            this.$set(this.container, 'state', item)
-            this.$set(this.container, 'info', container.infix(response.data.data))
-
-          } catch (error) {
-            this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
-          }
-        })
+      async editContainer (item, openDialog = true) {
         this.containerDialog = openDialog
+        
+        this.stopPolling()
+        this.getProfiles()
+        this.editingIndex = this.items.indexOf(item)
+        
+        //
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+            
+          this.component_key = item.name;
+
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
+      
+          this.$set(this.container, 'state', item)
+          this.$set(this.container, 'info', container.infix(response.data.data))
+
+        } catch (error) {
+          this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
+        }
       },
 
       async saveContainer () {
