@@ -71,6 +71,7 @@ class System
      *
      * @param string $action
      * @param array  $params
+     * @throws Exception
      * @return mixed
      */
     public function __call($action, $params)
