@@ -140,11 +140,8 @@ class Item extends \Base\Controller
                 'data'  => $this->lxd->containers->rename('local', $f3->get('PARAMS.name'), $this->body['name'])
             ];
         } catch (\Exception $e) {
-            if (($error = stristr($e->getMessage(), 'Error:')) === false) {
-                $error = $e->getMessage();
-            }
             $this->result = [
-                'error' => $error,
+                'error' => $e->getMessage(),
                 'code'  => 422,
                 'data'  => []
             ];
@@ -179,11 +176,8 @@ class Item extends \Base\Controller
                 'data'  => $this->lxd->containers->update('local', $f3->get('PARAMS.name'), $this->body)
             ];
         } catch (\Exception $e) {
-            if (($error = stristr($e->getMessage(), 'Error:')) === false) {
-                $error = $e->getMessage();
-            }
             $this->result = [
-                'error' => $error,
+                'error' => $e->getMessage(),
                 'code'  => 422,
                 'data'  => []
             ];
@@ -218,11 +212,8 @@ class Item extends \Base\Controller
                 'data'  => $this->lxd->containers->replace('local', $f3->get('PARAMS.name'), $this->body)
             ];
         } catch (\Exception $e) {
-            if (($error = stristr($e->getMessage(), 'Error:')) === false) {
-                $error = $e->getMessage();
-            }
             $this->result = [
-                'error' => $error,
+                'error' => $e->getMessage(),
                 'code'  => 422,
                 'data'  => []
             ];
@@ -244,11 +235,8 @@ class Item extends \Base\Controller
                 'data'  => $this->lxd->containers->delete('local', $f3->get('PARAMS.name'))
             ];
         } catch (\Exception $e) {
-            if (($error = stristr($e->getMessage(), 'Error:')) === false) {
-                $error = $e->getMessage();
-            }
             $this->result = [
-                'error' => $error,
+                'error' => $e->getMessage(),
                 'code'  => 422,
                 'data'  => []
             ];

@@ -103,7 +103,7 @@ class Index extends \Base\Controller
      *
      * @return void
      */
-    public function post()
+    public function post(\Base $f3)
     {
         try {
             if (empty($this->body['name'])) {
@@ -158,9 +158,6 @@ class Index extends \Base\Controller
                 'data'  => $this->lxd->local(implode(' ', $cmd))
             ];
         } catch (\Exception $e) {
-            if (($error = stristr($e->getMessage(), 'Error:')) === false) {
-                $error = $e->getMessage();
-            }
             $this->result = [
                 'error' => $e->getMessage(),
                 'code'  => 422,
