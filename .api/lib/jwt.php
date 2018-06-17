@@ -48,7 +48,7 @@ final class JWT extends \Prefab
     }
 
     /**
-     * @param function $callback
+     * @param callable $callback
      * @return mixed|void
      */
     public static function checkAuthThen($callback)
