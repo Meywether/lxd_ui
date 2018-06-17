@@ -1,1 +1,22 @@
-preset: psr2
+php:
+  preset: psr2
+  risky: true
+  finder:
+    exclude:
+      - .nuxt
+      - public
+      - vendor
+    name: "*.php"
+    
+vue:
+  tab-width: 2
+  use-tabs: false
+  print-width: 120
+  double-quotes: true
+  trailing-commas: es5
+  semicolons: false
+  bracket-spacing: true
+  finder:
+    exclude:
+      - node_modules
+    name: "*.vue"
