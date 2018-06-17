@@ -27,11 +27,6 @@ class Generate extends \Base\Controller
     /*
      * @var
      */
-    private $lxd;
-
-    /*
-     * @var
-     */
     protected $body = [];
 
     /*
@@ -71,9 +66,6 @@ class Generate extends \Base\Controller
                 'data'  => []
             ]);
         }
-
-        // define model/s
-        $this->lxd = new \Model\LXD($f3);
     }
 
     /**
@@ -121,6 +113,16 @@ class Generate extends \Base\Controller
             if (empty($this->body['subject']['cn'])) {
                 $this->errors['subject']['cn'] = 'Common name is a required field';
             }
+            
+            // check bits
+            if (!in_array($this->body['bits'], [2048, 4096, 8192])) {
+                $this->body['bits'] = 2048;
+            }
+
+            // check days
+            if (!is_numeric($this->body['days']) || $this->body['days'] < 1 || $this->body['days'] > 3650) {
+                $this->body['days'] = 3650;
+            }
 
             if (!empty($this->errors)) {
                 $this->result = [
@@ -131,19 +133,9 @@ class Generate extends \Base\Controller
                 return;
             }
             
-            if (!in_array($this->body['bits'], [2048, 4096, 8192])) {
-                $this->body['bits'] = 2048;
-            }
-
-            if (!is_numeric($this->body['days']) || $this->body['days'] < 1 || $this->body['days'] > 3650) {
-                $this->body['days'] = 3650;
-            }
-            
-            $this->errors['subject']['c'] = strtoupper($this->errors['subject']['c']);
-
             //
             $dn = [
-                "countryName" => $this->body['subject']['c'],
+                "countryName" => strtoupper($this->body['subject']['c']),
                 "stateOrProvinceName" => $this->body['subject']['st'],
                 "localityName" => $this->body['subject']['l'],
                 "organizationName" => $this->body['subject']['o'],
