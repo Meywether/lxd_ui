@@ -1,1 +1,7 @@
 preset: recommended
+finder:
+  name: "*.php"
+  path:
+    - ".api"
+  depth:
+    - "< 100"
