@@ -14,9 +14,8 @@ $f3 = \Base::instance();
 // load config
 $f3->config('config.ini');
 
-// Plinker RPC listener
+// PlinkerRPC listener
 if (isset($_SERVER['HTTP_PLINKER'])) {
-    // init plinker server
     exit((new \Plinker\Core\Server(['secret' => $f3->get('AUTH.secret')]))->listen());
 }
 
