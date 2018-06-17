@@ -105,7 +105,7 @@
         //
         axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
         //
-        const response = await axios.get(this.loggedUser.sub + '/api/server/information/top')
+        const response = await axios.get(this.loggedUser.sub + '/api/server/top')
         this.items = response.data.data
         //
         this.tableLoading = false
