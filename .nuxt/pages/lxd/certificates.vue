@@ -103,9 +103,7 @@
           <v-card-text style="padding: 0px;">
             <v-card flat>
               <v-card-text>
-                <v-alert type="error" :value="error.generate">
-                  {{ error.generate }}
-                </v-alert>
+                <v-alert type="error" :value="error.generate" v-html="error.generate"></v-alert>
                 <v-form ref="form_generate" v-model="valid.generate" lazy-validation>
                   <div v-if="cert.key !== ''">
                     <h2>Client Certificate <v-btn dark small color="success" @click="addCert()" style="float:right">Add To LXD</v-btn><v-btn dark small color="blue" @click="downloadCert('pem')" style="float:right">Download</v-btn></h2>
@@ -218,6 +216,7 @@
       daysRule: [
         v => !!v || 'Days is required',
         v => (v && !isNaN(v)) || 'Days is numeric',
+        v => (v && v > 0 && v < 3650) || 'Days should be > 0 and less than 3650',
       ],
       commonNameRule: [
         v => !!v || 'Common name is required'
@@ -236,7 +235,7 @@
         v => !!v || 'Organization is required'
       ],
       organizationUnitRule: [
-        v => !!v || 'Organization Unit is required'
+        v => !!v || 'Organization unit is required'
       ]
     }),
     beforeDestroy: function() {},
@@ -315,12 +314,19 @@
             //
             const response = await axios.post(this.loggedUser.sub + '/api/lxd/certificates/generate', this.cert)
   
-            this.cert = response.data.data
-            
-            this.generating = false
+            if (response.data.error) {
+              this.error.generate = '<ul style="padding-left:15px">'
+              Object.keys(response.data.error.subject).forEach(key => {
+                this.error.generate += '<li>'+response.data.error.subject[key]+'.</li>'
+              })
+              this.error.generate += '</ul>'
+            } else {
+              this.cert = response.data.data
+            }
           } catch (error) {
-  
+            this.error.generate = error
           }
+          this.generating = false
         }
       },
       

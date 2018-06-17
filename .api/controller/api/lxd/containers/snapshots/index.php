@@ -17,12 +17,12 @@
  +----------------------------------------------------------------------+
  */
  
-namespace Controller\Api\Lxd\Containers;
+namespace Controller\Api\Lxd\Containers\Snapshots;
 
 /**
  *
  */
-class Files extends \Base\Controller
+class Index extends \Base\Controller
 {
     /*
      * @var
@@ -77,31 +77,25 @@ class Files extends \Base\Controller
     }
 
     /**
-     * GET /api/lxd/containers/@name/files
+     * GET /api/lxd/containers/@name/snapshots
      *
      * @return void
      */
     public function get(\Base $f3)
     {
         try {
-            $result = $this->lxd->containers->files->list('local', $f3->get('PARAMS.name'), $f3->get('GET.path'));
-                
-            if (is_array($result)) {
-                $result = [
-                    'type' => 'listing',
-                    'data' => array_values($result)
-                ];
-            } else {
-                $result = [
-                    'type' => 'file',
-                    'data' => $result
-                ];
+            $result = $this->lxd->containers->snapshots->list('local', $f3->get('PARAMS.name'));
+            
+            $return = [];
+            foreach ($result as $snapshot) {
+                $snapshot = str_replace('/1.0/containers/'.$f3->get('PARAMS.name').'/snapshots/', '', $snapshot);  
+                $return[] = $this->lxd->containers->snapshots->info('local', $f3->get('PARAMS.name'), $snapshot);
             }
-
+            
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $result
+                'data'  => $return
             ];
         } catch (\Exception $e) {
             $this->result = [
@@ -111,19 +105,20 @@ class Files extends \Base\Controller
             ];
         }
     }
-    
+
     /**
-     * POST /api/lxd/containers/@name/files
+     * POST /api/lxd/containers/@name/snapshots
      *
      * @return void
      */
     public function post(\Base $f3)
     {
+        $this->body['stateful'] = $this->body['stateful'] == '1';
         try {
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $this->lxd->containers->files->push('local', $f3->get('PARAMS.name'), $this->body['source'], $f3->get('GET.path'))
+                'data'  => $this->lxd->containers->snapshots->create('local', $f3->get('PARAMS.name'), $this->body)
             ];
         } catch (\Exception $e) {
             $this->result = [
@@ -135,17 +130,17 @@ class Files extends \Base\Controller
     }
     
     /**
-     * DELETE /api/lxd/containers/@name/files
+     * PUT /api/lxd/containers/@name/snapshots
      *
      * @return void
      */
-    public function delete(\Base $f3)
+    public function put(\Base $f3)
     {
         try {
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $this->lxd->containers->files->remove('local', $f3->get('PARAMS.name'), $f3->get('GET.path'))
+                'data'  => $this->lxd->containers->snapshots->restore('local', $f3->get('PARAMS.name'), $this->body['name'])
             ];
         } catch (\Exception $e) {
             $this->result = [

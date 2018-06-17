@@ -17,12 +17,12 @@
  +----------------------------------------------------------------------+
  */
  
-namespace Controller\Api\Lxd\Containers;
+namespace Controller\Api\Lxd\Containers\Snapshots;
 
 /**
  *
  */
-class Files extends \Base\Controller
+class Item extends \Base\Controller
 {
     /*
      * @var
@@ -77,31 +77,17 @@ class Files extends \Base\Controller
     }
 
     /**
-     * GET /api/lxd/containers/@name/files
+     * GET /api/lxd/containers/@name/snapshots/@snapshot
      *
      * @return void
      */
     public function get(\Base $f3)
     {
         try {
-            $result = $this->lxd->containers->files->list('local', $f3->get('PARAMS.name'), $f3->get('GET.path'));
-                
-            if (is_array($result)) {
-                $result = [
-                    'type' => 'listing',
-                    'data' => array_values($result)
-                ];
-            } else {
-                $result = [
-                    'type' => 'file',
-                    'data' => $result
-                ];
-            }
-
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $result
+                'data'  => $this->lxd->containers->snapshots->info('local', $f3->get('PARAMS.name'), $f3->get('PARAMS.snapshot'))
             ];
         } catch (\Exception $e) {
             $this->result = [
@@ -111,9 +97,9 @@ class Files extends \Base\Controller
             ];
         }
     }
-    
+
     /**
-     * POST /api/lxd/containers/@name/files
+     * POST /api/lxd/containers/@name/snapshots/@snapshot
      *
      * @return void
      */
@@ -123,7 +109,7 @@ class Files extends \Base\Controller
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $this->lxd->containers->files->push('local', $f3->get('PARAMS.name'), $this->body['source'], $f3->get('GET.path'))
+                'data'  => $this->lxd->containers->snapshots->rename('local', $f3->get('PARAMS.name'), $f3->get('PARAMS.snapshot'), $this->body['name'])
             ];
         } catch (\Exception $e) {
             $this->result = [
@@ -135,7 +121,7 @@ class Files extends \Base\Controller
     }
     
     /**
-     * DELETE /api/lxd/containers/@name/files
+     * DELETE /api/lxd/containers/@name/snapshots/@snapshot
      *
      * @return void
      */
@@ -145,7 +131,7 @@ class Files extends \Base\Controller
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $this->lxd->containers->files->remove('local', $f3->get('PARAMS.name'), $f3->get('GET.path'))
+                'data'  => $this->lxd->containers->snapshots->delete('local', $f3->get('PARAMS.name'), $f3->get('PARAMS.snapshot'))
             ];
         } catch (\Exception $e) {
             $this->result = [

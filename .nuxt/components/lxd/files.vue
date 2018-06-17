@@ -117,8 +117,8 @@
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/'+this.linkedItem.name+'/files?path='+this.currentPath)
           
           // check listing or file
-          if (response.data.type === 'listing') {
-            this.items = response.data.data
+          if (response.data.data.type === 'listing') {
+            this.items = response.data.data.data
             this.displayPath = this.currentPath
             if (resetSource) {
               this.source = '';
@@ -126,9 +126,9 @@
           } else {
             // reset path to previous
             this.currentPath = this.currentPath.substring(0, this.currentPath.lastIndexOf('/'));
-            this.source = response.data.data;
+            this.source = response.data.data.data;
           }
-          this.type = response.data.type;
+          this.type = response.data.data.type;
           this.filename = this.type === 'listing' ? filename : this.currentFilePath.substr(this.currentFilePath.lastIndexOf('/') + 1)
         } catch (error) {
           this.error = 'Could not fetch data from server.';

@@ -1,5 +1,22 @@
 <?php
-
+/*
+ +----------------------------------------------------------------------+
+ | Conext LXD Control Panel
+ +----------------------------------------------------------------------+
+ | Copyright (c)2018 (https://github.com/lcherone/conext)
+ +----------------------------------------------------------------------+
+ | This source file is subject to MIT License
+ | that is bundled with this package in the file LICENSE.
+ |
+ | If you did not receive a copy of the license and are unable to
+ | obtain it through the world-wide-web, please send an email
+ | to lawrence@cherone.co.uk so we can send you a copy immediately.
+ +----------------------------------------------------------------------+
+ | Authors:
+ |   Lawrence Cherone <lawrence@cherone.co.uk>
+ +----------------------------------------------------------------------+
+ */
+ 
 namespace Controller\Api\Lxd\Containers;
 
 /**
@@ -11,19 +28,35 @@ class Copy extends \Base\Controller
      * @var
      */
     private $lxd;
+
+    /*
+     * @var
+     */
+    protected $body = [];
+    
+    /*
+     * @var
+     */
+    protected $result = []; 
+    
+    /*
+     * @var
+     */
+    protected $errors = []; 
     
     /*
      * @var
      */
     private $cache;
-    
-    /*
-     * @var
+
+    /**
+     * @param object $f3
+     * @return void
      */
-    private $cache_ttl;
-    
     public function beforeRoute(\Base $f3)
     {
+        parent::beforeRoute($f3);
+        
         try {
             \Lib\JWT::checkAuth();
         } catch (\Exception $e) {
@@ -33,7 +66,7 @@ class Copy extends \Base\Controller
                 'data'  => []
             ]);
         }
-        
+
         // check feature is enabled
         if (!in_array('containers', $f3->get('modules.lxd'))) {
             $f3->status(404);
@@ -43,51 +76,61 @@ class Copy extends \Base\Controller
                 'data'  => []
             ]);
         }
-        
+
+        // define model/s
         $this->lxd = new \Model\LXD($f3);
         
         $this->cache = \Cache::instance();
-        $this->cache_ttl = 5;
     }
 
     /**
+     * POST /api/lxd/containers/@name/copy
      *
+     * @return void
      */
-    public function index(\Base $f3, $params)
+    public function post(\Base $f3)
     {
-        // GET | POST | PUT | DELETE
-        $verb = $f3->get('VERB');
-
-        /**
-         * POST /api/lxd/containers/@name/copy
-         */
-        if ($verb === 'POST') {
-            $body = json_decode($f3->get('BODY'), true);
-            
-            ignore_user_abort(true);
-            set_time_limit(0);
-            
-            $params['container'] = !empty($body['name_alt']) ? $body['name_alt'] : $params['name'].'-copy';
-
-            try {
-                $response = [
-                    'error' => null,
-                    'code'  => 200,
-                    'data'  => $this->lxd->local('lxc copy local:'.$params['name'].' '.$body['remote'].':'.$params['container'].' --container-only')
-                ];
-            } catch (\Exception $e) {
-                $response = [
-                    'error' => $e->getMessage(),
-                    'code'  => $e->getCode(),
-                    'data'  => []
-                ];
+        try {
+            if (empty($this->body['name_alt'])) {
+                $this->errors['name_alt'] = 'Container name cannot be empty'; 
+            } else {
+                $this->body['name_alt'] = escapeshellarg($this->body['name_alt']);
             }
             
-            $this->cache->clear('images.'.$f3->get('GET.remote'));
+            if (empty($this->body['remote'])) {
+                $this->errors['remote'] = 'Remote cannot be empty'; 
+            } else {
+                $this->body['remote'] = escapeshellarg($this->body['remote']);
+            }
 
-            $f3->response->json($response, false);
+            if (!empty($this->errors)) {
+                $this->result = [
+                    'error' => $this->errors,
+                    'code'  => 400,
+                    'data'  => []
+                ];
+                return;
+            }
+
+            ignore_user_abort(true);
+            set_time_limit(0);
+
+            $container = !empty($this->body['name_alt']) ? $this->body['name_alt'] : escapeshellarg($f3->get('PARAMS.name')).'-copy';
+
+            $this->result = [
+                'error' => null,
+                'code'  => 200,
+                'data'  => $this->lxd->local('lxc copy local:'.$f3->get('PARAMS.name').' '.$this->body['remote'].':'.$container.' --container-only')
+            ];
+
+            $this->cache->clear('images.'.$f3->get('GET.remote'));
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
         }
-        
     }
 
 }

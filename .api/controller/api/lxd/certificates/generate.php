@@ -16,7 +16,7 @@
  |   Lawrence Cherone <lawrence@cherone.co.uk>
  +----------------------------------------------------------------------+
  */
- 
+
 namespace Controller\Api\Lxd\Certificates;
 
 /**
@@ -27,22 +27,17 @@ class Generate extends \Base\Controller
     /*
      * @var
      */
-    private $lxd;
+    protected $body = [];
 
     /*
      * @var
      */
-    protected $body = [];
-    
+    protected $result = [];
+
     /*
      * @var
      */
-    protected $result = []; 
-    
-    /*
-     * @var
-     */
-    protected $errors = []; 
+    protected $errors = [];
 
     /**
      * @param object $f3
@@ -51,7 +46,7 @@ class Generate extends \Base\Controller
     public function beforeRoute(\Base $f3)
     {
         parent::beforeRoute($f3);
-        
+
         try {
             \Lib\JWT::checkAuth();
         } catch (\Exception $e) {
@@ -71,9 +66,6 @@ class Generate extends \Base\Controller
                 'data'  => []
             ]);
         }
-
-        // define model/s
-        $this->lxd = new \Model\LXD($f3);
     }
 
     /**
@@ -85,30 +77,99 @@ class Generate extends \Base\Controller
     public function post(\Base $f3)
     {
         try {
-            $tmpname = tempnam("/tmp", "cert");
-            
             // protect from nastys
             $this->body = (array) $f3->recursive($this->body, function ($value) {
             	return trim(preg_replace("/[^a-z0-9 \.-]/i", '', $value));
             });
 
-            $subject = "/C={$this->body['subject']['c']}/ST={$this->body['subject']['st']}/L={$this->body['subject']['l']}/O={$this->body['subject']['o']}/OU={$this->body['subject']['ou']}/CN={$this->body['subject']['cn']}";
+            // subject - country
+            if (empty($this->body['subject']['c'])) {
+                $this->errors['subject']['c'] = 'Country is a required field';
+            } elseif(strlen($this->body['subject']['c']) != 2) {
+                $this->errors['subject']['c'] = 'Country is a 2 letter code';
+            }
 
-            // generate
-            `openssl genrsa {$this->body['bits']} > "$tmpname.key"`;
-            `openssl req -new -x509 -nodes -sha256 -days {$this->body['days']} -key "$tmpname.key" -out "$tmpname.crt" -subj "$subject"`;
+            // subject - state
+            if (empty($this->body['subject']['st'])) {
+                $this->errors['subject']['st'] = 'State is a required field';
+            }
             
+            // subject - state
+            if (empty($this->body['subject']['l'])) {
+                $this->errors['subject']['l'] = 'Locality is a required field';
+            }
+
+            // subject - organization
+            if (empty($this->body['subject']['o'])) {
+                $this->errors['subject']['o'] = 'Organization is a required field';
+            }
+
+            // subject - organization unit
+            if (empty($this->body['subject']['ou'])) {
+                $this->errors['subject']['ou'] = 'Organization unit is a required field';
+            }
+
+            // subject - common name
+            if (empty($this->body['subject']['cn'])) {
+                $this->errors['subject']['cn'] = 'Common name is a required field';
+            }
+            
+            // check bits
+            if (!in_array($this->body['bits'], [2048, 4096, 8192])) {
+                $this->body['bits'] = 2048;
+            }
+
+            // check days
+            if (!is_numeric($this->body['days']) || $this->body['days'] < 1 || $this->body['days'] > 3650) {
+                $this->body['days'] = 3650;
+            }
+
+            if (!empty($this->errors)) {
+                $this->result = [
+                    'error' => $this->errors,
+                    'code'  => 400,
+                    'data'  => []
+                ];
+                return;
+            }
+            
+            //
+            $dn = [
+                "countryName" => strtoupper($this->body['subject']['c']),
+                "stateOrProvinceName" => $this->body['subject']['st'],
+                "localityName" => $this->body['subject']['l'],
+                "organizationName" => $this->body['subject']['o'],
+                "organizationalUnitName" => $this->body['subject']['ou'],
+                "commonName" => $this->body['subject']['cn']
+            ];
+            
+            // generate a new private (and public) key pair
+            $privkey = openssl_pkey_new([
+                "private_key_bits" => (int) $this->body['bits'],
+                "private_key_type" => OPENSSL_KEYTYPE_RSA,
+            ]);
+            
+            // generate a certificate signing request
+            $csr = openssl_csr_new($dn, $privkey, ['digest_alg' => 'sha256']);
+            
+            // generate a self-signed cert
+            $x509 = openssl_csr_sign($csr, null, $privkey, $this->body['days'], ['digest_alg' => 'sha256']);
+            
+            // export private key and self-signed cert
+            openssl_x509_export($x509, $certout);
+            openssl_pkey_export($privkey, $pkeyout, null);
+
             $this->result = [
-                'key' => file_get_contents("$tmpname.key"),
-                'pem' => file_get_contents("$tmpname.crt"),
+                'key' => $pkeyout,
+                'pem' => $certout,
             ]+$this->body;
-            
+
             $this->result = [
                 'error' => '',
                 'code'  => 200,
                 'data'  => $this->result
             ];
-            
+
         } catch (\Exception $e) {
             $this->result = [
                 'error' => $e->getMessage(),
