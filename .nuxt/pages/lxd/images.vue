@@ -129,6 +129,7 @@
               <v-select :items="[newItem.image]" v-model="newItem.image" label="Image:" required disabled></v-select>
               <v-select :items="profiles" :rules="profilesRule" v-model="newItem.profile" label="Profiles:" multiple chips required></v-select>
               <v-select :items="pools" v-model="newItem.pool" label="Storage Pool:" persistent-hint hint="Storage pool the root disk device belongs to."></v-select>
+              <!--<v-select :items="networks" v-model="newItem.network" label="Network:" persistent-hint hint="Additional network device."></v-select>-->
               <v-switch :label="`${newItem.ephemeral ? 'Ephemeral' : 'Ephemeral'}`" color="success" v-model="newItem.ephemeral"></v-switch>
             </v-form>
           </v-card-text>
@@ -225,6 +226,7 @@
       profiles: [],
       pools: [],
       remotes: [],
+      networks: [],
       distros: [],
       publicServers: ['images', 'ubuntu', 'ubuntu-daily'],
       showDelete: false,
@@ -259,6 +261,7 @@
         name: '',
         image: '',
         pool: 'default',
+        network: '',
         image_fingerprint: '',
         profile: ['default'],
         ephemeral: false,
@@ -268,6 +271,7 @@
         name: '',
         image: '',
         pool: 'default',
+        network: '',
         image_fingerprint: '',
         profile: ['default'],
         ephemeral: false,
@@ -384,6 +388,21 @@
           this.pools = [];
         }
       },
+
+      async getNetworks () {
+        //
+        try {
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/networks')
+          response.data.data.forEach(item => {
+            if (item.managed) {
+              this.networks.push(item.name)
+            }
+          })
+        } catch (error) {
+          this.networks = [];
+        }
+      },
       
       async loadRemoteImages(remote = 'local') {
         //
@@ -434,6 +453,7 @@
       createContainer (item, launch = false) {
         if (!launch) {
           this.getStoragePools()
+          this.getNetworks()
           this.getProfiles()
           this.dialog.create = true
           this.newItem = {
@@ -442,6 +462,7 @@
             image_fingerprint: item.fingerprint,
             profile: ['default'],
             pool: 'default',
+            network: '',
             ephemeral: false,
             remote: this.activeRemote
           };

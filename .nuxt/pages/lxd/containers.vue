@@ -441,6 +441,7 @@
       // table & items
       items: [],
       profiles: [],
+      networks: [],
       remotes: [],
       resources: {
         cpu: {
@@ -649,6 +650,21 @@
 
         } catch (error) {
           this.profiles = [];
+        }
+      },
+
+      async getNetworks () {
+        //
+        try {
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/networks')
+          response.data.data.forEach(item => {
+            if (item.managed) {
+              this.networks.push(item.name)
+            }
+          })
+        } catch (error) {
+          this.networks = [];
         }
       },
 

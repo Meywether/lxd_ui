@@ -144,6 +144,8 @@ class Index extends \Base\Controller
                 escapeshellarg($this->body['name']),
                 // ephemeral
                 !empty($this->body['ephemeral']) ? '-e' : '',
+                // network, removed from ui as it adds a nic (bridge).. which you can do with devices
+                !empty($this->body['network']) ? '-n '.escapeshellarg($this->body['network']) : '',
                 // profiles
                 '-p '.implode(' -p ', (array) $f3->recursive((array) $this->body['profile'], function ($value) {
                 	return  escapeshellarg($value);
