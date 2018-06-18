@@ -154,7 +154,7 @@ class Item extends \Base\Controller
                 if ($result->active != $this->body['active']) {
                     try {
                         if (empty($this->body['active'])) {
-                            $lxdresult = $this->lxd->local('lxc remote remove '.escapeshellarg($f3->get('PARAMS.name')));
+                            $this->lxd->local('lxc remote remove '.escapeshellarg($f3->get('PARAMS.name')));
                         } else {
                             //
                             $cmd = [
@@ -166,7 +166,7 @@ class Item extends \Base\Controller
                                 '--protocol='.escapeshellarg($this->body['protocol']),
                                 '--auth-type='.escapeshellarg($this->body['auth_type']),
                             ];
-                            $lxdresult = $this->lxd->local(implode(' ', $cmd));
+                            $this->lxd->local(implode(' ', $cmd));
                         }
                     } catch (\Exception $e) {
                         throw $e;
