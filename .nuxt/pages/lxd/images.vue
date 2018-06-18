@@ -18,9 +18,9 @@
                     LXD - Images <span v-if="state == 'remotes'">- Remotes</span>
                   </v-flex>
                   <v-flex xs12 sm6>
-                    <v-btn small @click="state = 'images'" v-if="state == 'remotes'" style="float:right">Manage Images</v-btn>
-                    <v-btn small @click="state = 'remotes'" v-if="state == 'images'" style="float:right">Manage Remotes</v-btn>
-                    <v-btn small color="success" @click="openDialog('remotes')" v-if="state == 'remotes'" style="float:right">Add Remote</v-btn>
+                    <!--<v-btn small @click="state = 'images'" v-if="state == 'remotes'" style="float:right">Manage Images</v-btn>-->
+                    <!--<v-btn small @click="state = 'remotes'" v-if="state == 'images'" style="float:right">Manage Remotes</v-btn>-->
+                    <!--<v-btn small color="success" @click="openDialog('remotes')" v-if="state == 'remotes'" style="float:right">Add Remote</v-btn>-->
                   </v-flex>
                 </v-layout>
               </v-flex>
