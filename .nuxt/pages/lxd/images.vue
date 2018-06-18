@@ -18,9 +18,9 @@
                     LXD - Images <span v-if="state == 'remotes'">- Remotes</span>
                   </v-flex>
                   <v-flex xs12 sm6>
-                    <!--<v-btn small @click="state = 'images'" v-if="state == 'remotes'" style="float:right">Manage Images</v-btn>-->
-                    <!--<v-btn small @click="state = 'remotes'" v-if="state == 'images'" style="float:right">Manage Remotes</v-btn>-->
-                    <!--<v-btn small color="success" @click="openDialog('remotes')" v-if="state == 'remotes'" style="float:right">Add Remote</v-btn>-->
+                    <v-btn small @click="state = 'images'" v-if="state == 'remotes'" style="float:right">Manage Images</v-btn>
+                    <v-btn small @click="state = 'remotes'" v-if="state == 'images'" style="float:right">Manage Remotes</v-btn>
+                    <v-btn small color="success" @click="openDialog('remotes')" v-if="state == 'remotes'" style="float:right">Add Remote</v-btn>
                   </v-flex>
                 </v-layout>
               </v-flex>
@@ -76,7 +76,7 @@
                 </v-data-table>
               </v-flex>
               <v-flex v-if="state == 'remotes'">
-                <remotes @snackbar="setSnackbar" ref="remotes"></remotes>
+                <remotes @snackbar="setSnackbar" @reload="initialize()" ref="remotes"></remotes>
               </v-flex> 
             </v-layout>
           </v-flex>
@@ -338,9 +338,9 @@
           }
 
           //
-          var response = await axios.get(this.loggedUser.sub + '/api/lxd/images/remotes')
+          var response = await axios.get(this.loggedUser.sub + '/api/lxd/images/remotes?type=active')
           this.remotes = response.data.data
-          
+
           //
           this.loadRemoteImages(this.activeRemote)
 
