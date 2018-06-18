@@ -1,5 +1,22 @@
 <?php
-
+/*
+ +----------------------------------------------------------------------+
+ | Conext LXD Control Panel
+ +----------------------------------------------------------------------+
+ | Copyright (c)2018 (https://github.com/lcherone/conext)
+ +----------------------------------------------------------------------+
+ | This source file is subject to MIT License
+ | that is bundled with this package in the file LICENSE.
+ |
+ | If you did not receive a copy of the license and are unable to
+ | obtain it through the world-wide-web, please send an email
+ | to lawrence@cherone.co.uk so we can send you a copy immediately.
+ +----------------------------------------------------------------------+
+ | Authors:
+ |   Lawrence Cherone <lawrence@cherone.co.uk>
+ +----------------------------------------------------------------------+
+ */
+ 
 namespace Controller\Api\Lxd\Images;
 
 /**
@@ -10,24 +27,46 @@ class Copy extends \Base\Controller
     /*
      * @var
      */
-    private $cache;
+    private $lxd;
+
+    /*
+     * @var
+     */
+    protected $body = [];
     
     /*
      * @var
      */
-    private $cache_ttl;
+    protected $result = []; 
     
+    /*
+     * @var
+     */
+    protected $errors = []; 
+    
+    /*
+     * @var
+     */
+    protected $cache;     
+    
+    /*
+     * @var
+     */
+    protected $cache_ttl = 3600;
+    
+    /**
+     * @param object $f3
+     * @return void
+     */
     public function beforeRoute(\Base $f3)
     {
+        parent::beforeRoute($f3);
+        
         try {
-            \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
-                // set plinker client
-                $f3->set('plinker', new \Plinker\Core\Client($server, [
-                    'secret' => $f3->get('AUTH.secret'),
-                    'database' => $f3->get('db'),
-                    'lxc_path' => $f3->get('LXC.path')
-                ]));
-            });
+            \Lib\JWT::checkAuth();
+            if (!in_array('images', $f3->get('modules.lxd'))) {
+                throw new \Exception('Feature not enabled', 404);
+            }
         } catch (\Exception $e) {
             $f3->response->json([
                 'error' => $e->getMessage(),
@@ -35,61 +74,53 @@ class Copy extends \Base\Controller
                 'data'  => []
             ]);
         }
-        
-        // check feature is enabled
-        if (!in_array('images', $f3->get('modules.lxd'))) {
-            $f3->status(404);
-            $f3->response->json([
-                'error' => 'Feature not enabled',
-                'code'  => 404,
-                'data'  => []
-            ]);
-        }
+
+        // define model/s
+        $this->lxd = new \Model\LXD($f3);
         
         $this->cache = \Cache::instance();
-        $this->cache_ttl = 5;
     }
 
     /**
+     * POST /api/lxd/images/@fingerprint/copy
      *
+     * @param object $f3
+     * @return void
      */
-    public function index(\Base $f3, $params)
+    public function post(\Base $f3)
     {
-        // GET | POST | PUT | DELETE
-        $verb = $f3->get('VERB');
-        
-        // plinker client
-        $client = $f3->get('plinker');
-        
-        /**
-         * POST /api/lxd/images/@fingerprint/copy
-         */
-        if ($verb === 'POST') {
-            $body = json_decode($f3->get('BODY'), true);
-            
-            ignore_user_abort(true);
-            set_time_limit(0);
-        
-            try {
-                $response = [
-                    'error' => null,
-                    'code'  => 200,
-                    'data'  => $client->lxd->local('lxc image copy '.$f3->get('GET.remote').':'.$params['fingerprint'].' '.$body['remote'].':')
-                ];
-            } catch (\Exception $e) {
-                $response = [
-                    'error' => $e->getMessage(),
-                    'code'  => $e->getCode(),
+        try {
+            // expect ?remote=local
+            if ($f3->devoid('GET.remote')) {
+                $this->result = [
+                    'error' => 'Missing remote parameter',
+                    'code'  => 400,
                     'data'  => []
                 ];
             }
+
+            ignore_user_abort(true);
+            set_time_limit(0);
+
+            $from_remote = escapeshellarg($f3->get('GET.remote'));
+            $to_remote = escapeshellarg($this->body['remote']);
+            $fingerprint = escapeshellarg($f3->get('PARAMS.fingerprint'));
+
+            $this->result = [
+                'error' => '',
+                'code'  => 200,
+                'data'  => $this->lxd->local('lxc image copy '.$from_remote.':'.$fingerprint.' '.$to_remote.':')
+            ];
             
             $this->cache->clear('images.'.$f3->get('GET.remote'));
-            $this->cache->clear('images.'.$body['remote']);
-
-            $f3->response->json($response);
+            $this->cache->clear('images.'.$this->body['remote']);
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
         }
-        
     }
-
+    
 }

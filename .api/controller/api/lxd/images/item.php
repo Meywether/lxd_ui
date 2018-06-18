@@ -17,12 +17,12 @@
  +----------------------------------------------------------------------+
  */
  
-namespace Controller\Api\Lxd\Certificates;
+namespace Controller\Api\Lxd\Images;
 
 /**
  *
  */
-class Index extends \Base\Controller
+class Item extends \Base\Controller
 {
     /*
      * @var
@@ -43,7 +43,17 @@ class Index extends \Base\Controller
      * @var
      */
     protected $errors = []; 
-
+    
+    /*
+     * @var
+     */
+    protected $cache;     
+    
+    /*
+     * @var
+     */
+    protected $cache_ttl = 5;
+    
     /**
      * @param object $f3
      * @return void
@@ -54,7 +64,7 @@ class Index extends \Base\Controller
         
         try {
             \Lib\JWT::checkAuth();
-            if (!in_array('certificates', $f3->get('modules.lxd'))) {
+            if (!in_array('containers', $f3->get('modules.lxd'))) {
                 throw new \Exception('Feature not enabled', 404);
             }
         } catch (\Exception $e) {
@@ -67,29 +77,40 @@ class Index extends \Base\Controller
 
         // define model/s
         $this->lxd = new \Model\LXD($f3);
+        
+        $this->cache = \Cache::instance();
     }
 
     /**
-     * GET /api/lxd/certificates
+     * PUT /api/lxd/images/@fingerprint
      *
+     * @param object $f3
      * @return void
      */
-    public function get()
+    public function put(\Base $f3)
     {
         try {
-            $certificates = $this->lxd->certificates->list('local', function ($result) {
-                return str_replace('/1.0/certificates/', '', $result);
-            });
-
-            foreach ((array) $certificates as $fingerprint) {
-                $this->result[] = $this->lxd->certificates->info('local', $fingerprint);
+            // expect ?remote=local
+            if ($f3->devoid('GET.remote')) {
+                $this->result = [
+                    'error' => 'Missing remote parameter',
+                    'code'  => 400,
+                    'data'  => []
+                ];
             }
-
+            
+            $this->body['auto_update'] = $this->body['auto_update'] == '1';
+            $this->body['cached'] = $this->body['cached'] == '1';
+            $this->body['public'] = $this->body['public'] == '1';
+            $this->body['size'] = (int) $this->body['size'];
+            
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $this->result
+                'data'  => $this->lxd->images->replace($f3->get('GET.remote'), $f3->get('PARAMS.fingerprint'), $this->body)
             ];
+            
+            $this->cache->clear('images.'.$f3->get('GET.remote'));
         } catch (\Exception $e) {
             $this->result = [
                 'error' => $e->getMessage(),
@@ -98,26 +119,32 @@ class Index extends \Base\Controller
             ];
         }
     }
-
+    
     /**
-     * POST /api/lxd/certificates
+     * DELETE /api/lxd/images/@fingerprint
      *
+     * @param object $f3
      * @return void
      */
-    public function post()
+    public function delete(\Base $f3)
     {
         try {
-            $this->body['certificate'] = trim(str_replace(
-                ['-----BEGIN CERTIFICATE-----', '-----END CERTIFICATE-----'],
-                '', 
-                trim($this->body['certificate'])
-            ));
-
+            // expect ?remote=local
+            if ($f3->devoid('GET.remote')) {
+                $this->result = [
+                    'error' => 'Missing remote parameter',
+                    'code'  => 400,
+                    'data'  => []
+                ];
+            }
+            
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $this->lxd->query('local:/1.0/certificates', 'POST', $this->body)
+                'data'  => $this->lxd->images->delete($f3->get('GET.remote'), $f3->get('PARAMS.fingerprint'))
             ];
+            
+            $this->cache->clear('images.'.$f3->get('GET.remote'));
         } catch (\Exception $e) {
             $this->result = [
                 'error' => $e->getMessage(),

@@ -44,6 +44,9 @@ class Index extends \Base\Controller
         
         try {
             \Lib\JWT::checkAuth();
+            if (!in_array('devices', $f3->get('modules.lxd'))) {
+                throw new \Exception('Feature not enabled', 404);
+            }
         } catch (\Exception $e) {
             $f3->response->json([
                 'error' => $e->getMessage(),
@@ -52,16 +55,6 @@ class Index extends \Base\Controller
             ]);
         }
 
-        // check feature is enabled
-        if (!in_array('devices', $f3->get('modules.lxd'))) {
-            $f3->status(404);
-            $f3->response->json([
-                'error' => 'Feature not enabled',
-                'code'  => 404,
-                'data'  => []
-            ]);
-        }
-        
         $this->devices = new \Base\Model('devices');
     }
 
