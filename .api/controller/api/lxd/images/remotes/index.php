@@ -142,7 +142,7 @@ class Index extends \Base\Controller
      * @param object $f3
      * @return void
      */
-    public function post(\Base $f3)
+    public function post()
     {
         try {
             //
