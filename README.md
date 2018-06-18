@@ -10,14 +10,15 @@
 [![Packagist Downloads](https://img.shields.io/packagist/dt/lcherone/conext.svg?style=flat-square)](https://packagist.org/packages/lcherone/conext)
 [![Packagist Downloads](https://img.shields.io/liberapay/receives/lcherone.svg)](https://liberapay.com/lcherone)
 
-A decentralized multi-server LXD server control panel with sugar!
+A full-featured decentralized LXD server control panel with sugar!
 
 ## :clipboard: Features
 
-Not going to bore you with stuff you probably won't read, so here is what the system can do:
+Here is just some of the features:
 
- - Responsive single page app control panel.
- - **Full** LXD management, including: profiles, containers, images, certificates, networks, storage and devices.
+ - Lighting fast single page app control panel built with nuxt.js and Vue2.
+ - **Full** LXD management of profiles, containers, images, remotes, certificates, networks, storage and devices.
+ - Simple toggling of devices, SSH keys and user/group idmap'ing.
  - Server information, host CPU, memory, disks network connections and processes.
  - Built-in Web Proxy with LetsEncrypt, to forward HTTP/s traffic into the containers or external upstream's.
  - Create custom tasks for maintaining containers or project deployments.
@@ -60,101 +61,6 @@ cd /var/www/html && git pull
 # fix ownership on any new files
 chown www-data:www-data ./ -R
 ```
-
-<!--
-
-### With Composer
-
-On a **clean** Ubuntu server run the following commands:
-
-```
-# switch into root user!
-sudo su
-
-# update package lists and packages
-sudo apt update && sudo apt -y upgrade
-
-# install deps
-sudo apt -y install zip php-cli
-
-# install composer
-sudo curl -sS https://getcomposer.org/installer | sudo php
-sudo mv composer.phar /usr/local/bin/composer
-sudo ln -s /usr/local/bin/composer /usr/bin/composer
-```
-
-Once done, install the project:
-
-```
-# make webroot and move into it
-mkdir -p /var/www/html && cd /var/www/html
-
-# install project (ignore warning about not to use root, root is required for post-install)
-composer create-project lcherone/Conext .
-```
-
-### Git
-
-Follow the above, then install with git.
-
-```
-cd /var/www/html
-
-git clone git@github.com:lcherone/Conext.git .
-
-composer install
-
-composer setup
-
-cd .nuxt
-
-npm install
-
-npm run dev
-
-// or
-npm run generate
-```
-
-### Install LXD
-
-You must be using LXD version 3.0.0 or above, so unless your using 18.04 or above use the snap package.
-
-```
-# add www-data to lxd group
-sudo usermod -a -G lxd www-data
-
-# install snapd
-sudo apt -y install snapd
-
-# install lxd snap package
-sudo snap install lxd
-
-# initialise lxd (make sure you allow lxd over network - or the console wont work)
-sudo lxd init
-```
-
-Now visit LXD API in your browser `https://IP:8443` and accept the self-signed certificate, 
-this is done so the websocket connection will work when connecting to containers console.
-
-
-### Allow www-data LXD access
-
-```
-# add www-data to sudoers so can run lxc commands
-visudo
-
-# then amend to User privilege specification, it should look like the following:
-
-# User privilege specification
-root     ALL=(ALL:ALL) ALL
-www-data ALL=(ALL:ALL) NOPASSWD: /snap/bin/lxc
-```
-
-Once complete, you will be able to go to the panel at `http://IP:88`, and then add the server, with the provided key during install.
-
--->
-
 
 ## :lock: Security
 
