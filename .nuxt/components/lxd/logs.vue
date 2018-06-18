@@ -20,7 +20,7 @@
       </template>
       <template slot="expand" slot-scope="props">
         <v-card flat>
-          <v-card-text v-html="props.item.data ? '<pre style=\'font-size:10px\'>' + props.item.data + '</pre>' : 'Task has no output.'"></v-card-text>
+          <v-card-text v-html="props.item.data ? '<pre style=\'font-size:10px\'>' + props.item.data + '</pre>' : 'Log is empty.'"></v-card-text>
         </v-card>
       </template>
     </v-data-table>

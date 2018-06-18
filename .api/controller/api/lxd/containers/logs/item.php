@@ -17,12 +17,12 @@
  +----------------------------------------------------------------------+
  */
  
-namespace Controller\Api\Lxd\Containers;
+namespace Controller\Api\Lxd\Containers\Logs;
 
 /**
  *
  */
-class Files extends \Base\Controller
+class Item extends \Base\Controller
 {
     /*
      * @var
@@ -77,7 +77,7 @@ class Files extends \Base\Controller
     }
 
     /**
-     * GET /api/lxd/containers/@name/files
+     * GET /api/lxd/containers/@name/logs/@logfile
      *
      * @param object $f3
      * @return void
@@ -85,59 +85,22 @@ class Files extends \Base\Controller
     public function get(\Base $f3)
     {
         try {
-            $result = $this->lxd->containers->files->list('local', $f3->get('PARAMS.name'), $f3->get('GET.path'));
-                
-            if (is_array($result)) {
-                $result = [
-                    'type' => 'listing',
-                    'data' => array_values($result)
-                ];
-            } else {
-                $result = [
-                    'type' => 'file',
-                    'data' => $result
-                ];
-            }
+            $this->result = [
+                'error' => '',
+                'code'  => 200,
+                'data'  => $this->lxd->containers->logs->get('local', $f3->get('PARAMS.name'), $f3->get('PARAMS.logfile'))
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
+        }
+    }
 
-            $this->result = [
-                'error' => '',
-                'code'  => 200,
-                'data'  => $result
-            ];
-        } catch (\Exception $e) {
-            $this->result = [
-                'error' => $e->getMessage(),
-                'code'  => 422,
-                'data'  => []
-            ];
-        }
-    }
-    
     /**
-     * POST /api/lxd/containers/@name/files
-     *
-     * @param object $f3
-     * @return void
-     */
-    public function post(\Base $f3)
-    {
-        try {
-            $this->result = [
-                'error' => '',
-                'code'  => 200,
-                'data'  => $this->lxd->containers->files->push('local', $f3->get('PARAMS.name'), $this->body['source'], $f3->get('GET.path'))
-            ];
-        } catch (\Exception $e) {
-            $this->result = [
-                'error' => $e->getMessage(),
-                'code'  => 422,
-                'data'  => []
-            ];
-        }
-    }
-    
-    /**
-     * DELETE /api/lxd/containers/@name/files
+     * DELETE /api/lxd/containers/@name/logs/@logfile
      *
      * @param object $f3
      * @return void
@@ -148,7 +111,7 @@ class Files extends \Base\Controller
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $this->lxd->containers->files->remove('local', $f3->get('PARAMS.name'), $f3->get('GET.path'))
+                'data'  => $this->lxd->containers->logs->delete('local', $f3->get('PARAMS.name'), $f3->get('PARAMS.logfile'))
             ];
         } catch (\Exception $e) {
             $this->result = [

@@ -1,5 +1,22 @@
 <?php
-
+/*
+ +----------------------------------------------------------------------+
+ | Conext LXD Control Panel
+ +----------------------------------------------------------------------+
+ | Copyright (c)2018 (https://github.com/lcherone/conext)
+ +----------------------------------------------------------------------+
+ | This source file is subject to MIT License
+ | that is bundled with this package in the file LICENSE.
+ |
+ | If you did not receive a copy of the license and are unable to
+ | obtain it through the world-wide-web, please send an email
+ | to lawrence@cherone.co.uk so we can send you a copy immediately.
+ +----------------------------------------------------------------------+
+ | Authors:
+ |   Lawrence Cherone <lawrence@cherone.co.uk>
+ +----------------------------------------------------------------------+
+ */
+ 
 namespace Controller\Api\Lxd\Containers;
 
 /**
@@ -7,18 +24,36 @@ namespace Controller\Api\Lxd\Containers;
  */
 class State extends \Base\Controller
 {
+    /*
+     * @var
+     */
+    private $lxd;
+
+    /*
+     * @var
+     */
+    protected $body = [];
+    
+    /*
+     * @var
+     */
+    protected $result = []; 
+    
+    /*
+     * @var
+     */
+    protected $errors = []; 
+
+    /**
+     * @param object $f3
+     * @return void
+     */
     public function beforeRoute(\Base $f3)
     {
-        // check auth
+        parent::beforeRoute($f3);
+        
         try {
-            \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
-                // set plinker client
-                $f3->set('plinker', new \Plinker\Core\Client($server, [
-                    'secret' => $f3->get('AUTH.secret'),
-                    'database' => $f3->get('db'),
-                    'lxc_path' => $f3->get('LXC.path')
-                ]));
-            });
+            \Lib\JWT::checkAuth();
         } catch (\Exception $e) {
             $f3->response->json([
                 'error' => $e->getMessage(),
@@ -26,7 +61,7 @@ class State extends \Base\Controller
                 'data'  => []
             ]);
         }
-        
+
         // check feature is enabled
         if (!in_array('containers', $f3->get('modules.lxd'))) {
             $f3->status(404);
@@ -36,70 +71,59 @@ class State extends \Base\Controller
                 'data'  => []
             ]);
         }
+
+        // define model/s
+        $this->lxd = new \Model\LXD($f3);
     }
 
     /**
+     * POST /api/lxd/containers/@name/state
      *
+     * @param object $f3
+     * @return void
      */
-    public function index(\Base $f3, $params)
+    public function get(\Base $f3)
     {
-        // GET | POST | PUT | DELETE
-        $verb = $f3->get('VERB');
-        
-        // plinker client
-        $client = $f3->get('plinker');
-        
-        /**
-         * GET /api/lxd/containers/@name/state
-         */
-        if ($verb === 'GET') {
-            //
-            $result = $client->lxd->containers->getState('local', $params['name']);
-
-            $f3->response->json([
-                'error' => null,
-                'code'  => 200,
-                'data'  => $result
-            ]);
-        }
-        
-        /**
-         * POST /api/lxd/containers/@name/state
-         */
-        if ($verb === 'POST') {
-            /*
-            $f3->response->json([
+        try {
+            $this->result = [
                 'error' => '',
                 'code'  => 200,
+                'data'  => $this->lxd->containers->getState('local', $f3->get('PARAMS.name'))
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
                 'data'  => []
-            ]);
-            */
+            ];
         }
+    }
+    
+    /**
+     * PUT /api/lxd/containers/@name/state
+     *
+     * @param object $f3
+     * @return void
+     */
+    public function put(\Base $f3)
+    {
+        $this->body['force'] = $this->body['force'] === '1';
+        $this->body['stateful'] = $this->body['stateful'] === '1';
+        $this->body['timeout'] = (int) $this->body['timeout'];
         
-        /**
-         * PUT /api/lxd/containers/@name/state
-         */
-        if ($verb === 'PUT') {
-            $body = json_decode($f3->get('BODY'), true);
-            
-            if (empty($body)) {
-               $f3->response->json([
-                    'error' => 'Invalid PUT body',
-                    'code'  => 422,
-                    'data'  => []
-                ]); 
-            }
-            
-            //
-            $result = $client->lxd->containers->setState('local', $params['name'], $body);
-
-            $f3->response->json([
-                'error' => null,
+        try {
+            $this->result = [
+                'error' => '',
                 'code'  => 200,
-                'data'  => $result
-            ]);
+                'data'  => $this->lxd->containers->setState('local', $f3->get('PARAMS.name'), $this->body)
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
         }
-
     }
 
 }

@@ -79,6 +79,7 @@ class Index extends \Base\Controller
     /**
      * GET /api/lxd/containers/@name/snapshots
      *
+     * @param object $f3
      * @return void
      */
     public function get(\Base $f3)
@@ -109,6 +110,7 @@ class Index extends \Base\Controller
     /**
      * POST /api/lxd/containers/@name/snapshots
      *
+     * @param object $f3
      * @return void
      */
     public function post(\Base $f3)
@@ -132,6 +134,7 @@ class Index extends \Base\Controller
     /**
      * PUT /api/lxd/containers/@name/snapshots
      *
+     * @param object $f3
      * @return void
      */
     public function put(\Base $f3)
