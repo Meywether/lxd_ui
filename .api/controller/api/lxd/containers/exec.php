@@ -79,6 +79,7 @@ class Exec extends \Base\Controller
     /**
      * POST /api/lxd/containers/@name/exec
      *
+     * @param object $f3
      * @return void
      */
     public function post(\Base $f3)

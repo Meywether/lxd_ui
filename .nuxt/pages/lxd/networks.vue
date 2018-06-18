@@ -246,6 +246,7 @@
         tunnel: false,
       },
 
+      current_name: '',
       editingIndex: -1,
       editingItem: {
         config: {
@@ -340,6 +341,7 @@
       editItem (item) {
         this.editingIndex = this.items.indexOf(item)
         this.editingItem = Object.assign({}, this.defaultItem, item)
+        this.current_name = item.name
 
         // apply toggle states
         this.state.ip4 = this.editingItem.config['ipv4.address'] && this.editingItem.config['ipv4.address'] !== 'none'
@@ -457,6 +459,15 @@
               this.$delete(this.editingItem.config, 'fan.underlay_subnet')
               this.$delete(this.editingItem.config, 'fan.type')
             }
+            
+            // rename
+            if (this.editingItem.name !== this.current_name) {
+              var response = await axios.post(this.loggedUser.sub + '/api/lxd/networks/' + this.current_name, {
+                name: this.editingItem.name
+              })
+              // update name
+              this.current_name = this.editingItem.name
+            }
 
             // edit
             if (this.editingIndex > -1) {
@@ -570,6 +581,7 @@
         setTimeout(() => {
           this.editingItem = Object.assign({}, this.defaultItem)
           this.editingIndex = -1
+          this.current_name = ''
           this.error.editing = false
         }, 300)
       },

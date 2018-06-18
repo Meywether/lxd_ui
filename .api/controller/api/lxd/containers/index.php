@@ -101,6 +101,7 @@ class Index extends \Base\Controller
     /**
      * POST /api/lxd/containers
      *
+     * @param object $f3
      * @return void
      */
     public function post(\Base $f3)

@@ -17,12 +17,12 @@
  +----------------------------------------------------------------------+
  */
  
-namespace Controller\Api\Lxd\Containers;
+namespace Controller\Api\Lxd\Networks;
 
 /**
  *
  */
-class Files extends \Base\Controller
+class Item extends \Base\Controller
 {
     /*
      * @var
@@ -63,7 +63,7 @@ class Files extends \Base\Controller
         }
 
         // check feature is enabled
-        if (!in_array('containers', $f3->get('modules.lxd'))) {
+        if (!in_array('networks', $f3->get('modules.lxd'))) {
             $f3->status(404);
             $f3->response->json([
                 'error' => 'Feature not enabled',
@@ -77,7 +77,7 @@ class Files extends \Base\Controller
     }
 
     /**
-     * GET /api/lxd/containers/@name/files
+     * GET /api/lxd/networks/@name
      *
      * @param object $f3
      * @return void
@@ -85,24 +85,10 @@ class Files extends \Base\Controller
     public function get(\Base $f3)
     {
         try {
-            $result = $this->lxd->containers->files->list('local', $f3->get('PARAMS.name'), $f3->get('GET.path'));
-                
-            if (is_array($result)) {
-                $result = [
-                    'type' => 'listing',
-                    'data' => array_values($result)
-                ];
-            } else {
-                $result = [
-                    'type' => 'file',
-                    'data' => $result
-                ];
-            }
-
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $result
+                'data'  => $this->lxd->networks->info('local', $f3->get('PARAMS.name'))
             ];
         } catch (\Exception $e) {
             $this->result = [
@@ -114,7 +100,7 @@ class Files extends \Base\Controller
     }
     
     /**
-     * POST /api/lxd/containers/@name/files
+     * POST /api/lxd/networks/@name
      *
      * @param object $f3
      * @return void
@@ -125,7 +111,30 @@ class Files extends \Base\Controller
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $this->lxd->containers->files->push('local', $f3->get('PARAMS.name'), $this->body['source'], $f3->get('GET.path'))
+                'data'  => $this->lxd->networks->rename('local', $f3->get('PARAMS.name'), $this->body['name'])
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
+        }
+    }
+
+    /**
+     * PUT /api/lxd/networks/@name
+     *
+     * @param object $f3
+     * @return void
+     */
+    public function put(\Base $f3)
+    {
+        try {
+            $this->result = [
+                'error' => '',
+                'code'  => 200,
+                'data'  => $this->lxd->networks->replace('local', $f3->get('PARAMS.name'), $this->body)
             ];
         } catch (\Exception $e) {
             $this->result = [
@@ -137,7 +146,7 @@ class Files extends \Base\Controller
     }
     
     /**
-     * DELETE /api/lxd/containers/@name/files
+     * DELETE /api/lxd/networks/@name
      *
      * @param object $f3
      * @return void
@@ -148,7 +157,7 @@ class Files extends \Base\Controller
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $this->lxd->containers->files->remove('local', $f3->get('PARAMS.name'), $f3->get('GET.path'))
+                'data'  => $this->lxd->networks->delete('local', $f3->get('PARAMS.name'))
             ];
         } catch (\Exception $e) {
             $this->result = [

@@ -79,6 +79,7 @@ class Item extends \Base\Controller
     /**
      * GET /api/lxd/containers/@name/snapshots/@snapshot
      *
+     * @param object $f3
      * @return void
      */
     public function get(\Base $f3)
@@ -101,6 +102,7 @@ class Item extends \Base\Controller
     /**
      * POST /api/lxd/containers/@name/snapshots/@snapshot
      *
+     * @param object $f3
      * @return void
      */
     public function post(\Base $f3)
@@ -123,6 +125,7 @@ class Item extends \Base\Controller
     /**
      * DELETE /api/lxd/containers/@name/snapshots/@snapshot
      *
+     * @param object $f3
      * @return void
      */
     public function delete(\Base $f3)
