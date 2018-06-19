@@ -1,5 +1,22 @@
 <?php
-
+/*
+ +----------------------------------------------------------------------+
+ | Conext LXD Control Panel
+ +----------------------------------------------------------------------+
+ | Copyright (c)2018 (https://github.com/lcherone/conext)
+ +----------------------------------------------------------------------+
+ | This source file is subject to MIT License
+ | that is bundled with this package in the file LICENSE.
+ |
+ | If you did not receive a copy of the license and are unable to
+ | obtain it through the world-wide-web, please send an email
+ | to lawrence@cherone.co.uk so we can send you a copy immediately.
+ +----------------------------------------------------------------------+
+ | Authors:
+ |   Lawrence Cherone <lawrence@cherone.co.uk>
+ +----------------------------------------------------------------------+
+ */
+ 
 namespace Controller\Api\Lxd\Resources;
 
 /**
@@ -11,11 +28,35 @@ class Index extends \Base\Controller
      * @var
      */
     private $lxd;
+
+    /*
+     * @var
+     */
+    protected $body;
     
+    /*
+     * @var
+     */
+    protected $result; 
+    
+    /*
+     * @var
+     */
+    protected $errors; 
+
+    /**
+     * @param object $f3
+     * @return void
+     */
     public function beforeRoute(\Base $f3)
     {
+        parent::beforeRoute($f3);
+        
         try {
             \Lib\JWT::checkAuth();
+            if (!in_array('profiles', $f3->get('modules.lxd'))) {
+                throw new \Exception('Feature not enabled', 404);
+            }
         } catch (\Exception $e) {
             $f3->response->json([
                 'error' => $e->getMessage(),
@@ -23,90 +64,31 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
         }
-        
+
+        // define model/s
         $this->lxd = new \Model\LXD($f3);
     }
 
     /**
+     * GET /api/lxd/profiles
      *
+     * @return void
      */
-    public function index(\Base $f3)
+    public function get()
     {
-        // GET | POST | PUT | DELETE
-        $verb = $f3->get('VERB');
-
-        /**
-         * GET /api/lxd/resources
-         */
-        if ($verb === 'GET') {
-            // get containers
-            $result = $this->lxd->resources->list('local');
-
-            $f3->response->json([
-                'error' => null,
-                'code'  => 200,
-                'data'  => $result
-            ]);
-        }
-        
-        /**
-         * POST /api/lxd/containers
-         */
-        /*
-        if ($verb === 'POST') {
-            $f3->response->json([
+        try {
+            $this->result = [
                 'error' => '',
                 'code'  => 200,
+                'data'  => $this->lxd->resources->list('local')
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
                 'data'  => []
-            ]);
+            ];
         }
-        */
-        
-        /**
-         * PUT /api/lxd/containers
-         */
-        /*
-        if ($verb === 'PUT') {
-            $item = json_decode($f3->get('BODY'), true);
-            
-            if (empty($item) || !is_numeric($item['id'])) {
-               $f3->response->json([
-                    'error' => 'Invalid PUT body, expecting item',
-                    'code'  => 422,
-                    'data'  => []
-                ]); 
-            }
-            
-            $f3->response->json([
-                'error' => '',
-                'code'  => 200,
-                'data'  => []
-            ]);
-        }
-        */
-        
-        /**
-         * DELETE /api/lxd/containers
-         */
-        /*
-        if ($verb === 'DELETE') {
-            $item = json_decode($f3->get('BODY'), true);
-            
-            if (empty($item) || !is_numeric($item['id'])) {
-               $f3->response->json([
-                    'error' => 'Invalid DELETE body, expecting item',
-                    'code'  => 422,
-                    'data'  => []
-                ]); 
-            }
-            
-            $f3->response->json([
-                'error' => '',
-                'code'  => 200,
-                'data'  => []
-            ]);
-        }
-        */
     }
 
 }
