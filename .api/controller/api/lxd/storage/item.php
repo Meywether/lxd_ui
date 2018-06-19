@@ -22,7 +22,7 @@ namespace Controller\Api\Lxd\Storage;
 /**
  *
  */
-class Index extends \Base\Controller
+class Item extends \Base\Controller
 {
     /*
      * @var
@@ -70,7 +70,7 @@ class Index extends \Base\Controller
     }
 
     /**
-     * GET /api/lxd/storage
+     * GET /api/lxd/storage/@name
      *
      * @param object $f3
      * @return void
@@ -78,57 +78,10 @@ class Index extends \Base\Controller
     public function get(\Base $f3)
     {
         try {
-            //
-            $pools = $this->lxd->query('local:/1.0/storage-pools', 'GET', [], function ($result) {
-                return str_replace('/1.0/storage-pools/', '', $result);
-            });
-            
-            $types = (array) $f3->get('GET.types');
-            
-            if (!empty($types)) {
-                // name
-                if (in_array('name', $types)) {
-                    foreach ($pools as $i => $pool) {
-                        $this->result[$i]['name'] = $pool;
-                    }
-                }
-                    
-                // get info
-                if (in_array('info', $types)) {
-                    foreach ($pools as $i => $pool) {
-                        $this->result[$i]['info'] = $this->lxd->query('local:/1.0/storage-pools/'.$pool, 'GET', []);
-                    }
-                }
-                    
-                // get resources
-                if (in_array('resources', $types)) {
-                    foreach ($pools as $i => $pool) {
-                        $this->result[$i]['resources'] = $this->lxd->query('local:/1.0/storage-pools/'.$pool.'/resources', 'GET', []);
-                    }
-                }    
-                    
-                // get volumes
-                if (in_array('volumes', $types)) {
-                    foreach ($pools as $i => $pool) {
-                        $volumes = $this->lxd->query('local:/1.0/storage-pools/'.$pool.'/volumes', 'GET', [], function ($result) {
-                            $result = str_replace('/1.0/storage-pools/', '', $result);
-                            foreach ($result as &$row) {
-                                $row = explode('/', $row);
-                                $row = ['type' => $row[2], 'name' => $row[3]];
-                            }
-                            return $result;
-                        });
-                        $this->result[$i]['volumes'] = $volumes;
-                    }
-                }
-            } else {
-                $this->result = $pools;
-            }
-            
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $this->result
+                'data'  => $this->lxd->query('local:/1.0/storage-pools/'.$f3->get('PARAMS.name'), 'GET', [])
             ];
         } catch (\Exception $e) {
             $this->result = [
@@ -140,16 +93,16 @@ class Index extends \Base\Controller
     }
 
     /**
-     * POST /api/lxd/storage
+     * POST /api/lxd/storage/@name
      *
      * @param object $f3
      * @return void
      */
-    public function post()
+    public function post(\Base $f3)
     {
         try {
-            if (empty($this->body['name'])) {
-                $this->errors['name'] = 'Storage pool name cannot be empty'; 
+            if (empty($f3->get('PARAMS.name')) || empty($this->body['name'])) {
+                $this->errors['name'] = 'Storage pool names cannot be empty'; 
             }
 
             if (!empty($this->errors)) {
@@ -161,6 +114,29 @@ class Index extends \Base\Controller
                 return;
             }
             
+            $this->result = [
+                'error' => '',
+                'code'  => 200,
+                'data'  => $this->lxd->query('local:/1.0/storage-pools/'.$f3->get('PARAMS.name'), 'POST', $this->body)
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
+        }
+    }
+    
+    /**
+     * PUT /api/lxd/storage/@name
+     *
+     * @param object $f3
+     * @return void
+     */
+    public function put(\Base $f3)
+    {
+        try {
             // fix config (cast to object)
             if (isset($this->body['config'])) {
                 $this->body['config'] = (object) $this->body['config'];
@@ -169,7 +145,30 @@ class Index extends \Base\Controller
             $this->result = [
                 'error' => '',
                 'code'  => 200,
-                'data'  => $this->lxd->query('local:/1.0/storage-pools', 'POST', $this->body)
+                'data'  => $this->lxd->query('local:/1.0/storage-pools/'.$f3->get('PARAMS.name'), 'PUT', $this->body)
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
+        }
+    }
+    
+    /**
+     * DELETE /api/lxd/storage/@name
+     *
+     * @param object $f3
+     * @return void
+     */
+    public function delete(\Base $f3)
+    {
+        try {
+            $this->result = [
+                'error' => '',
+                'code'  => 200,
+                'data'  => $this->lxd->query('local:/1.0/storage-pools/'.$f3->get('PARAMS.name'), 'DELETE')
             ];
         } catch (\Exception $e) {
             $this->result = [
