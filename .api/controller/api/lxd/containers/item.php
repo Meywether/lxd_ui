@@ -155,6 +155,12 @@ class Item extends \Base\Controller
                 return;
             }
 
+            if (isset($this->body['devices'])) {
+                $this->body['devices'] = (array) $f3->recursive($this->body['devices'], function ($value) {
+                    return trim($value);
+                });
+            }
+
             $this->result = [
                 'error' => '',
                 'code'  => 200,
@@ -187,9 +193,11 @@ class Item extends \Base\Controller
                 return;
             }
             
-            //
-            $this->body['ephemeral'] = $this->body['ephemeral'] == '1';
-            $this->body['stateful'] = $this->body['stateful'] == '1';
+            if (isset($this->body['devices'])) {
+                $this->body['devices'] = (array) $f3->recursive($this->body['devices'], function ($value) {
+                    return trim($value);
+                });
+            }
 
             $this->result = [
                 'error' => '',
