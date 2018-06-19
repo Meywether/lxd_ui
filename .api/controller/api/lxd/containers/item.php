@@ -123,10 +123,6 @@ class Item extends \Base\Controller
                 return;
             }
 
-            //
-            $this->body['ephemeral'] = $this->body['ephemeral'] == '1';
-            $this->body['stateful'] = $this->body['stateful'] == '1';
-
             $this->result = [
                 'error' => '',
                 'code'  => 200,
@@ -158,10 +154,6 @@ class Item extends \Base\Controller
                 ]; 
                 return;
             }
-
-            //
-            $this->body['ephemeral'] = $this->body['ephemeral'] == '1';
-            $this->body['stateful'] = $this->body['stateful'] == '1';
 
             $this->result = [
                 'error' => '',

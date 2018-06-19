@@ -17,12 +17,12 @@
  +----------------------------------------------------------------------+
  */
  
-namespace Controller\Api\Lxd\Resources;
+namespace Controller\Api\Lxd\Operations;
 
 /**
  *
  */
-class Index extends \Base\Controller
+class Item extends \Base\Controller
 {
     /*
      * @var
@@ -32,7 +32,12 @@ class Index extends \Base\Controller
     /*
      * @var
      */
-    protected $result; 
+    protected $body = [];
+    
+    /*
+     * @var
+     */
+    protected $result = []; 
 
     /**
      * @param object $f3
@@ -44,6 +49,9 @@ class Index extends \Base\Controller
         
         try {
             \Lib\JWT::checkAuth();
+            if (!in_array('operations', $f3->get('modules.lxd'))) {
+                throw new \Exception('Feature not enabled', 404);
+            }
         } catch (\Exception $e) {
             $f3->response->json([
                 'error' => $e->getMessage(),
@@ -57,17 +65,41 @@ class Index extends \Base\Controller
     }
 
     /**
-     * GET /api/lxd/resources
+     * GET /api/lxd/operations/@uuid
      *
+     * @param object $f3
      * @return void
      */
-    public function get()
+    public function get(\Base $f3)
     {
         try {
             $this->result = [
-                'error' => '',
+                'error' => null,
                 'code'  => 200,
-                'data'  => $this->lxd->resources->list('local')
+                'data'  => $this->lxd->operations->info('local', $f3->get('PARAMS.uuid'))
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
+        }
+    }
+    
+    /**
+     * DELETE /api/lxd/operations/@uuid
+     *
+     * @param object $f3
+     * @return void
+     */
+    public function delete(\Base $f3)
+    {
+        try {
+            $this->result = [
+                'error' => null,
+                'code'  => 200,
+                'data'  => $this->lxd->operations->delete('local', $f3->get('PARAMS.uuid'))
             ];
         } catch (\Exception $e) {
             $this->result = [

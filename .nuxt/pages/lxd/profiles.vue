@@ -178,35 +178,35 @@
                     <v-tab ripple :href="`#proxy`">Proxy</v-tab>
                     <v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>
                     <v-tab-item :id="`nic`" v-if="editingItem">
-                      <nic @snackbar="setSnackbar" :key="editingItem.name" :linked="editingItem"></nic>
+                      <nic @snackbar="setSnackbar" :key="component_key" :linked="editingItem"></nic>
                     </v-tab-item>
                     <v-tab-item :id="`disk`" v-if="editingItem">
-                      <disk @snackbar="setSnackbar" :key="editingItem.name" :linked="editingItem"></disk>
+                      <disk @snackbar="setSnackbar" :key="component_key" :linked="editingItem"></disk>
                     </v-tab-item>
                     <v-tab-item :id="`unixchar`" v-if="editingItem">
-                      <unixchar @snackbar="setSnackbar" :key="editingItem.name" :linked="editingItem"></unixchar>
+                      <unixchar @snackbar="setSnackbar" :key="component_key" :linked="editingItem"></unixchar>
                     </v-tab-item>
                     <v-tab-item :id="`unixblock`" v-if="editingItem">
-                      <unixblock @snackbar="setSnackbar" :key="editingItem.name" :linked="editingItem"></unixblock>
+                      <unixblock @snackbar="setSnackbar" :key="component_key" :linked="editingItem"></unixblock>
                     </v-tab-item>
                     <v-tab-item :id="`usb`" v-if="editingItem">
-                      <usb @snackbar="setSnackbar" :key="editingItem.name" :linked="editingItem"></usb>
+                      <usb @snackbar="setSnackbar" :key="component_key" :linked="editingItem"></usb>
                     </v-tab-item>
                     <v-tab-item :id="`gpu`" v-if="editingItem">
-                      <gpu @snackbar="setSnackbar" :key="editingItem.name" :linked="editingItem"></gpu>
+                      <gpu @snackbar="setSnackbar" :key="component_key" :linked="editingItem"></gpu>
                     </v-tab-item>
                     <v-tab-item :id="`proxy`" v-if="editingItem">
-                      <proxy @snackbar="setSnackbar" :key="editingItem.name" :linked="editingItem"></proxy>
+                      <proxy @snackbar="setSnackbar" :key="component_key" :linked="editingItem"></proxy>
                     </v-tab-item>
                     <v-tab-item :id="`infiniband`" v-if="editingItem">
-                      <infiniband @snackbar="setSnackbar" :key="editingItem.name" :linked="editingItem"></infiniband>
+                      <infiniband @snackbar="setSnackbar" :key="component_key" :linked="editingItem"></infiniband>
                     </v-tab-item>
                   </v-tabs>
                 </v-card>
               </v-tab-item>
               <v-tab-item :id="`tab-idmap`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <idmap @snackbar="setSnackbar" @initialize="initialize" :key="editingItem.name" :linked="editingItem"></idmap>
+                  <idmap @snackbar="setSnackbar" @initialize="initialize" :key="component_key" :linked="editingItem"></idmap>
                 </v-card>
               </v-tab-item>
             </v-tabs>
@@ -290,6 +290,7 @@
     data: () => ({
       dialog: { editing: false, used_by: false },
       valid: true,
+      component_key:'',
 
       // global error
       error: '',
@@ -463,10 +464,13 @@
 
       // create or edit item
       editItem (item) {
+        this.component_key = item.name;
+        this.current_name = item.name
         this.editingIndex = this.items.indexOf(item)
 
         // convoluted - add each of the items props to editingItem
         this.editingItem = Object.assign({}, this.empty_profile, item)
+
         // check if network is none (then delete it after assigned)
         var removeNetwork = !item.devices.eth0
         this.editingItem.devices = Object.assign({}, this.empty_profile.devices, item.devices)
@@ -510,10 +514,19 @@
               delete item.devices.eth0
               removeNetwork = true
             }
+            
+            // rename
+            if (item.name !== this.current_name) {
+              var response = await axios.post(this.loggedUser.sub + '/api/lxd/profiles/' + this.current_name, {
+                name: item.name
+              })
+              // update name
+              this.current_name = item.name
+            }
 
             // edit
             if (this.editingIndex > -1) {
-              var response = await axios.post(this.loggedUser.sub + '/api/lxd/profiles/'+item.name, {
+              var response = await axios.put(this.loggedUser.sub + '/api/lxd/profiles/'+item.name, {
                 "config": item.config,
                 "description": item.description,
                 "devices": item.devices

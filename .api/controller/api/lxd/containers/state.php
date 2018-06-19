@@ -100,10 +100,6 @@ class State extends \Base\Controller
      */
     public function put(\Base $f3)
     {
-        $this->body['force'] = $this->body['force'] === '1';
-        $this->body['stateful'] = $this->body['stateful'] === '1';
-        $this->body['timeout'] = (int) $this->body['timeout'];
-        
         try {
             $this->result = [
                 'error' => '',

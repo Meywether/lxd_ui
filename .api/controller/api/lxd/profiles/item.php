@@ -11,9 +11,25 @@ class Item extends \Base\Controller
      * @var
      */
     private $lxd;
+
+    /*
+     * @var
+     */
+    protected $body = [];
     
+    /*
+     * @var
+     */
+    protected $result = []; 
+    
+    /**
+     * @param object $f3
+     * @return void
+     */
     public function beforeRoute(\Base $f3)
     {
+        parent::beforeRoute($f3);
+        
         try {
             \Lib\JWT::checkAuth();
             if (!in_array('profiles', $f3->get('modules.lxd'))) {
@@ -30,132 +46,172 @@ class Item extends \Base\Controller
         $this->lxd = new \Model\LXD($f3);
     }
     
-    public function get(\Base $f3, $params)
+    /**
+     * GET /api/lxd/profiles/@name
+     *
+     * @param object $f3
+     * @return void
+     */
+    public function get(\Base $f3)
     {
-        // get containers
-            $result = $this->lxd->profiles->info('local', $params['name']);
-
-            $f3->response->json([
+        try {
+            $this->result = [
                 'error' => null,
                 'code'  => 200,
-                'data'  => $result
-            ]);
+                'data'  => $this->lxd->profiles->info('local', $f3->get('PARAMS.name'))
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
+        }
     }
     
-    public function post(\Base $f3, $params)
+    /**
+     * POST /api/lxd/profiles/@name
+     *
+     * @param object $f3
+     * @return void
+     */
+    public function post(\Base $f3)
     {
-        $body = json_decode($f3->get('BODY'), true);
+        try {
+            if (empty($f3->get('PARAMS.name'))) {
+                $this->errors['name'] = 'Profile name cannot be empty'; 
+            }
             
-            $errors = [];
-            if (empty($params['name'])) {
-                $errors['name'] = 'Profiles name cannot be empty'; 
+            if (empty($this->body['name'])) {
+                $this->errors['name'] = 'Profile new name cannot be empty'; 
             }
 
-            if (!empty($errors)) {
-                $f3->response->json([
-                    'error' => $errors,
+            if (!empty($this->errors)) {
+                $this->result = [
+                    'error' => $this->errors,
                     'code'  => 400,
                     'data'  => []
-                ]);
+                ];
+                return;
+            }
+
+            $this->result = [
+                'error' => null,
+                'code'  => 200,
+                'data'  => $this->lxd->profiles->rename('local', $f3->get('PARAMS.name'), $this->body['name'])
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
+        }
+    }
+    
+    /**
+     * PATCH /api/lxd/profiles/@name
+     *
+     * @param object $f3
+     * @return void
+     */
+    public function patch(\Base $f3)
+    {
+        try {
+            if (empty($f3->get('PARAMS.name'))) {
+                $this->errors['name'] = 'Profile name cannot be empty'; 
+            }
+
+            if (!empty($this->errors)) {
+                $this->result = [
+                    'error' => $this->errors,
+                    'code'  => 400,
+                    'data'  => []
+                ];
+                return;
             }
             
             // fix devices (cast to object)
-            if (!empty($body['devices'])) {
-                $body['devices'] = (object) $body['devices'];
+            if (!empty($this->body['devices'])) {
+                $this->body['devices'] = (object) $this->body['devices'];
             }
             
-            try {
-                $result = [
-                    'error' => '',
-                    'code'  => 200,
-                    'data'  => $this->lxd->profiles->replace('local', $params['name'], $body)
-                ];
-            } catch (\Exception $e) {
-                $result = [
-                    'error' => $e->getMessage(),
-                    'code'  => 422,
-                    'data'  => []
-                ];
-            }
-            
-            $f3->response->json($result);
+            $this->result = [
+                'error' => null,
+                'code'  => 200,
+                'data'  => $this->lxd->profiles->update('local', $f3->get('PARAMS.name'), $this->body)
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
+        }
     }
     
-    public function patch(\Base $f3, $params)
+    /**
+     * PUT /api/lxd/profiles/@name
+     *
+     * @param object $f3
+     * @return void
+     */
+    public function put(\Base $f3)
     {
-        $body = json_decode($f3->get('BODY'), true);
+        try {
+            if (empty($f3->get('PARAMS.name'))) {
+                $this->errors['name'] = 'Profile name cannot be empty'; 
+            }
 
-            if (empty($body) || empty($params['name'])) {
-              $f3->response->json([
-                    'error' => 'Invalid PATCH body, expecting item',
-                    'code'  => 422,
+            if (!empty($this->errors)) {
+                $this->result = [
+                    'error' => $this->errors,
+                    'code'  => 400,
                     'data'  => []
-                ]); 
+                ];
+                return;
             }
             
-            try {
-                $result = [
-                    'error' => '',
-                    'code'  => 200,
-                    'data'  => $this->lxd->profiles->update('local', $params['name'], $body)
-                ];
-            } catch (\Exception $e) {
-                $result = [
-                    'error' => $e->getMessage(),
-                    'code'  => 422,
-                    'data'  => []
-                ];
+            // fix devices (cast to object)
+            if (!empty($this->body['devices'])) {
+                $this->body['devices'] = (object) $this->body['devices'];
             }
-            $f3->response->json($result);
-        
+            
+            $this->result = [
+                'error' => null,
+                'code'  => 200,
+                'data'  => $this->lxd->profiles->replace('local', $f3->get('PARAMS.name'), $this->body)
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
+        }
     }
     
-    public function put(\Base $f3, $params)
+    /**
+     * DELETE /api/lxd/profiles/@name
+     *
+     * @param object $f3
+     * @return void
+     */
+    public function delete(\Base $f3)
     {
-        $body = json_decode($f3->get('BODY'), true);
-            
-            if (empty($body) || empty($params['name'])) {
-              $f3->response->json([
-                    'error' => 'Invalid PUT body, expecting item',
-                    'code'  => 422,
-                    'data'  => []
-                ]); 
-            }
-            
-            try {
-                $result = [
-                    'error' => '',
-                    'code'  => 200,
-                    'data'  => $this->lxd->profiles->replace('local', $params['name'], $body)
-                ];
-            } catch (\Exception $e) {
-                $result = [
-                    'error' => $e->getMessage(),
-                    'code'  => 422,
-                    'data'  => []
-                ];
-            }
-            $f3->response->json($result);
+        try {
+            $this->result = [
+                'error' => null,
+                'code'  => 200,
+                'data'  => $this->lxd->profiles->delete('local', $f3->get('PARAMS.name'))
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
+        }
     }
 
-public function delete(\Base $f3, $params)
-{
-    try {
-                $result = [
-                    'error' => '',
-                    'code'  => 200,
-                    'data'  => $this->lxd->profiles->delete('local', $params['name'])
-                ];
-            } catch (\Exception $e) {
-                $result = [
-                    'error' => $e->getMessage(),
-                    'code'  => 422,
-                    'data'  => []
-                ];
-            }
-            
-            $f3->response->json($result);
-}
-    
- 
 }

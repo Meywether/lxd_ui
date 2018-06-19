@@ -98,12 +98,7 @@ class Item extends \Base\Controller
                     'data'  => []
                 ];
             }
-            
-            $this->body['auto_update'] = $this->body['auto_update'] == '1';
-            $this->body['cached'] = $this->body['cached'] == '1';
-            $this->body['public'] = $this->body['public'] == '1';
-            $this->body['size'] = (int) $this->body['size'];
-            
+
             $this->result = [
                 'error' => '',
                 'code'  => 200,

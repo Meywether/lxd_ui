@@ -115,7 +115,6 @@ class Index extends \Base\Controller
      */
     public function post(\Base $f3)
     {
-        $this->body['stateful'] = $this->body['stateful'] == '1';
         try {
             $this->result = [
                 'error' => '',

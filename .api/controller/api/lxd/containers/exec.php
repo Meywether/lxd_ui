@@ -77,12 +77,6 @@ class Exec extends \Base\Controller
      */
     public function post(\Base $f3)
     {
-        // fixes
-        $this->body['wait-for-websocket'] = $this->body['wait-for-websocket'] === '1';
-        $this->body['interactive'] = $this->body['interactive'] === '1';
-        $this->body['width'] = (int) $this->body['width'];
-        $this->body['height'] = (int) $this->body['height'];
-        
         try {
             $this->result = [
                 'error' => '',

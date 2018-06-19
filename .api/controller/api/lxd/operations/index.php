@@ -1,5 +1,22 @@
 <?php
-
+/*
+ +----------------------------------------------------------------------+
+ | Conext LXD Control Panel
+ +----------------------------------------------------------------------+
+ | Copyright (c)2018 (https://github.com/lcherone/conext)
+ +----------------------------------------------------------------------+
+ | This source file is subject to MIT License
+ | that is bundled with this package in the file LICENSE.
+ |
+ | If you did not receive a copy of the license and are unable to
+ | obtain it through the world-wide-web, please send an email
+ | to lawrence@cherone.co.uk so we can send you a copy immediately.
+ +----------------------------------------------------------------------+
+ | Authors:
+ |   Lawrence Cherone <lawrence@cherone.co.uk>
+ +----------------------------------------------------------------------+
+ */
+ 
 namespace Controller\Api\Lxd\Operations;
 
 /**
@@ -11,9 +28,25 @@ class Index extends \Base\Controller
      * @var
      */
     private $lxd;
+
+    /*
+     * @var
+     */
+    protected $result = []; 
     
+    /*
+     * @var
+     */
+    protected $errors = []; 
+
+    /**
+     * @param object $f3
+     * @return void
+     */
     public function beforeRoute(\Base $f3)
     {
+        parent::beforeRoute($f3);
+        
         try {
             \Lib\JWT::checkAuth();
             if (!in_array('operations', $f3->get('modules.lxd'))) {
@@ -27,92 +60,42 @@ class Index extends \Base\Controller
             ]);
         }
 
+        // define model/s
         $this->lxd = new \Model\LXD($f3);
     }
 
     /**
-     *
+     * GET /api/lxd/operations
+     * 
+     * @return void
      */
-    public function index(\Base $f3)
+    public function get()
     {
-        // GET | POST | PUT | DELETE
-        $verb = $f3->get('VERB');
+        try {
+            $result = $this->lxd->operations->list('local');
 
-        /**
-         * GET /api/lxd/operations
-         */
-        if ($verb === 'GET') {
-            try {
-                //
-                $result = $this->lxd->operations->list('local');
-
-                $return = [];
-                if (is_array($result)) {
-                    foreach ((array) $result as $type => $operations) {
-                        $return[$type] = [];
-                        foreach ((array) $operations as $operation) {
-                            $row = str_replace('/1.0/operations/', '', $operation);  
-                            $return[$type][] = $this->lxd->operations->info('local', $row);
-                        }
+            $return = [];
+            if (is_array($result)) {
+                foreach ((array) $result as $type => $operations) {
+                    $return[$type] = [];
+                    foreach ((array) $operations as $operation) {
+                        $row = str_replace('/1.0/operations/', '', $operation);  
+                        $return[$type][] = $this->lxd->operations->info('local', $row);
                     }
                 }
-
-                $response = [
-                    'error' => null,
-                    'code'  => 200,
-                    'data'  => $return
-                ];
-            } catch (\Exception $e) {
-                $response = [
-                    'error' => $e->getMessage(),
-                    'code'  => $e->getCode(),
-                    'data'  => []
-                ];
             }
-
-            $f3->response->json($response);
-        }
-        
-    }
-    
-    /**
-     * /api/lxd/operations/@uuid
-     */
-    public function item(\Base $f3, $params)
-    {
-        // GET | POST | PUT | DELETE
-        $verb = $f3->get('VERB');
-
-        /**
-         * GET /api/lxd/operations/@uuid
-         */
-        if ($verb === 'GET') {
-            // get containers
-            $result = $this->lxd->operations->info('local',  $params['uuid']);
-
-            $f3->response->json([
+            
+            $this->result = [
                 'error' => null,
                 'code'  => 200,
-                'data'  => $result
-            ]);
-        }
-
-        /**
-         * DELETE /api/lxd/operations/@uuid
-         */
-        if ($verb === 'DELETE') {
-            //
-            try {
-                $result = $this->lxd->operations->delete('local',  $params['uuid']);
-            } catch (\Exception $e) {
-                $result = $e->getMessage();
-            }
-
-            $f3->response->json([
-                'error' => '',
-                'code'  => 200,
-                'data'  => $result
-            ]);
+                'data'  => $return
+            ];
+        } catch (\Exception $e) {
+            $this->result = [
+                'error' => $e->getMessage(),
+                'code'  => 422,
+                'data'  => []
+            ];
         }
     }
 

@@ -47,7 +47,7 @@ class Controller extends \Prefab
         // decode json body & trim
         $this->body = (array) json_decode($f3->get('BODY'), true);
         $this->body = (array) $f3->recursive($this->body, function ($value) {
-            return trim($value);
+            return gettype($value) === 'string' ? trim($value) : $value;
         });
     }
 
