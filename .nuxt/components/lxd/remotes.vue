@@ -6,7 +6,7 @@
       <v-tab ripple :href="`#private`">Private</v-tab>
 
       <v-tab-item :id="`active`">
-        <v-data-table :headers="tableHeaders" :items="active_remotes" hide-actions :loading="tableLoading">
+        <v-data-table :headers="tableHeadersActive" :items="active_remotes" hide-actions :loading="tableLoading">
           <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
           <template slot="items" slot-scope="props">
             <tr>
@@ -17,12 +17,12 @@
                   <!--</a>-->
                 </span>
                 <span v-else>
-                  {{ props.item.name }}
+                  {{ props.item.name ? props.item.name : '-' }}
                 </span>
               </td>
-              <td>{{ props.item.url }}</td>
-              <td>{{ props.item.protocol }}</td>
-              <td>{{ props.item.auth_type.toUpperCase() }}</td>
+              <td>{{ props.item.url ? props.item.url : '-' }}</td>
+              <td>{{ props.item.protocol ? (props.item.protocol == 'lxd' ? 'LXD' : 'Simplestreams') : '-' }}</td>
+              <td>{{ props.item.auth_type ? props.item.auth_type.toUpperCase() : '-' }}</td>
               <td>
                 <v-tooltip left>
                   <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="disableItem(props.item)" :disabled="props.item.static === '1'">
@@ -40,7 +40,7 @@
       </v-tab-item>
       
       <v-tab-item :id="`public`">
-        <v-data-table :headers="tableHeaders" :items="public_remotes" hide-actions :loading="tableLoading">
+        <v-data-table :headers="tableHeadersPublic" :items="public_remotes" hide-actions :loading="tableLoading">
           <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
           <template slot="items" slot-scope="props">
             <tr>
@@ -51,12 +51,11 @@
                   <!--</a>-->
                 </span>
                 <span v-else>
-                  {{ props.item.name }}
+                  {{ props.item.name ? props.item.name : '-' }}
                 </span>
               </td>
-              <td>{{ props.item.url }}</td>
-              <td>{{ props.item.protocol }}</td>
-              <td>{{ props.item.auth_type.toUpperCase() }}</td>
+              <td>{{ props.item.url ? props.item.url : '-' }}</td>
+              <td>{{ props.item.protocol ? (props.item.protocol == 'lxd' ? 'LXD' : 'Simplestreams') : '-' }}</td>
               <td>
                 <v-tooltip left>
                   <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)" :disabled="props.item.static === '1'">
@@ -79,7 +78,7 @@
         </v-data-table>
       </v-tab-item>
       <v-tab-item :id="`private`">
-        <v-data-table :headers="tableHeaders" :items="private_remotes" hide-actions :loading="tableLoading">
+        <v-data-table :headers="tableHeadersPrivate" :items="private_remotes" hide-actions :loading="tableLoading">
           <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
           <template slot="items" slot-scope="props">
             <tr>
@@ -90,12 +89,12 @@
                   <!--</a>-->
                 </span>
                 <span v-else>
-                  {{ props.item.name }}
+                  {{ props.item.name ? props.item.name : '-' }}
                 </span>
               </td>
-              <td>{{ props.item.url }}</td>
-              <td>{{ props.item.protocol }}</td>
-              <td>{{ props.item.auth_type.toUpperCase() }}</td>
+              <td>{{ props.item.url ? props.item.url : '-' }}</td>
+              <td>{{ props.item.protocol ? (props.item.protocol == 'lxd' ? 'LXD' : 'Simplestreams') : '-' }}</td>
+              <td>{{ props.item.auth_type ? props.item.auth_type.toUpperCase() : '-' }}</td>
               <td>
                 <v-tooltip left>
                   <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)" :disabled="props.item.static === '1'">
@@ -133,15 +132,13 @@
           </v-toolbar-items>
         </v-toolbar>
         <v-card-text>
+          <v-alert type="error" :value="error.editing" v-html="error.editing"></v-alert>
           <v-form ref="form" v-model="valid" lazy-validation>
-            <v-alert type="error" :value="error">
-              {{ error }}
-            </v-alert>
             <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="The name of the remote."></v-text-field>
             <v-text-field v-model="editingItem.url" :rules="urlRule" label="URL:" placeholder="" required hint="The url of the remote."></v-text-field>
             <v-select :items="['lxd', 'simplestreams']" v-model="editingItem.protocol" label="Protocol:" hint="Select the protocol type for the remote."></v-select>
             <v-select :items="['tls', 'macaroons']" v-model="editingItem.auth_type" label="Auth Type:" hint="Select the auth type for the remote."></v-select>
-            <v-text-field v-model="editingItem.secret" label="Secret:" placeholder="" required hint="The client secret for the remote. (not stored)"></v-text-field>
+            <v-text-field v-model="editingItem.secret" label="Secret:" placeholder="" hint="The client secret for the remote. (not stored). If left blank treated as public."></v-text-field>
           </v-form>
         </v-card-text>
         <div style="flex: 1 1 auto;"></div>
@@ -187,25 +184,6 @@
         loggedUser: 'auth/loggedUser',
         loggedToken: 'auth/loggedToken'
       }),
-      tableHeaders: function () {
-        if (this.linked) {
-          return [
-            { text: 'Name', value: 'name' },
-            { text: 'URL', value: 'url' },
-            { text: 'Protocol', value: 'protocol' },
-            { text: 'Auth Type', value: 'auth_type' },
-            { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'200px' }
-          ]
-        } else {
-          return [
-            { text: 'Name', value: 'name' },
-            { text: 'URL', value: 'url' },
-            { text: 'Protocol', value: 'protocol' },
-            { text: 'Auth Type', value: 'auth_type' },
-            { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'200px' }
-          ]
-        }
-      },
       active_remotes: function () {
         return this.items.filter(row => {
           if (row.active === '1' || row.static === '1') {
@@ -232,7 +210,7 @@
       }
     },
     data: () => ({
-      error: false,
+      error: {global: '', editing: ''},
       activeTab: 'active',
       valid: true,
       dialog: {editing: false, askSecret: false},
@@ -261,6 +239,27 @@
         secret: "",
         public: false
       },
+      
+      tableHeadersActive: [
+        { text: 'Name', value: 'name' },
+        { text: 'URL', value: 'url' },
+        { text: 'Protocol', value: 'protocol' },
+        { text: 'Auth Type', value: 'auth_type' },
+        { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'200px' }
+      ],
+      tableHeadersPublic: [
+        { text: 'Name', value: 'name' },
+        { text: 'URL', value: 'url' },
+        { text: 'Protocol', value: 'protocol' },
+        { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'200px' }
+      ],
+      tableHeadersPrivate: [
+        { text: 'Name', value: 'name' },
+        { text: 'URL', value: 'url' },
+        { text: 'Protocol', value: 'protocol' },
+        { text: 'Auth Type', value: 'auth_type' },
+        { text: 'Actions', value: 'name', sortable: false, align: 'center', width:'200px' }
+      ],
 
       // container/profile
       linkedItem: {},
@@ -320,7 +319,7 @@
           //
         } catch (error) {
           this.tableNoData = 'No data.';
-          this.error = 'Could not fetch data from server.';
+          this.error.global = 'Could not fetch data from server.';
         }
         this.tableLoading = false
       },
@@ -338,7 +337,7 @@
           //
         } catch (error) {
           this.tableNoData = 'No data.';
-          this.error = 'Could not fetch data from server.';
+          this.error.global = 'Could not fetch data from server.';
         }
         this.tableLoading = false
       }, 
@@ -356,14 +355,14 @@
           //
         } catch (error) {
           this.tableNoData = 'No data.';
-          this.error = 'Could not fetch data from server.';
+          this.error.global = 'Could not fetch data from server.';
         }
         this.tableLoading = false
       },
 
       async saveItem () {
         if (this.$refs.form.validate()) {
-          this.error = '';
+          this.error.editing = '';
           try {
 
             // edit
@@ -376,7 +375,15 @@
             }
 
             if (response.data.error) {
-              this.error = response.data.error
+              if (typeof response.data.error == 'string') {
+                this.error.editing = response.data.error
+              } else {
+                this.error.editing = '<ul style="padding-left:15px">'
+                Object.keys(response.data.error).forEach(key => {
+                  this.error.editing += '<li>'+response.data.error[key]+'.</li>'
+                })
+                this.error.editing += '</ul>'
+              }
             } else {
               //
               this.$emit('snackbar', 'Remote successfully saved.')
@@ -386,7 +393,7 @@
               }
             }
           } catch (error) {
-            this.error = 'Could not save remote to server.'+error;
+            this.error.global = 'Could not save remote to server.';
           }
           this.initialize()
           setTimeout(() => {
@@ -424,7 +431,7 @@
                   this.$emit('reload')
                 } catch (error) {
                   //
-                  this.error = 'Failed to delete remote.';
+                  this.error.global = 'Failed to delete remote.';
                 }
                 this.initialize()
                 setTimeout(() => {
@@ -455,7 +462,7 @@
           }, 500)
         } catch (error) {
           //
-          this.error = 'Failed to enabled remote.';
+          this.error.global = 'Failed to enabled remote.';
         }
       },
       
@@ -481,7 +488,7 @@
               this.dialog.askSecret = !this.dialog.askSecret
             } catch (error) {
               //
-              this.error = 'Failed to enabled remote.';
+              this.error.global = 'Failed to enabled remote.';
             }
           }
         } else {
@@ -521,7 +528,7 @@
                   this.$emit('snackbar', 'Remote successfully disabled.')
                 } catch (error) {
                   //
-                  this.error = 'Failed to disable remote.';
+                  this.error.global = 'Failed to disable remote.';
                 }
                 this.initialize()
                 setTimeout(() => {
@@ -543,8 +550,8 @@
 
       // close item dialog, and reset to default item
       close () {
-        this.dialog.editing = false
-        this.dialog.askSecret = false
+        this.dialog = {editing:false, askSecret: false}
+        this.error.editing = ''
         setTimeout(() => {
           this.editingItem = Object.assign({}, this.defaultItem)
           this.editingIndex = -1
