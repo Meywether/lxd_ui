@@ -12,7 +12,7 @@ If you have found a bug then please open an issue and report it, don't just give
 
 There is currently no documentation for the project :( 
 
-Not all users are savvy with the inner workings of LXD so it can be difficult to get started or understand what the project is and what how it works and how its used. 
+Not all users are savvy with the inner workings of LXD, so it can be difficult to get started or understand what the project is, how it works, how its used or how it fits in. 
 So if you enjoy/tolerate writing documentation and would like to contribute to help out struggling users, then it would be greatly appreciated! 
 
 ### Code
