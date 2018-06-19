@@ -32,17 +32,7 @@ class Index extends \Base\Controller
     /*
      * @var
      */
-    protected $body;
-    
-    /*
-     * @var
-     */
     protected $result; 
-    
-    /*
-     * @var
-     */
-    protected $errors; 
 
     /**
      * @param object $f3
@@ -54,9 +44,6 @@ class Index extends \Base\Controller
         
         try {
             \Lib\JWT::checkAuth();
-            if (!in_array('profiles', $f3->get('modules.lxd'))) {
-                throw new \Exception('Feature not enabled', 404);
-            }
         } catch (\Exception $e) {
             $f3->response->json([
                 'error' => $e->getMessage(),
@@ -70,7 +57,7 @@ class Index extends \Base\Controller
     }
 
     /**
-     * GET /api/lxd/profiles
+     * GET /api/lxd/resources
      *
      * @return void
      */
