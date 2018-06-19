@@ -147,7 +147,7 @@
         <div id="terminal"></div>
       </v-dialog>
 
-      <v-dialog v-model="containerDialog" max-width="750px" scrollable v-if="container.info">
+      <v-dialog v-model="containerDialog" max-width="800px" scrollable v-if="container.info">
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
             <v-btn icon @click.native="containerDialog = false" dark>
@@ -168,6 +168,7 @@
               <v-tab ripple :href="`#tab-snapshots`">Snapshots</v-tab>
               <v-tab ripple :href="`#tab-files`">Files</v-tab>
               <v-tab ripple :href="`#tab-logs`">Logs</v-tab>
+              <!--<v-tab ripple :href="`#tab-backups`">Backups</v-tab>-->
               <v-tab-item :id="`tab-configuration`" v-if="container.info">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <v-card-text>
@@ -340,6 +341,11 @@
                   <logs @snackbar="setSnackbar" :key="component_key" ref="`${files[container.info.name]}_logs`" :linked="container.info"></logs>
                 </v-card>
               </v-tab-item>
+              <!--<v-tab-item :id="`tab-backups`">-->
+              <!--  <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">-->
+              <!--    <backups :item="container" :key="component_key" @snackbar="setSnackbar"></backups>-->
+              <!--  </v-card>-->
+              <!--</v-tab-item>-->
             </v-tabs>
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
@@ -369,6 +375,7 @@
   import sshKeys from '~/components/lxd/ssh-keys.vue'
   import files from '~/components/lxd/files.vue'
   import logs from '~/components/lxd/logs.vue'
+  // import backups from '~/components/lxd/backups.vue'
 
   import { Terminal } from 'xterm'
   import * as fit from 'xterm/lib/addons/fit/fit'
@@ -384,7 +391,7 @@
       'authenticated'
     ],
     components: {
-      snapshots, none, nic, disk, proxy, infiniband, gpu, usb, unixchar, unixblock, idmap, sshKeys, files, logs
+      snapshots, none, nic, disk, proxy, infiniband, gpu, usb, unixchar, unixblock, idmap, sshKeys, files, logs/*, backups*/
     },
     computed: {
       ...mapGetters({
@@ -504,6 +511,7 @@
         { title: 'Thaw', action: 'unfreeze', msg: 'Thawing', state: 'Frozen' },
         { title: 'Restart', action: 'restart', msg: 'Restarting', state: 'Running' },
         { title: 'Snapshot', action: 'snapshot', msg: 'Snapshotting' },
+        // { title: 'Backup', action: 'backup', msg: 'Backing up' },
         { title: 'Copy', action: 'copy', msg: 'Copying', state: 'Stopped' },
         { title: 'Image', action: 'image', msg: 'Imaging', state: 'Stopped' }
       ],
@@ -753,6 +761,15 @@
             info: {name: item.name}
           }
           this.snapshotContainer(item, false)
+          return
+        }        
+        // intercept snapshot
+        if (action.action === 'backup') {
+          this.container = {
+            state: item,
+            info: {name: item.name}
+          }
+          this.backupContainer(item, false)
           return
         }
         // intercept copy
@@ -1094,6 +1111,33 @@
 
         } catch (error) {
           this.alert = { msg: 'Could not snapshot container.', outline: false, color: 'error', icon: 'error' }
+        }
+      },
+      
+      async backupContainer (item) {
+        this.stopPolling()
+        //
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          //
+          let response = await axios.post(this.loggedUser.sub + '/api/lxd/containers/'+ item.name +'/backups', {
+              name: new Date().toISOString(),
+              //expiry: new Date().toISOString(), 
+              container_only: true, 
+              optimized_storage: true
+          })
+
+          this.setSnackbar('Backing up container.')
+
+          setTimeout(() => {
+            this.startPolling()
+          }, 1000)
+
+        } catch (error) {
+          this.alert = { msg: 'Could not backup container.', outline: false, color: 'error', icon: 'error' }
         }
       },
 
