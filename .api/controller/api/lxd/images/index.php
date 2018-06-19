@@ -101,7 +101,7 @@ class Index extends \Base\Controller
             }
             
             // cache remote images if not local
-            if ($f3->get('GET.remote') === 'local' || !$this->cache->exists('images.'.$f3->get('GET.remote'), $this->result)) {
+            if (!$f3->devoid('GET.force') || $f3->get('GET.remote') === 'local' || !$this->cache->exists('images.'.$f3->get('GET.remote'), $this->result)) {
                 // get images filter by architecture (may add as a parameter if ever needed)
                 $this->result = $this->lxd->images->list($f3->get('GET.remote'), 'architecture="'.implode('|', ['x86_64', 'i686', 'amd64']).'"');
                 //

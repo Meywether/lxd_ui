@@ -71,7 +71,8 @@
                     </td>
                   </template>
                   <template slot="no-data">
-                    {{ tableLoading ? 'Fetching data, please wait...' : 'Remote has no images.' }}
+                    <span v-if="tableLoading">Fetching data, please wait...</span>
+                    <span v-else>Remote has no images. <span v-if="!forceReloaded"><a @click="initialize(true)">Force Reload</a></span></span>
                   </template>
                 </v-data-table>
               </v-flex>
@@ -214,6 +215,7 @@
       // global error
       error: '',
       state: 'images',
+      forceReloaded: false,
 
       // snackbar (notification)
       snackbar: false,
@@ -330,7 +332,8 @@
       }
     },
     methods: {
-      async initialize () {
+      async initialize (force = false) {
+        this.forceReloaded = force
         // fetch remote
         try {
           if (!this.loggedUser) {
@@ -420,7 +423,7 @@
           }
 
           //
-          var response = await axios.get(this.loggedUser.sub + '/api/lxd/images?remote='+remote)
+          var response = await axios.get(this.loggedUser.sub + '/api/lxd/images?remote='+remote+(this.forceReloaded ? '&force=1' : ''))
           
           this.items = response.data.data
           

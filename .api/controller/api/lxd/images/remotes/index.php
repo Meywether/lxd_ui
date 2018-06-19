@@ -146,12 +146,28 @@ class Index extends \Base\Controller
     {
         try {
             //
+            if (empty($this->body['name'])) {
+                $this->errors['name'] = 'Name is a required field';
+            }
+            if (empty($this->body['url'])) {
+                $this->errors['url'] = 'URL is a required field';
+            }
+            if (!empty($this->errors)) {
+                $this->result = [
+                    'error' => $this->errors,
+                    'code'  => 400,
+                    'data'  => []
+                ];
+                return;
+            }
+
+            //
             $cmd = [
                 'lxc remote add',
                 escapeshellarg($this->body['name']),
                 escapeshellarg($this->body['url']),
                 '--accept-certificate',
-                '--password='.escapeshellarg($this->body['secret']),
+                (!empty($this->body['secret']) ? '--password='.escapeshellarg($this->body['secret']) : '--public'),
                 '--protocol='.escapeshellarg($this->body['protocol']),
                 '--auth-type='.escapeshellarg($this->body['auth_type']),
             ];
@@ -171,6 +187,8 @@ class Index extends \Base\Controller
 
             // set to active
             $this->body['active'] = '1';
+            // if secret not set set public
+            $this->body['public'] = !empty($this->body['secret']) ? '0' : '1';
             
             $remote->import($this->body);
             $this->remotes->store($remote);
