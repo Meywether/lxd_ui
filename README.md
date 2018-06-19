@@ -81,6 +81,7 @@ If you want to show your appreciation or you make money where this is used, plea
 ## :family: Credits
 
 - [Lawrence Cherone](https://github.com/lcherone)
+- [Meywether (Bughunter!)](https://github.com/Meywether)
 - [All Contributors](https://github.com/lcherone/Conext/graphs/contributors)
 
 ## :copyright: License
