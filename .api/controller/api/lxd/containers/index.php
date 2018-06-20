@@ -43,6 +43,11 @@ class Index extends \Base\Controller
      * @var
      */
     protected $errors = []; 
+        
+    /*
+     * @var
+     */
+    private $remotes; 
 
     /**
      * @param object $f3
@@ -94,12 +99,11 @@ class Index extends \Base\Controller
     /**
      * POST /api/lxd/containers
      *
-     * @param object $f3
      * @return void
      */
-    public function post(\Base $f3)
+    public function post()
     {
-         // load remotes model
+        // load remotes model
         $this->remotes = new \Base\Model('remotes');
         
         try {
