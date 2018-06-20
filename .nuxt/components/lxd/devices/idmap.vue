@@ -84,6 +84,8 @@
         }
       },
       idmap_limit: function () {
+        return false
+        
         if (!this.lxd || !this.lxd.environment || !this.lxd.environment.kernel_version) {
           return true;
         }

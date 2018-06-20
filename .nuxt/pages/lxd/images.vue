@@ -25,8 +25,8 @@
                 </v-layout>
               </v-flex>
               <v-flex v-if="state == 'images'">
-                <v-alert type="error" :value="error">
-                  {{ error }}
+                <v-alert type="error" :value="error.global">
+                  {{ error.global }}
                 </v-alert>
                 <div class="elevation-1">
                   <v-tabs v-model="activeRemote" right @input="loadRemoteImages">
@@ -72,7 +72,9 @@
                   </template>
                   <template slot="no-data">
                     <span v-if="tableLoading">Fetching data, please wait...</span>
-                    <span v-else>Remote has no images. <span v-if="!forceReloaded"><a @click="initialize(true)">Force Reload</a></span></span>
+                    <span v-else>Remote has no images. 
+                    <!--<span v-if="!forceReloaded"><a @click="initialize(true)">Force Reload</a></span>-->
+                    </span>
                   </template>
                 </v-data-table>
               </v-flex>
@@ -121,17 +123,53 @@
             <v-toolbar-title>Launch Container</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
-              <v-btn dark flat @click.native="createContainer(newItem, true)">Launch</v-btn>
+              <v-btn dark flat @click.native="createContainer(newItem, true)" :loading="launching" :disabled="launching">Launch</v-btn>
             </v-toolbar-items>
           </v-toolbar>
           <v-card-text>
+            <v-alert type="error" :value="error.launch">
+              {{ error.launch }}
+            </v-alert>
             <v-form ref="form" v-model="valid" lazy-validation>
-              <v-text-field v-model="newItem.name" label="Name:" :rules="nameRule" @input="safe_name()" hint="Enter name for new container." required></v-text-field>
-              <v-select :items="[newItem.image]" v-model="newItem.image" label="Image:" required disabled></v-select>
-              <v-select :items="profiles" :rules="profilesRule" v-model="newItem.profile" label="Profiles:" multiple chips required></v-select>
-              <v-select :items="pools" v-model="newItem.pool" label="Storage Pool:" persistent-hint hint="Storage pool the root disk device belongs to."></v-select>
-              <!--<v-select :items="networks" v-model="newItem.network" label="Network:" persistent-hint hint="Additional network device."></v-select>-->
-              <v-switch :label="`${newItem.ephemeral ? 'Ephemeral' : 'Ephemeral'}`" color="success" v-model="newItem.ephemeral"></v-switch>
+              <div v-if="launching">
+                <v-progress-linear :indeterminate="query" :query="true" v-model="value" :active="show" height="20"></v-progress-linear>
+                <span>{{ real_value }} {{ progress_text ? progress_text : (this.newItem.remote !== 'local' ? 'Initializing image download.' : '') }}</span>
+              </div>
+              <div v-else>
+                <v-text-field v-model="newItem.name" label="Name:" :rules="nameRule" @input="safe_name()" hint="Enter name for new container." required :disabled="launching"></v-text-field>
+                <v-select :items="[newItem.image]" v-model="newItem.image" label="Image:" required disabled></v-select>
+                <v-select :items="profiles" :rules="profilesRule" v-model="newItem.profile" label="Profiles:" multiple chips required :disabled="launching"></v-select>
+                <v-select :items="pools" v-model="newItem.pool" label="Storage Pool:" persistent-hint hint="Storage pool the root disk device belongs to." :disabled="launching"></v-select>
+                <!--<v-select :items="networks" v-model="newItem.network" label="Network:" persistent-hint hint="Additional network device."></v-select>-->
+                <v-switch :label="`${newItem.ephemeral ? 'Ephemeral' : 'Ephemeral'}`" color="success" v-model="newItem.ephemeral" :disabled="launching"></v-switch>
+              </div>
+              <!--<h3>Environment Variables</h3>-->
+              <!--<v-layout row wrap>-->
+              <!--  <v-flex xs6>-->
+              <!--    <v-text-field v-model="newItem.newEnvironment" label="IP Address:" hint="Enter upstream IP address."></v-text-field>-->
+              <!--  </v-flex>-->
+              <!--  <v-flex xs5>-->
+              <!--    <v-text-field v-model="newItem.newEnvironment" label="Port:" hint="Enter upstream port."></v-text-field>-->
+              <!--  </v-flex>-->
+              <!--  <v-flex xs1>-->
+              <!--    <v-btn flat icon color="success" @click.native="addUpstream">-->
+              <!--      <v-icon>add</v-icon>-->
+              <!--    </v-btn>-->
+              <!--  </v-flex>-->
+              <!--</v-layout>-->
+              <!--<v-layout row wrap v-for="environment in newItem.environment " :key="environment.id">-->
+              <!--  <v-flex xs6>-->
+              <!--    <v-text-field v-model="upstream.ip" label="IP Address:" hint="Empty or invalid ips are removed."></v-text-field>-->
+              <!--  </v-flex>-->
+              <!--  <v-flex xs5>-->
+              <!--    <v-text-field v-model="upstream.port" label="Port:" hint="Empty or invalid ports are removed."></v-text-field>-->
+              <!--  </v-flex>-->
+              <!--  <v-flex xs1>-->
+              <!--    <v-btn flat icon color="error" @click.native="removeUpstream(upstream)">-->
+              <!--      <v-icon>remove</v-icon>-->
+              <!--    </v-btn>-->
+              <!--  </v-flex>-->
+              <!--</v-layout>-->
             </v-form>
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
@@ -154,6 +192,9 @@
           <v-card-text style="padding: 0px;">
             <v-card flat>
               <v-card-text v-if="editingItem.properties">
+                <v-alert type="error" :value="error.editing">
+                  {{ error.editing }}
+                </v-alert>
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-text-field v-model="editingItem.properties.description" label="Description:" :counter="60" :rules="descriptionRule" hint="Enter description for image." required></v-text-field>
                   <v-text-field v-model="editingItem.properties.version" label="Version:" hint="Enter version for image."></v-text-field>
@@ -212,8 +253,17 @@
       }
     },
     data: () => ({
+      value: 0,
+      query: false,
+      show: true,
+      interval: 0,
+      
+      launching: false,
+      progress_text: '',
+      real_value: '',
+      
       // global error
-      error: '',
+      error: {editing: false, global: false, launch: false},
       state: 'images',
       forceReloaded: false,
 
@@ -303,6 +353,10 @@
         v => v.length >= 1 || 'At least one profile is required.'
       ]
     }),
+    beforeDestroy () {
+      clearInterval(this.interval)
+    },
+
     mounted: async function () {
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
       
@@ -324,6 +378,9 @@
       })
     },
     watch: {
+      'dialog.copy': function (val) {
+         val || this.close('copy')
+      },
       'dialog.create': function (val) {
          val || this.close('create')
       },
@@ -350,7 +407,7 @@
           //
         } catch (error) {
           this.tableNoData = 'No data.';
-          this.error = 'Could not fetch data from server.';
+          this.error.global = 'Could not fetch data from server.';
         }
         this.tableLoading = false
       },
@@ -369,7 +426,6 @@
           response.data.data.forEach(item => {
             this.profiles.push(item.name);
           });
-
         } catch (error) {
           this.profiles = [];
         }
@@ -415,7 +471,7 @@
         //
         this.tableLoading = true
         //
-        this.error = false
+        this.error.global = false
         //
         try {
           if (!this.loggedUser) {
@@ -429,7 +485,7 @@
           
           //
           if (response.data.error) {
-            this.error = response.data.error;
+            this.error.global = response.data.error;
             this.distros = [];
           } else {
             // assign distro list in background
@@ -440,15 +496,17 @@
               }
             }, 0)
             
+            //set active distro to first
+            setTimeout(() => {
+              this.activeDistro = this.distros[0] ? this.distros[0] : '';
+            }, 10);
+            
             // show delete button
             this.show_delete = this.items.length > 0 && !this.publicServers.includes(this.activeRemote)
-            
-            //
-            this.activeDistro = 'ubuntu';
           }
         } catch (error) {
           this.tableNoData = 'No data.';
-          this.error = 'Could not fetch data from server.';
+          this.error.global = 'Could not fetch data from server.';
         }
         this.tableLoading = false
       },
@@ -479,25 +537,150 @@
             //
             this.snackbar = true;
             this.snackbarColor = 'green';
-            this.snackbarText = 'Container queued for creation.';
+            this.snackbarText = 'Creating container.';
+            this.query = true
 
             axios.post(this.loggedUser.sub + '/api/lxd/containers', this.newItem).then(response => {
-              if (response.data.code === 200) {
+              // all good task issued
+              if (response.data.code === 200 && response.data.data.status_code === 103) {
+                        
+                this.show = true
+                this.value = 0
+                this.query = false
+
                 //
-                this.snackbar = true;
-                this.snackbarText = 'Container created.';
+                this.launching = true
+                
+                var creating_container = setInterval(async () => {
+                  await axios.get(this.loggedUser.sub + '/api/lxd/operations/'+response.data.data.id).then(response => {
+                    /* running 103, finished, 200 */
+                    if (response.data.data.status_code == 103) {
+                      console.log('103', response.data.data);
+                      // 
+                      var download_progress = null
+                      if (response.data.data.metadata) {
+                        download_progress = response.data.data.metadata.download_progress
+                        
+                        //starts with metadata: or rootfs:
+                        if (/^metadata:/i.test(download_progress)) {
+                          download_progress = download_progress.replace('metadata:', '').trim()
+                          download_progress = '0%'
+                        } else if (/^rootfs:/i.test(download_progress)) {
+                          download_progress = download_progress.replace('rootfs:', '').trim()
+                        }
+                        
+                        this.value = download_progress.substr(0, download_progress.indexOf('%'))
+                        this.real_value = download_progress
+                      } else if(this.newItem.remote === 'local') {
+                        this.value = 100
+                        this.real_value = ''
+                        this.query = true
+                      } else {
+                        this.value = 0
+                        this.real_value = ''
+                      }
+
+                      //
+                      if (this.value >= 0 && this.value < 1) {
+                        this.progress_text = 'Initializing image download.';
+                      } else if(this.value < 100) {
+                        this.progress_text = 'Downloading image.';
+                      } else {
+                        this.progress_text = 'Unpacking filesystem into container.';
+                      }
+                    } else if (response.data.data.status_code == 200) {
+                      console.log('200', response.data.data);
+                      this.value = 100
+                      clearInterval(creating_container);
+                      //
+                      this.progress_text = 'Container created.';
+                      //
+                      this.snackbar = true;
+                      this.snackbarColor = 'green';
+                      this.snackbarText = 'Container successfully created!';
+                      this.progress_text = 'Complete';
+                      
+                      // close dialog and ask to start container
+                      this.dialog.create = false
+                      this.askStart()
+                      //
+                      setTimeout(() => {
+                        this.launching = false
+                        this.progress_text = ''
+                      }, 300)
+                    } else {
+                      console.log('not 103/200', response.data.data);
+                      this.value = 100
+                      clearInterval(creating_container);
+                      //
+                      this.progress_text = 'Container created.';
+                      //
+                      this.snackbar = true;
+                      this.snackbarColor = 'green';
+                      this.snackbarText = 'Container successfully created!';
+                      this.progress_text = 'Complete';
+                      
+                      // close dialog and ask to start container
+                      this.dialog.create = false
+                      this.askStart()
+                      //
+                      setTimeout(() => {
+                        this.launching = false
+                        this.progress_text = ''
+                      }, 300)
+                    }
+                  }).catch(error => {
+                    this.show = false
+                    this.launching = false
+                    this.dialog.create = false
+                    this.error.global = 'Failed to create container.'
+                    this.progress_text = 'Error';
+                  })
+                }, 1000)
               } else {
-                //
-                this.snackbar = true;
-                this.snackbarColor = 'red';
-                this.snackbarText = response.data.error;
+                // failed to launch
+                this.launching = false
+                this.error.launch = response.data.data.error
               }
             }).catch(error => {
-              this.error = 'Could not create container.'
+              this.error.global = 'Failed to create container.'
             })
-            this.dialog.create = false
           }
         }
+      },
+      
+      askStart() {
+        this.$prompt.show({
+          persistent: true,
+          width: 400,
+          toolbar: {
+            color: 'blue darken-3',
+            closable: false,
+          },
+          title: 'Start Container?',
+          text: 'Would you like to start the newly created container?',
+          buttons: [
+            {
+              title: 'Yes',
+              color: 'success',
+              handler: async () => { 
+                axios.put(this.loggedUser.sub + '/api/lxd/containers/' + this.newItem.name + '/state', {
+                  "action": 'start',
+                  "timeout": 30,
+                  "force": true,
+                  "stateful": false
+                })
+                this.snackbar = true;
+                this.snackbarColor = 'green';
+                this.snackbarText = 'Container started.';
+              }
+            },
+            {
+              title: 'No',
+              color: 'error'
+            }
+         ]
+        })
       },
       
       safe_name() {
@@ -524,7 +707,7 @@
                 this.snackbarText = response.data.error;
               }
             }).catch(error => {
-              this.error = 'Could not copy image.'
+              this.error.global = 'Could not copy image.'
             })
             
             //
@@ -576,7 +759,7 @@
                   this.snackbarText = 'Image successfully deleted.';
                   
                 } catch (error) {
-                  this.error = 'Could not delete image from server.';
+                  this.error.global = 'Could not delete image from server.';
                 }
               }
             },
@@ -610,7 +793,7 @@
             this.snackbar = true;
             this.snackbarText = 'Image successfully updated.';
           } catch (error) {
-            this.error = 'Could not update image.';
+            this.error.global = 'Could not update image.';
           }
           
           this.close('edit')
@@ -624,6 +807,8 @@
       close (type) {
         this.dialog[type] = false
         setTimeout(() => {
+          this.launching = false
+          this.progress_text = ''
           this.editingItem = Object.assign({}, this.defaultItem)
           this.editingIndex = {create: -1, edit: -1}
         }, 300)
@@ -638,7 +823,7 @@
       
       // set error (invoked from components)
       setError (msg) {
-        this.error = msg
+        this.error.global = msg
       },
       
       openDialog (ref) {
