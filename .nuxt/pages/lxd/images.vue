@@ -123,7 +123,7 @@
             <v-toolbar-title>Launch Container</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
-              <v-btn dark flat @click.native="createContainer(newItem, true)" :loading="launching" :disabled="launching || launched">Launch</v-btn>
+              <v-btn dark flat @click.native="createContainer(newItem, true)" :loading="launching" :disabled="launching">Launch</v-btn>
             </v-toolbar-items>
           </v-toolbar>
           <v-card-text>
@@ -132,8 +132,8 @@
             </v-alert>
             <v-form ref="form" v-model="valid" lazy-validation>
               <div v-if="launching">
-                <v-progress-linear :indeterminate="query" :query="true" v-model="value" :active="show" height="25"></v-progress-linear>
-                <span>{{ real_value }} {{ progress_text ? progress_text : 'Initializing image download.' }}</span>
+                <v-progress-linear :indeterminate="query" :query="true" v-model="value" :active="show" height="20"></v-progress-linear>
+                <span>{{ real_value }} {{ progress_text ? progress_text : (this.newItem.remote !== 'local' ? 'Initializing image download.' : '') }}</span>
               </div>
               <div v-else>
                 <v-text-field v-model="newItem.name" label="Name:" :rules="nameRule" @input="safe_name()" hint="Enter name for new container." required :disabled="launching"></v-text-field>
@@ -258,7 +258,6 @@
       show: true,
       interval: 0,
       
-      launched: false,
       launching: false,
       progress_text: '',
       real_value: '',
@@ -379,6 +378,9 @@
       })
     },
     watch: {
+      'dialog.copy': function (val) {
+         val || this.close('copy')
+      },
       'dialog.create': function (val) {
          val || this.close('create')
       },
@@ -469,7 +471,7 @@
         //
         this.tableLoading = true
         //
-        this.error = false
+        this.error.global = false
         //
         try {
           if (!this.loggedUser) {
@@ -494,11 +496,13 @@
               }
             }, 0)
             
+            //set active distro to first
+            setTimeout(() => {
+              this.activeDistro = this.distros[0] ? this.distros[0] : '';
+            }, 10);
+            
             // show delete button
             this.show_delete = this.items.length > 0 && !this.publicServers.includes(this.activeRemote)
-            
-            //
-            this.activeDistro = 'ubuntu';
           }
         } catch (error) {
           this.tableNoData = 'No data.';
@@ -551,10 +555,30 @@
                   await axios.get(this.loggedUser.sub + '/api/lxd/operations/'+response.data.data.id).then(response => {
                     /* running 103, finished, 200 */
                     if (response.data.data.status_code == 103) {
-
-                      response.data.data.metadata.download_progress = response.data.data.metadata.download_progress.replace('rootfs:', '').trim()
-                      this.value = response.data.data.metadata.download_progress.substr(0, response.data.data.metadata.download_progress.indexOf('%'))
-                      this.real_value = response.data.data.metadata.download_progress
+                      console.log('103', response.data.data);
+                      // 
+                      var download_progress = null
+                      if (response.data.data.metadata) {
+                        download_progress = response.data.data.metadata.download_progress
+                        
+                        //starts with metadata: or rootfs:
+                        if (/^metadata:/i.test(download_progress)) {
+                          download_progress = download_progress.replace('metadata:', '').trim()
+                          download_progress = '0%'
+                        } else if (/^rootfs:/i.test(download_progress)) {
+                          download_progress = download_progress.replace('rootfs:', '').trim()
+                        }
+                        
+                        this.value = download_progress.substr(0, download_progress.indexOf('%'))
+                        this.real_value = download_progress
+                      } else if(this.newItem.remote === 'local') {
+                        this.value = 100
+                        this.real_value = ''
+                        this.query = true
+                      } else {
+                        this.value = 0
+                        this.real_value = ''
+                      }
 
                       //
                       if (this.value >= 0 && this.value < 1) {
@@ -562,40 +586,48 @@
                       } else if(this.value < 100) {
                         this.progress_text = 'Downloading image.';
                       } else {
-                        this.progress_text = 'Unpacking filesystem.';
+                        this.progress_text = 'Unpacking filesystem into container.';
                       }
                     } else if (response.data.data.status_code == 200) {
+                      console.log('200', response.data.data);
                       this.value = 100
                       clearInterval(creating_container);
                       //
-                      this.launching = false
-                      this.launched = true
-                      //this.show = false
                       this.progress_text = 'Container created.';
                       //
                       this.snackbar = true;
                       this.snackbarColor = 'green';
                       this.snackbarText = 'Container successfully created!';
                       this.progress_text = 'Complete';
-                      // ask to start container
+                      
+                      // close dialog and ask to start container
                       this.dialog.create = false
                       this.askStart()
+                      //
+                      setTimeout(() => {
+                        this.launching = false
+                        this.progress_text = ''
+                      }, 300)
                     } else {
+                      console.log('not 103/200', response.data.data);
                       this.value = 100
                       clearInterval(creating_container);
                       //
-                      this.launching = false
-                      this.launched = true
-                      //this.show = false
                       this.progress_text = 'Container created.';
                       //
                       this.snackbar = true;
                       this.snackbarColor = 'green';
                       this.snackbarText = 'Container successfully created!';
                       this.progress_text = 'Complete';
-                      // ask to start container
+                      
+                      // close dialog and ask to start container
                       this.dialog.create = false
                       this.askStart()
+                      //
+                      setTimeout(() => {
+                        this.launching = false
+                        this.progress_text = ''
+                      }, 300)
                     }
                   }).catch(error => {
                     this.show = false
@@ -675,7 +707,7 @@
                 this.snackbarText = response.data.error;
               }
             }).catch(error => {
-              this.error = 'Could not copy image.'
+              this.error.global = 'Could not copy image.'
             })
             
             //
@@ -727,7 +759,7 @@
                   this.snackbarText = 'Image successfully deleted.';
                   
                 } catch (error) {
-                  this.error = 'Could not delete image from server.';
+                  this.error.global = 'Could not delete image from server.';
                 }
               }
             },
@@ -761,7 +793,7 @@
             this.snackbar = true;
             this.snackbarText = 'Image successfully updated.';
           } catch (error) {
-            this.error = 'Could not update image.';
+            this.error.global = 'Could not update image.';
           }
           
           this.close('edit')
@@ -775,6 +807,8 @@
       close (type) {
         this.dialog[type] = false
         setTimeout(() => {
+          this.launching = false
+          this.progress_text = ''
           this.editingItem = Object.assign({}, this.defaultItem)
           this.editingIndex = {create: -1, edit: -1}
         }, 300)
@@ -789,7 +823,7 @@
       
       // set error (invoked from components)
       setError (msg) {
-        this.error = msg
+        this.error.global = msg
       },
       
       openDialog (ref) {
