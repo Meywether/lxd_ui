@@ -20,6 +20,9 @@
         </v-navigation-drawer>
       </v-flex>
       <v-flex xs9>
+        <v-alert type="error" :value="error">
+          {{ error }}
+        </v-alert>
         <v-layout row wrap style="margin-bottom: -27px;">
           <v-flex xs8>
             <div style="padding:8px;margin-top: -7px;">
@@ -112,9 +115,15 @@
     },
     methods: {
       async initialize (filename = 'new-file', resetSource = true) {
+        this.error = false
         try {
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/'+this.linkedItem.name+'/files?path='+this.currentPath)
+          
+          if (response.data.code === 422) {
+            this.error = response.data.error
+            return;
+          }
           
           // check listing or file
           if (response.data.data.type === 'listing') {
@@ -146,6 +155,7 @@
       },
       
       async saveItem () {
+        this.error = false
         try {
           //
           const response = await axios.post(this.loggedUser.sub + '/api/lxd/containers/'+this.linkedItem.name+'/files?path='+this.currentPath.replace(/\/+$/, '')+'/'+this.filename, {

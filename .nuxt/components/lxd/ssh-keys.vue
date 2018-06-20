@@ -206,7 +206,7 @@
 
         // append key to authorized_keys
         var response = await axios.post(this.loggedUser.sub + '/api/lxd/containers/' + this.linkedItem.name + '/exec', {
-          'command': ['/bin/bash', '-c', 'echo "'+item.key+'" >> /root/.ssh/authorized_keys'],
+          'command': ['/bin/bash', '-c', 'mkdir -p /root/.ssh && chmod 0700 /root/.ssh && echo "'+item.key+'" >> /root/.ssh/authorized_keys && chmod 0644 /root/.ssh/authorized_keys'],
           'environment': {
             'HOME': '/root',
             'TERM': 'xterm',
