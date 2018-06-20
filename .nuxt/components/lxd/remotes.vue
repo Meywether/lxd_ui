@@ -160,8 +160,8 @@
         </v-toolbar>
         <v-card-text>
           <v-form ref="secretform" v-model="valid" lazy-validation>
-            <v-alert type="error" :value="error">
-              {{ error }}
+            <v-alert type="error" :value="error.askSecret">
+              {{ error.askSecret }}
             </v-alert>
             <v-text-field v-model="editingItem.secret" :rules="secretRule" label="Secret:" placeholder="" required hint="The client secret for the remote. (not stored)"></v-text-field>
           </v-form>

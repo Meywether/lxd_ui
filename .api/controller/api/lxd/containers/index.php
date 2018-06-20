@@ -99,6 +99,9 @@ class Index extends \Base\Controller
      */
     public function post(\Base $f3)
     {
+         // load remotes model
+        $this->remotes = new \Base\Model('remotes');
+        
         try {
             if (empty($this->body['name'])) {
                 $this->errors['name'] = 'Container name cannot be empty'; 
@@ -120,6 +123,13 @@ class Index extends \Base\Controller
                 $this->errors['remote'] = 'Remote cannot be empty'; 
             }
             
+            // get remote database entry
+            $remote = $this->remotes->findOne('name = ? AND active = "1"', [$this->body['remote']]);
+            
+            if (empty($remote->id)) {
+                $this->errors['remote'] = 'Remote not enabled'; 
+            }
+            
             if (!empty($this->errors)) {
                 $this->result = [
                     'error' => $this->errors,
@@ -129,7 +139,65 @@ class Index extends \Base\Controller
                 return;
             }
 
+            // build source
+
+            // local image
+            if ($this->body['remote'] == 'local') {
+                $source = [
+                    'type' => 'image',
+                    'mode' => 'pull',
+                    'fingerprint' => $this->body['image_fingerprint']
+                ];
+            } 
+            // private remote (so easy when you can use the local instance to get remotes, no storing certs!!!)
+            elseif (empty($remote->public)) {
+                // get client certificate
+                $remote_info = $this->lxd->query($this->body['remote'].':/1.0', 'GET', []);
+                
+                // create image secret
+                $image_secret = $this->lxd->query($this->body['remote'].':/1.0/images/'.$this->body['image_fingerprint'].'/secret', 'POST', []);
+
+                $source = [
+                    'type' => 'image',
+                    'mode' => 'pull',
+                    'server' => $remote->url,
+                    'protocol' => $remote->protocol,
+                    'certificate' => $remote_info['environment']['certificate'],
+                    'secret' => $image_secret['metadata']['secret'],
+                    'fingerprint' => $this->body['image_fingerprint']
+                ];
+            } 
+            // public remote
+            else {
+                $source = [
+                    'type' => 'image',
+                    'mode' => 'pull',
+                    'server' => $remote->url,
+                    'protocol' => $remote->protocol,
+                    'fingerprint' => $this->body['image_fingerprint']
+                ];
+            }
+
+            $this->result = [
+                'error' => '',
+                'code'  => 200,
+                'data'  => $this->lxd->query('local:/1.0/containers', 'POST', [
+                    "name" => $this->body['name'],
+                    "architecture" => "x86_64",
+                    "profiles" => $this->body['profile'],
+                    "ephemeral" => $this->body['ephemeral'],
+                    "config" => (object)[],
+                    "devices" => [],
+                    "source" => $source
+                ])
+            ];
+            
+            // wait for creation (debug)
+            //print_r($this->lxd->query('local:/1.0/operations/'.$this->result['data']['id'].'/wait'));
+
+            //! old way just call lxc launch
             // build out array of arguments which will make the final lxc launch command
+            /*
             $cmd = [
                 'lxc launch',
                 // remote & image fingerprint
@@ -147,12 +215,12 @@ class Index extends \Base\Controller
                 // storage pool
                 '-s '.escapeshellarg($this->body['pool'])
             ];
-
             $this->result = [
                 'error' => '',
                 'code'  => 200,
                 'data'  => $this->lxd->local(implode(' ', $cmd))
             ];
+            */
         } catch (\Exception $e) {
             $this->result = [
                 'error' => $e->getMessage(),
