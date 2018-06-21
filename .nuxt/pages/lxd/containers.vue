@@ -41,8 +41,10 @@
                       <td>{{ props.item.state && props.item.state.processes ? props.item.state.processes : '-' }} / {{ props.item.config['limits.processes'] ? props.item.config['limits.processes'] : '-'}}</td>
                       <td>{{ props.item.state && props.item.state.memory && props.item.state.memory.usage ? formatBytes(props.item.state.memory.usage) : '-' }} / {{ props.item.config['limits.memory'] ? props.item.config['limits.memory'] : '-'}}</td>
                       <td>
-                        {{ props.item.state && props.item.state.network && props.item.state.network.eth0 && props.item.state.network.eth0.counters ? formatBytes(props.item.state.network.eth0.counters.bytes_received) : '-' }} /
-                        {{ props.item.state && props.item.state.network && props.item.state.network.eth0 && props.item.state.network.eth0.counters ? formatBytes(props.item.state.network.eth0.counters.bytes_sent) : '-' }}
+                        <a href="javascript:void(0)" @click.stop="showNetwork(props.item)">
+                          {{ props.item.state && props.item.state.network && props.item.state.network.eth0 && props.item.state.network.eth0.counters ? formatBytes(props.item.state.network.eth0.counters.bytes_received) : '-' }} /
+                          {{ props.item.state && props.item.state.network && props.item.state.network.eth0 && props.item.state.network.eth0.counters ? formatBytes(props.item.state.network.eth0.counters.bytes_sent) : '-' }}
+                        </a>
                       </td>
                       <td>{{ props.item.status }}</td>
                       <td>
@@ -351,6 +353,83 @@
           <div style="flex: 1 1 auto;"></div>
         </v-card>
       </v-dialog>
+      
+      <!-- Network Dialog -->
+      <v-dialog v-model="networkDialog" max-width="700px" scrollable>
+        <v-card tile>
+          <v-toolbar card dark color="light-blue darken-3">
+            <v-btn icon @click.native="networkDialog = false" dark>
+              <v-icon>close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Network</v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-toolbar>
+          <v-card-text style="padding:10px 0px" v-if="container.state">
+            <div v-for="(value, key) in container.state.network" :key="key">
+              <h2 style="padding-left:10px">Interface: {{ key }}</h2>
+              <table class="table not-fancy">
+                <thead>
+                  <tr>
+                    <th>MAC Address</th>
+                    <th>Hostname</th>
+                    <th>MTU</th>
+                    <th>State</th>
+                    <th>Type</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{ value.hwaddr ? value.hwaddr : '-' }}</td>
+                    <td>{{ value.host_name ? value.host_name : '-' }}</td>
+                    <td>{{ value.mtu ? value.mtu : '-' }}</td>
+                    <td>{{ value.state ? ucfirst(value.state) : '-' }}</td>
+                    <td>{{ value.type ? ucfirst(value.type) : '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h4 style="padding-left:10px">Addresses</h4>
+              <table class="table not-fancy">
+                <thead>
+                  <tr>
+                    <th>Family</th>
+                    <th>Address</th>
+                    <th>Netmask</th>
+                    <th>Scope</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(addressesvalue, addresseskey) in value.addresses" :key="addresseskey">
+                    <td>{{ addressesvalue.family ? addressesvalue.family : '-' }}</td>
+                    <td>{{ addressesvalue.address ? addressesvalue.address : '-' }}</td>
+                    <td>{{ addressesvalue.netmask ? addressesvalue.netmask : '-' }}</td>
+                    <td>{{ addressesvalue.scope ? ucfirst(addressesvalue.scope) : '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <h4 style="padding-left:10px">Counters</h4>
+              <table class="table not-fancy">
+                <thead>
+                  <tr>
+                    <th>Bytes Received</th>
+                    <th>Bytes Sent</th>
+                    <th>Packets Received</th>
+                    <th>Packets Sent</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{ value.counters.bytes_received ? value.counters.bytes_received : '-' }}</td>
+                    <td>{{ value.counters.bytes_sent ? value.counters.bytes_sent : '-' }}</td>
+                    <td>{{ value.counters.packets_received ? value.counters.packets_received : '-' }}</td>
+                    <td>{{ value.counters.packets_sent ? value.counters.packets_sent : '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </v-card-text>
+          <div style="flex: 1 1 auto;"></div>
+        </v-card>
+      </v-dialog>
     </v-content>
   </v-app>
 </template>
@@ -499,6 +578,7 @@
 
       dialog: false,
       copyDialog: false,
+      networkDialog: false,
       consoleDialog: false,
       containerDialog: false,
       newContainerDialog: false,
@@ -566,6 +646,9 @@
         val || this.close()
       },
       consoleDialog (val) {
+        val || this.close()
+      },
+      networkDialog (val) {
         val || this.close()
       }
     },
@@ -1225,6 +1308,13 @@
         })
       },
 
+      showNetwork (item) {
+        this.editingIndex = this.items.indexOf(item)
+        this.container = JSON.parse(JSON.stringify(item));
+
+        this.networkDialog = true
+      },
+
       close () {
         if (xterm) {
           xterm.destroy()
@@ -1247,6 +1337,10 @@
             sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
             i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+      },
+      
+      ucfirst(str) {
+        return String(str).charAt(0).toUpperCase() + String(str).slice(1)
       }
 
     }
@@ -1334,5 +1428,10 @@
     padding-left: .75em;
     padding-right: .75em;
     white-space: nowrap;
+  }
+  
+  .not-fancy th {
+      font-weight: bold;
+      text-align: left;
   }
 </style>
