@@ -168,7 +168,7 @@ class Item extends \Base\Controller
     public function delete(\Base $f3)
     {
         try {
-            $this->result = (array) $this->sshkey->load($f3->get('PARAMS.id'));
+            $this->result = $this->sshkey->load($f3->get('PARAMS.id'));
             
             if (empty($this->result->id)) {
                 throw new \Exception('Not found', 404);

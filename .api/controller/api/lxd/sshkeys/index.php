@@ -27,18 +27,18 @@ class Index extends \Base\Controller
     /*
      * @var array \Base\Controller::$body
      */
-    protected $body = []; 
+    protected $body = [];
 
     /*
      * @var mixed \Base\Controller::$result
      */
-    protected $result = []; 
-    
+    protected $result = [];
+
     /*
      * @var array \Base\Controller::$errors
      */
-    protected $errors = []; 
-    
+    protected $errors = [];
+
     /*
      * @var object \Base\Model
      */
@@ -67,7 +67,7 @@ class Index extends \Base\Controller
 
         $this->sshkey = new \Model\SSHKey();
     }
-    
+
     /**
      * GET /api/lxd/ssh-keys
      *
@@ -126,13 +126,9 @@ class Index extends \Base\Controller
                 ];
                 return;
             }
-            
-            // get and check does not exist
-            $this->result = $this->sshkey->findOrCreate('fingerprint = ?', [
-                $this->sshkey->fingerprint($this->body['key'])
-            ]);
-                
-            if (!empty($this->result->fingerprint)) {
+
+            // check aready added
+            if ($this->sshkey->count('fingerprint = ?', [$this->sshkey->fingerprint($this->body['key'])]) !== 0) {
                 $this->result = [
                     'error' => [
                         'key' => 'SSH key already added'
@@ -143,12 +139,13 @@ class Index extends \Base\Controller
                 return;
             }
 
-            $this->result->import([
+            // create new
+            $this->result = $this->sshkey->create([
                 'name' => $this->body['name'],
                 'fingerprint' => $this->sshkey->fingerprint($this->body['key']),
                 'key' => $this->body['key']
             ]);
-                    
+
             $this->sshkey->store($this->result);
 
             $this->result = [
