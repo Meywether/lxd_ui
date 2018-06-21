@@ -171,8 +171,8 @@ install_project() {
         chars='!#$%&\(\)*+,-.\/0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_abcdefghijklmnopqrstuvwxyz{|}~'
 
         # generate random strings for secrets
-        JWTsecret=$(</dev/urandom tr -dc "$(date +%s%N | base64 | head -c 64 ; echo)$chars" | head -c64; echo "")
-        AUTHsecret=$(</dev/urandom tr -dc "$(date +%s%N | base64 | head -c 32 ; echo)$chars" | head -c32; echo "")
+        JWTsecret=$(</dev/urandom tr -dc "$(date +%s%N | base64 | head -c 64 ; echo)$chars" | head -c64)
+        AUTHsecret=$(</dev/urandom tr -dc "$(date +%s%N | base64 | head -c 32 ; echo)$chars" | head -c32)
 
         echo -e "[globals]
 
