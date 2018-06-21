@@ -41,10 +41,11 @@
                       <td>{{ props.item.state && props.item.state.processes ? props.item.state.processes : '-' }} / {{ props.item.config['limits.processes'] ? props.item.config['limits.processes'] : '-'}}</td>
                       <td>{{ props.item.state && props.item.state.memory && props.item.state.memory.usage ? formatBytes(props.item.state.memory.usage) : '-' }} / {{ props.item.config['limits.memory'] ? props.item.config['limits.memory'] : '-'}}</td>
                       <td>
-                        <a href="javascript:void(0)" @click.stop="showNetwork(props.item)">
+                        <a href="javascript:void(0)" @click.stop="showNetwork(props.item)" v-if="props.item.status !== 'Stopped'">
                           {{ props.item.state && props.item.state.network && props.item.state.network.eth0 && props.item.state.network.eth0.counters ? formatBytes(props.item.state.network.eth0.counters.bytes_received) : '-' }} /
                           {{ props.item.state && props.item.state.network && props.item.state.network.eth0 && props.item.state.network.eth0.counters ? formatBytes(props.item.state.network.eth0.counters.bytes_sent) : '-' }}
                         </a>
+                        <span v-else>- / -</span>
                       </td>
                       <td>{{ props.item.status }}</td>
                       <td>
