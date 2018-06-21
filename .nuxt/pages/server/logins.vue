@@ -11,7 +11,7 @@
               <v-alert type="error" :value="error">
                 {{ error }}
               </v-alert>
-              <v-data-table :headers="tableHeaders" :items="items.logins" hide-actions class="elevation-1" :loading="tableLoading">
+              <v-data-table :headers="tableHeaders" :items="items.logins" hide-actions class="elevation-1" :loading="tableLoading" :pagination.sync="tableSorting">
                 <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                 <template slot="items" slot-scope="props">
                   <td>{{ props.item['User'] }}</td>
@@ -49,12 +49,13 @@
     data: () => ({
       error: '',
       tableLoading: true,
+      tableSorting: {'sortBy': 'date', 'descending': true, 'rowsPerPage': -1},
       tableHeaders: [
-        { text: 'User', value: 'User' },
-        { text: 'Terminal', value: 'Terminal' },
-        { text: 'Date', value: 'Date' },
-        { text: 'Disconnected', value: 'Disconnected' },
-        { text: 'Duration', value: 'Duration' }
+        { text: 'User', value: 'user' },
+        { text: 'Terminal', value: 'terminal' },
+        { text: 'Date', value: 'date' },
+        { text: 'Disconnected', value: 'disconnected' },
+        { text: 'Duration', value: 'duration' }
       ],
       items: []
     }),

@@ -1,5 +1,6 @@
 <template>
   <v-app>
+
     <!-- Snackbar Alert -->
     <v-snackbar top :timeout="snackbarTimeout" :color="snackbarColor" v-model="snackbar">
       {{ snackbarText }}
@@ -38,7 +39,7 @@
                     <v-tab-item :id="`${dist}`" v-for="dist in distros_list" :key="dist"></v-tab-item>
                   </v-tabs>
                 </div>
-                <v-data-table :headers="tableHeaders" :items="image_list" hide-actions class="elevation-1" :loading="tableLoading">
+                <v-data-table :headers="tableHeaders" :items="image_list" hide-actions class="elevation-1" :loading="tableLoading" :pagination.sync="tableSorting">
                   <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                   <template slot="items" slot-scope="props">
                     <td>
@@ -286,6 +287,7 @@
       activeRemote: 'local',
       activeDistro: 'ubuntu',
       
+      tableSorting: {'sortBy': 'properties.version', 'descending': true, 'rowsPerPage': -1},
       tableLoading: true,
       tableNoData: 'You have not added any port forwards.',
       tableHeaders: [

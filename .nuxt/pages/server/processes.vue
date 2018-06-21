@@ -21,7 +21,7 @@
                     </v-flex>
                   </v-layout>
                 </v-card-title>
-                <v-data-table :headers="tableHeaders" :items="items" hide-actions :search="search" :loading="tableLoading">
+                <v-data-table :headers="tableHeaders" :items="items" hide-actions :search="search" :loading="tableLoading" :pagination.sync="tableSorting">
                   <template slot="items" slot-scope="props">
                     <td>{{ props.item['PID'] }}</td>
                     <td>{{ props.item['USER'] }}</td>
@@ -69,6 +69,7 @@
     data: () => ({
       error: '',
       tableLoading: true,
+      tableSorting: {'sortBy': '%CPU', 'descending': true, 'rowsPerPage': -1},
       tableHeaders: [
         { text: 'PID', value: 'PID' },
         { text: 'USER', value: 'USER' },
