@@ -361,12 +361,12 @@
             <v-btn icon @click.native="networkDialog = false" dark>
               <v-icon>close</v-icon>
             </v-btn>
-            <v-toolbar-title>Network</v-toolbar-title>
+            <v-toolbar-title>Network Interfaces</v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
           <v-card-text style="padding:10px 0px" v-if="container.state">
             <div v-for="(value, key) in container.state.network" :key="key">
-              <h2 style="padding-left:10px">Interface: {{ key }}</h2>
+              <h2 style="padding-left:10px">{{ key }}</h2>
               <table class="table not-fancy">
                 <thead>
                   <tr>
