@@ -104,7 +104,7 @@
             <v-alert :value="true" outline color="info" icon="info">
               Copying images between hosts may take a while, be patient.
             </v-alert>
-            <v-form ref="form" v-model="valid" lazy-validation>
+            <v-form ref="formcopy" v-model="valid" lazy-validation>
               <v-select :items="[copy.properties.description]" v-model="copy.properties.description" label="Image:" required disabled></v-select>
               <v-select :items="[activeRemote]" v-model="activeRemote" label="From Remote:" required disabled></v-select>
               <v-select :items="private_remotes" v-model="copy.remote" item-text="name" item-value="name" :rules="remoteRule" label="To Remote:" required></v-select>
@@ -131,7 +131,7 @@
             <v-alert type="error" :value="error.launch">
               {{ error.launch }}
             </v-alert>
-            <v-form ref="form" v-model="valid" lazy-validation>
+            <v-form ref="formcreate" v-model="valid" lazy-validation>
               <div v-if="launching">
                 <v-progress-linear :indeterminate="query" :query="true" v-model="value" :active="show" height="20"></v-progress-linear>
                 <span>{{ real_value }} {{ progress_text ? progress_text : (this.newItem.remote !== 'local' ? 'Initializing image download.' : '') }}</span>
@@ -196,7 +196,7 @@
                 <v-alert type="error" :value="error.editing">
                   {{ error.editing }}
                 </v-alert>
-                <v-form ref="form" v-model="valid" lazy-validation>
+                <v-form ref="formedit" v-model="valid" lazy-validation>
                   <v-text-field v-model="editingItem.properties.description" label="Description:" :counter="60" :rules="descriptionRule" hint="Enter description for image." required></v-text-field>
                   <v-text-field v-model="editingItem.properties.version" label="Version:" hint="Enter version for image."></v-text-field>
                   <v-text-field v-model="editingItem.properties.release" label="Release:" hint="Enter release for image."></v-text-field>
@@ -530,7 +530,7 @@
             remote: this.activeRemote
           };
         } else {
-          if (this.$refs.form.validate() && this.valid) {
+          if (this.$refs.formcreate.validate() && this.valid) {
 
             if (!this.loggedUser) {
               this.$router.replace('/servers')
@@ -557,7 +557,7 @@
                   await axios.get(this.loggedUser.sub + '/api/lxd/operations/'+response.data.data.id).then(response => {
                     /* running 103, finished, 200 */
                     if (response.data.data.status_code == 103) {
-                      console.log('103', response.data.data);
+                      //console.log('103', response.data.data);
                       // 
                       var download_progress = null
                       if (response.data.data.metadata) {
@@ -591,7 +591,7 @@
                         this.progress_text = 'Unpacking filesystem into container.';
                       }
                     } else if (response.data.data.status_code == 200) {
-                      console.log('200', response.data.data);
+                      //console.log('200', response.data.data);
                       this.value = 100
                       clearInterval(creating_container);
                       //
@@ -611,7 +611,7 @@
                         this.progress_text = ''
                       }, 300)
                     } else {
-                      console.log('not 103/200', response.data.data);
+                      //console.log('not 103/200', response.data.data);
                       this.value = 100
                       clearInterval(creating_container);
                       //
@@ -696,7 +696,7 @@
           this.copy = Object.assign({}, this.copy, item)
           this.dialog.copy = true
         } else {
-          if (this.$refs.form.validate() && this.valid) {
+          if (this.$refs.formcopy.validate() && this.valid) {
             axios.post(this.loggedUser.sub + '/api/lxd/images/'+this.copy.fingerprint+'/copy?remote='+this.activeRemote, this.copy).then(response => {
               if (response.data.code === 200) {
                 //
@@ -775,7 +775,7 @@
 
       // save item
       async save () {
-        if (this.$refs.form.validate()) {
+        if (this.$refs.formedit.validate()) {
           // local
           if (this.editingIndex.edit > -1) {
             Object.assign(this.items[this.editingIndex.edit], this.editingItem)
