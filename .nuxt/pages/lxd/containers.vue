@@ -437,7 +437,7 @@
         </v-card>
       </v-dialog>
       
-      <!-- Network Dialog -->
+      <!-- Memory Dialog -->
       <v-dialog v-model="memoryDialog" max-width="500px" scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
