@@ -39,7 +39,12 @@
                       </td>
                       <td>{{ props.item.state && props.item.state.cpu && props.item.state.cpu.usage ? Number(props.item.state.cpu.usage/1000000000).toFixed(2) + 's' : '-' }}</td>
                       <td>{{ props.item.state && props.item.state.processes ? props.item.state.processes : '-' }} / {{ props.item.config['limits.processes'] ? props.item.config['limits.processes'] : '-'}}</td>
-                      <td>{{ props.item.state && props.item.state.memory && props.item.state.memory.usage ? formatBytes(props.item.state.memory.usage) : '-' }} / {{ props.item.config['limits.memory'] ? props.item.config['limits.memory'] : '-'}}</td>
+                      <td>
+                        <a href="javascript:void(0)" @click.stop="showMemory(props.item)" v-if="props.item.status !== 'Stopped'">
+                          {{ props.item.state && props.item.state.memory && props.item.state.memory.usage ? formatBytes(props.item.state.memory.usage) : '-' }} / {{ props.item.config['limits.memory'] ? props.item.config['limits.memory'] : '-'}}
+                        </a>
+                        <span v-else>- / -</span>
+                      </td>
                       <td>
                         <a href="javascript:void(0)" @click.stop="showNetwork(props.item)" v-if="props.item.status !== 'Stopped'">
                           {{ props.item.state && props.item.state.network && props.item.state.network.eth0 && props.item.state.network.eth0.counters ? formatBytes(props.item.state.network.eth0.counters.bytes_received) : '-' }} /
@@ -431,6 +436,40 @@
           <div style="flex: 1 1 auto;"></div>
         </v-card>
       </v-dialog>
+      
+      <!-- Network Dialog -->
+      <v-dialog v-model="memoryDialog" max-width="500px" scrollable>
+        <v-card tile>
+          <v-toolbar card dark color="light-blue darken-3">
+            <v-btn icon @click.native="memoryDialog = false" dark>
+              <v-icon>close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Memory Usage</v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-toolbar>
+          <v-card-text style="padding:0px" v-if="container.state.memory">
+              <table class="table not-fancy">
+                <thead>
+                  <tr>
+                    <th>Current</th>
+                    <th>Peak</th>
+                    <th>Swap</th>
+                    <th>Peak</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{ container.state.memory.usage           ? formatBytes(container.state.memory.usage) : '-' }}</td>
+                    <td>{{ container.state.memory.usage_peak      ? formatBytes(container.state.memory.usage_peak) : '-' }}</td>
+                    <td>{{ container.state.memory.swap_usage      ? formatBytes(container.state.memory.swap_usage) : '-' }}</td>
+                    <td>{{ container.state.memory.swap_usage_peak ? formatBytes(container.state.memory.swap_usage_peak) : '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+          </v-card-text>
+          <div style="flex: 1 1 auto;"></div>
+        </v-card>
+      </v-dialog>
     </v-content>
   </v-app>
 </template>
@@ -579,6 +618,7 @@
 
       dialog: false,
       copyDialog: false,
+      memoryDialog: false,
       networkDialog: false,
       consoleDialog: false,
       containerDialog: false,
@@ -650,6 +690,9 @@
         val || this.close()
       },
       networkDialog (val) {
+        val || this.close()
+      },
+      memoryDialog (val) {
         val || this.close()
       }
     },
@@ -1314,6 +1357,13 @@
         this.container = JSON.parse(JSON.stringify(item));
 
         this.networkDialog = true
+      },
+      
+      showMemory (item) {
+        this.editingIndex = this.items.indexOf(item)
+        this.container = JSON.parse(JSON.stringify(item));
+
+        this.memoryDialog = true
       },
 
       close () {
