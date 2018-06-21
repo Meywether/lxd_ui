@@ -619,7 +619,7 @@
           this.editingItem.used_by.forEach(value => {
             let tmp = value.split('/')
             this.used_by.push({
-              name: tmp[2] ? tmp[2] : '-'
+              name: tmp[3] ? tmp[3] : '-'
             })
           })
         }
