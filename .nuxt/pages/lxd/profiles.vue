@@ -65,8 +65,8 @@
           <v-card-text style="padding:0px">
             <v-tabs v-model="activeTab" show-arrows>
               <v-tab ripple :href="'#tab-configuration'">Configuration</v-tab>
-              <v-tab ripple :href="'#tab-devices'">Devices</v-tab>
-              <v-tab ripple :href="`#tab-idmap`">ID Map</v-tab>
+              <v-tab ripple :href="'#tab-devices'" :disabled="editingIndex == -1 || editingItem.name === ''">Devices</v-tab>
+               <v-tab ripple :href="`#tab-idmap`" :disabled="editingIndex == -1 || editingItem.name === ''">ID Map</v-tab>
               <v-tab-item :id="'tab-configuration'">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <v-card-text>
@@ -514,18 +514,17 @@
               delete item.devices.eth0
               removeNetwork = true
             }
-            
-            // rename
-            if (item.name !== this.current_name) {
-              var response = await axios.post(this.loggedUser.sub + '/api/lxd/profiles/' + this.current_name, {
-                name: item.name
-              })
-              // update name
-              this.current_name = item.name
-            }
 
             // edit
             if (this.editingIndex > -1) {
+              // rename
+              if (item.name !== this.current_name) {
+                var response = await axios.post(this.loggedUser.sub + '/api/lxd/profiles/' + this.current_name, {
+                  name: item.name
+                })
+                // update name
+                this.current_name = item.name
+              }
               var response = await axios.put(this.loggedUser.sub + '/api/lxd/profiles/'+item.name, {
                 "config": item.config,
                 "description": item.description,
