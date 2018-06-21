@@ -65,8 +65,8 @@
           <v-card-text style="padding:0px">
             <v-tabs v-model="activeTab" show-arrows>
               <v-tab ripple :href="'#tab-configuration'">Configuration</v-tab>
-              <v-tab ripple :href="'#tab-devices'" :disabled="editingIndex == -1 || editingItem.name === ''">Devices</v-tab>
-               <v-tab ripple :href="`#tab-idmap`" :disabled="editingIndex == -1 || editingItem.name === ''">ID Map</v-tab>
+              <v-tab ripple :href="'#tab-devices'" v-if="editingIndex !== -1" :disabled="editingItem.name === ''">Devices</v-tab>
+               <v-tab ripple :href="`#tab-idmap`" v-if="editingIndex !== -1" :disabled="editingItem.name === ''">ID Map</v-tab>
               <v-tab-item :id="'tab-configuration'">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <v-card-text>
