@@ -52,14 +52,10 @@
               {{ error }}
             </v-alert>
             <h3>General</h3>
-
             <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the proxy device."></v-text-field>
-
             <h3>Device Settings</h3>
             <v-select :items="['host','container']" v-model="editingItem.dict['bind']" label="Bind:" persistent-hint hint="Which side to bind on."></v-select>
-
             <v-select :items="containers" item-text="label" item-value="ip" v-model="container" label="Container:" return-object persistent-hint hint="Select container to auto fill IP. Containers which are not running don't have IP addresses, so they are not shown."></v-select>
-
             <v-layout row wrap style="margin-top:10px">
               <v-flex xs8>
                 <v-text-field v-model="editingItem.dict['listen_ip']" :rules="listenIPRule" label="Listen IP:" placeholder="" required hint="The IP address to bind and listen."></v-text-field>
@@ -70,7 +66,6 @@
                 <v-text-field v-model="editingItem.dict['connect_port']" :rules="connectPortRule" label="Port:" placeholder="" required hint="The port to connect to."></v-text-field>
               </v-flex>
             </v-layout>
-
           </v-form>
         </v-card-text>
         <div style="flex: 1 1 auto;"></div>
@@ -257,7 +252,7 @@
             this.editingItem.dict.bind = 'host'
           }
         } catch (error) {
-          this.error = 'Could not fetch data from server.';
+          this.error = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -288,7 +283,7 @@
       },
 
       async detachItem(item) {
-        this.attachError = false;
+        this.attachError = false
 
         // remove from linked item
         this.$delete(this.linkedItem.devices, item.name)
@@ -318,7 +313,7 @@
       // create or edit item
       editItem (item) {
         this.editingIndex = this.items.indexOf(item)
-        this.editingItem = JSON.parse(JSON.stringify(item));
+        this.editingItem = JSON.parse(JSON.stringify(item))
 
         // remove connection type
         let listen = this.editingItem.dict.listen.split(":", 3)
@@ -348,7 +343,7 @@
                 connect: 'tcp:' + this.editingItem.dict.connect_ip+':'+this.editingItem.dict.connect_port,
                 bind: this.editingItem.dict.bind
               }
-            };
+            }
 
             // edit
             if (this.editingIndex > -1) {
@@ -377,7 +372,7 @@
               this.initialize()
             }
           } catch (error) {
-            this.error = 'Could not save device to server.';
+            this.error = 'Could not save device to server.'
           }
         }
       },
@@ -410,7 +405,7 @@
                   this.$emit('snackbar', 'Device successfully deleted.')
                 } catch (error) {
                   //
-                  this.error = 'Failed to delete device.';
+                  this.error = 'Failed to delete device.'
                 }
               }
             },
@@ -471,7 +466,7 @@
       },
 
       ucfirst(str) {
-          return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+          return String(str).charAt(0).toUpperCase() + String(str).slice(1)
       }
     }
   }

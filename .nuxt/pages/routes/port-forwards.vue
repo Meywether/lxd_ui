@@ -185,7 +185,7 @@
       'editingItem.port': function (v) {
         // sanity check its a number
         if (!isNaN(v)) {
-          this.valid = false;
+          this.valid = false
           // check port is in range
           this.checkAllowedPort(v).then(valid => {
             this.portCheck = !valid ? 'Port not in allowed ranges: 2200-2299, 3300-3399, 4300-4399, 8000-8099' : []
@@ -194,7 +194,7 @@
               this.checkPortInUse(v).then(valid => {
                 this.portCheck = valid ? (this.editingIndex !== -1 && this.editingPort === v ? [] : 'Port in use') : []
                 if (this.portCheck.length === 0) {
-                  this.valid = true;
+                  this.valid = true
                 }
               })
             }
@@ -213,8 +213,8 @@
           const response = await axios.get(this.loggedUser.sub + '/api/routes/port-forwards')
           this.items = response.data.data
         } catch (error) {
-          this.tableNoData = 'No data.';
-          this.error.global = 'Could not fetch data from server.';
+          this.tableNoData = 'No data.'
+          this.error.global = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -230,7 +230,7 @@
           
           return Boolean(response.data.data)
         } catch (error) {
-          this.error.editing = 'Error checking port.';
+          this.error.editing = 'Error checking port.'
           return false
         } 
       },
@@ -246,7 +246,7 @@
           
           return Boolean(response.data.data)
         } catch (error) {
-          this.error.editing = 'Error checking port.';
+          this.error.editing = 'Error checking port.'
           return false
         } 
       },
@@ -293,11 +293,11 @@
                   //
                   const response = await axios.delete(this.loggedUser.sub + '/api/routes/port-forwards', { data: item })
                   //
-                  this.snackbar = true;
-                  this.snackbarText = 'Port forward successfully deleted.';
+                  this.snackbar = true
+                  this.snackbarText = 'Port forward successfully deleted.'
                   
                 } catch (error) {
-                  this.error.global = 'Could not delete port forward from server.';
+                  this.error.global = 'Could not delete port forward from server.'
                 }
               }
             },
@@ -324,15 +324,15 @@
             if (response.data.error) {
               //
               if (response.data.error.port) {
-                this.error.editing = response.data.error.port;
+                this.error.editing = response.data.error.port
               } else if (response.data.error.srv_port) {
-                this.error.editing = response.data.error.srv_port;
+                this.error.editing = response.data.error.srv_port
               } else if (response.data.error.query) {
-                this.error.editing = response.data.error.query;
+                this.error.editing = response.data.error.query
               } else if (response.data.error.name) {
-                this.error.editing = response.data.error.name;
+                this.error.editing = response.data.error.name
               } else {
-                this.error.editing = 'Something went wrong';
+                this.error.editing = 'Something went wrong'
               }
             } else {
               // add local
@@ -342,15 +342,15 @@
                 this.items.push(Object.assign({}, this.editingItem))
               }
               //
-              this.snackbar = true;
-              this.snackbarText = 'Port forward successfully saved.';
+              this.snackbar = true
+              this.snackbarText = 'Port forward successfully saved.'
               // reload data
               this.initialize()
               
               this.close()
             }
           } catch (error) {
-            this.error.editing = 'Could not save port forward to server.';
+            this.error.editing = 'Could not save port forward to server.'
           }
         }
       },

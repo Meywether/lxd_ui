@@ -75,17 +75,17 @@
       pollItem: 0
     }),
     beforeDestroy: function() {
-      clearInterval(this.pollId);
+      clearInterval(this.pollId)
     },
     mounted: function () {
       this.$nextTick(() => {
         this.initialize()
       })
       
-      clearInterval(this.pollId);
+      clearInterval(this.pollId)
       this.pollId = setInterval(function () {
         this.initialize()
-      }.bind(this), 10000);
+      }.bind(this), 10000)
     },
     methods: {
       async initialize () {

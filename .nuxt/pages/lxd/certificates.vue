@@ -259,7 +259,6 @@
         this.initialize()
         //
         this.cert = Object.assign(this.cert, this.$storage.get("cert_default"))
-        console.log(this.cert);
       })
     },
     watch: {
@@ -331,13 +330,13 @@
       },
       
       downloadCert(type) {
-        var element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(this.cert[type]));
-        element.setAttribute('download', 'cert.'+(type == 'pem' ? 'pem' : 'key'));
-        element.style.display = 'none';
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
+        var element = document.createElement('a')
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(this.cert[type]))
+        element.setAttribute('download', 'cert.'+(type == 'pem' ? 'pem' : 'key'))
+        element.style.display = 'none'
+        document.body.appendChild(element)
+        element.click()
+        document.body.removeChild(element)
       },  
       
       async addCert() {
@@ -482,8 +481,8 @@
           this.editingIndex = -1
           this.error.editing = false
           //
-          this.cert.pem = '';
-          this.cert.key = '';
+          this.cert.pem = ''
+          this.cert.key = ''
           this.error = {
             editing: false,
             generate: false

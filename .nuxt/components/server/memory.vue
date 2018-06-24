@@ -81,19 +81,19 @@
         if (!this.items.memory_stats) {
           return 0
         }
-        return 100 - this.items.memory_stats.free;
+        return 100 - this.items.memory_stats.free
       },
       memory_total: function (){
         if (!this.items.memory_stats) {
           return '0 Bytes'
         }
-        return this.formatBytes(this.items.memory_total * 1024);
+        return this.formatBytes(this.items.memory_total * 1024)
       },
       memory_used: function (){
         if (!this.items.memory_stats) {
           return '0 Bytes'
         }
-        return this.formatBytes((100 - this.items.memory_stats.free) / 100 * (this.items.memory_total * 1024));
+        return this.formatBytes((100 - this.items.memory_stats.free) / 100 * (this.items.memory_total * 1024))
       }
     },
     data: () => ({
@@ -116,17 +116,17 @@
       pollItem: 0
     }),
     beforeDestroy: function() {
-      clearInterval(this.pollId);
+      clearInterval(this.pollId)
     },
     mounted: function () {
       this.$nextTick(() => {
         this.initialize()
       })
       
-      clearInterval(this.pollId);
+      clearInterval(this.pollId)
       this.pollId = setInterval(function () {
         this.initialize()
-      }.bind(this), 10000);
+      }.bind(this), 10000)
     },
     methods: {
       initialize () {
@@ -148,12 +148,12 @@
         }
       },
       formatBytes (bytes, decimals) {
-        if(bytes == 0) return '0 Bytes';
+        if(bytes == 0) return '0 Bytes'
         var k = 1024,
             dm = decimals || 2,
             sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-            i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+            i = Math.floor(Math.log(bytes) / Math.log(k))
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
       }
     }
   }
@@ -161,6 +161,6 @@
 
 <style>
   .progress-circular__info span {
-    font-weight: bold;
+    font-weight: bold
   }
 </style>

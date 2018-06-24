@@ -192,7 +192,7 @@
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/ssh-keys')
           this.items = response.data.data
         } catch (error) {
-          this.error = 'Could not fetch data from server.';
+          this.error = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -230,7 +230,7 @@
       },
 
       async detachItem(item) {
-        this.attachError = false;
+        this.attachError = false
         
         this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
         
@@ -240,7 +240,7 @@
         // remove from linked item
         var replace = item.id
         
-        var reg = new RegExp(replace, "g");
+        var reg = new RegExp(replace, "g")
         this.linkedItem.config["user.sshkeys"] = this.linkedItem.config["user.sshkeys"].replace(reg, '')
         
         // remove key from authorized_keys
@@ -280,7 +280,7 @@
       // create or edit item
       editItem (item) {
         this.editingIndex = this.items.indexOf(item)
-        this.editingItem = JSON.parse(JSON.stringify(item));
+        this.editingItem = JSON.parse(JSON.stringify(item))
 
         this.dialog = true
       },
@@ -325,7 +325,7 @@
               this.initialize()
             }
           } catch (error) {
-            this.error = 'Could not save SSH key to server.';
+            this.error = 'Could not save SSH key to server.'
           }
         }
       },
@@ -358,7 +358,7 @@
                   this.$emit('snackbar', 'SSH key successfully deleted.')
                 } catch (error) {
                   //
-                  this.error = 'Failed to delete SSH key.';
+                  this.error = 'Failed to delete SSH key.'
                 }
               }
             },
@@ -381,8 +381,8 @@
         setTimeout(() => {
           this.statusChange = false
           this.$emit('initialize')
-          item.status = 'Stopped';
-        }, 2500);
+          item.status = 'Stopped'
+        }, 2500)
       },
       
       startContainer (item) {
@@ -396,8 +396,8 @@
         setTimeout(() => {
           this.statusChange = false
           this.$emit('initialize')
-          item.status = 'Running';
-        }, 2500);
+          item.status = 'Running'
+        }, 2500)
       },
 
       openDialog(){
@@ -415,7 +415,7 @@
       },
 
       ucfirst(str) {
-          return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+          return String(str).charAt(0).toUpperCase() + String(str).slice(1)
       }
     }
   }

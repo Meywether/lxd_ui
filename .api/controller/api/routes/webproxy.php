@@ -5,7 +5,7 @@ namespace Controller\Api\Routes;
 /**
  *
  */
-class Webforwards extends \Base\Controller
+class Webproxy extends \Base\Controller
 {
     public function beforeRoute(\Base $f3)
     {
@@ -26,7 +26,8 @@ class Webforwards extends \Base\Controller
         }
         
         // check feature is enabled
-        if (!in_array('web', $f3->get('modules.routes'))) {
+        //if (!in_array('web', $f3->get('modules.proxy'))) {
+        if ($f3->devoid('modules.proxy') || $f3->get('modules.proxy') !== 'web') {
             $f3->status(404);
             $f3->response->json([
                 'error' => 'Feature not enabled',
@@ -88,7 +89,7 @@ class Webforwards extends \Base\Controller
                 'label' => $item['label'],
                 'ownDomain' => $domains,
                 'ownUpstream' => $upstreams,
-                 'letsencrypt' => $item['letsencrypt'],
+                'letsencrypt' => $item['letsencrypt'],
                 'enabled' => 1
             ];
             

@@ -59,19 +59,19 @@
       }),
       items () {
         //
-        var modules = [];
+        var modules = []
         var items = [
           { icon: 'chevron_right', text: 'My Servers', route: '/servers' }
-        ];
+        ]
 
         // if not logged in
         if (!this.loggedUser || !this.loggedUser.sub) {
-          //items.push({ icon: 'chevron_right', text: 'About', route: '/about' });
+          //items.push({ icon: 'chevron_right', text: 'About', route: '/about' })
           return items
         }
 
         // server
-        if (this.loggedUser.mod.server.constructor === Array) {
+        if (this.loggedUser.mod.server && this.loggedUser.mod.server.constructor === Array) {
           // add child/module menu links
           modules.push({ icon: 'chevron_right', text: 'Overview', route: '/' })
           //
@@ -93,13 +93,13 @@
             text: 'Server',
             model: false,
             children: modules
-          });
+          })
 
-          modules = [];
+          modules = []
         }
 
         // api
-        if (this.loggedUser.mod.api.constructor === Array) {
+        if (this.loggedUser.mod.api && this.loggedUser.mod.api.constructor === Array) {
           // add child/module menu links
           if (this.loggedUser.mod.api.includes('data')) {
             modules.push({ icon: 'chevron_right', text: 'Data', route: '/api/data' })
@@ -117,11 +117,11 @@
             children: modules
           })
 
-          modules = [];
+          modules = []
         }
 
         // lxd
-        if (this.loggedUser.mod.lxd.constructor === Array) {
+        if (this.loggedUser.mod.lxd && this.loggedUser.mod.lxd.constructor === Array) {
           // add child/module menu links
           if (this.loggedUser.mod.lxd.includes('containers')) {
             modules.push({ icon: 'chevron_right', text: 'Containers', route: '/lxd/containers' })
@@ -187,20 +187,27 @@
             children: modules
           })
 
-          modules = [];
+          modules = []
         }
 
         // routes
-        if (this.loggedUser.mod.routes.constructor === Array) {
+        if (this.loggedUser.mod.proxy) {
+          if (this.loggedUser.mod.proxy.includes('web')) {
+            items.push({ icon: 'chevron_right', text: 'Web Proxy', route: '/routes/web-proxy' })
+          }
+          
           // add child/module menu links
+          /*
           if (this.loggedUser.mod.routes.includes('web')) {
             modules.push({ icon: 'chevron_right', text: 'Web Forwards', route: '/routes/web-forwards' })
           }
+          *
+          /*
           //
           if (this.loggedUser.mod.routes.includes('port')) {
             modules.push({ icon: 'chevron_right', text: 'Port Forwards', route: '/routes/port-forwards' })
           }
-
+          
           items.push({
             icon: 'keyboard_arrow_up',
             'icon-alt': 'keyboard_arrow_down',
@@ -208,16 +215,16 @@
             model: false,
             children: modules
           })
-
-          modules = [];
+          */
+          modules = []
         }
 
         // tasks
-        if (this.loggedUser.mod.tasks.constructor === Array) {
+        if (this.loggedUser.mod.tasks && this.loggedUser.mod.tasks.constructor === Array) {
           items.push({ icon: 'chevron_right', text: 'Tasks', route: '/tasks' })
         }
 
-        items.push({ icon: 'exit_to_app', text: 'Sign Out', route: '/auth/sign-out' });
+        items.push({ icon: 'exit_to_app', text: 'Sign Out', route: '/auth/sign-out' })
 
         return items
       }

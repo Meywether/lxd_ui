@@ -318,8 +318,8 @@
 
           //
         } catch (error) {
-          this.tableNoData = 'No data.';
-          this.error.global = 'Could not fetch data from server.';
+          this.tableNoData = 'No data.'
+          this.error.global = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -336,8 +336,8 @@
 
           //
         } catch (error) {
-          this.tableNoData = 'No data.';
-          this.error.global = 'Could not fetch data from server.';
+          this.tableNoData = 'No data.'
+          this.error.global = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       }, 
@@ -354,15 +354,15 @@
 
           //
         } catch (error) {
-          this.tableNoData = 'No data.';
-          this.error.global = 'Could not fetch data from server.';
+          this.tableNoData = 'No data.'
+          this.error.global = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
 
       async saveItem () {
         if (this.$refs.form.validate()) {
-          this.error.editing = '';
+          this.error.editing = ''
           try {
 
             // edit
@@ -393,7 +393,7 @@
               }
             }
           } catch (error) {
-            this.error.global = 'Could not save remote to server.';
+            this.error.global = 'Could not save remote to server.'
           }
           this.initialize()
           setTimeout(() => {
@@ -431,7 +431,7 @@
                   this.$emit('reload')
                 } catch (error) {
                   //
-                  this.error.global = 'Failed to delete remote.';
+                  this.error.global = 'Failed to delete remote.'
                 }
                 this.initialize()
                 setTimeout(() => {
@@ -450,7 +450,7 @@
       async enableItem (item) {
         // remote
         try {
-          item.active = true;
+          item.active = true
           //
           const response = await axios.put(this.loggedUser.sub + '/api/lxd/images/remotes/'+item.name, item)
           //
@@ -462,7 +462,7 @@
           }, 500)
         } catch (error) {
           //
-          this.error.global = 'Failed to enabled remote.';
+          this.error.global = 'Failed to enabled remote.'
         }
       },
       
@@ -471,7 +471,7 @@
           if (this.$refs.secretform.validate()) {
             // remote
             try {
-              item.active = true;
+              item.active = true
               //
               const response = await axios.put(this.loggedUser.sub + '/api/lxd/images/remotes/'+item.name, item)
       
@@ -488,7 +488,7 @@
               this.dialog.askSecret = !this.dialog.askSecret
             } catch (error) {
               //
-              this.error.global = 'Failed to enabled remote.';
+              this.error.global = 'Failed to enabled remote.'
             }
           }
         } else {
@@ -528,7 +528,7 @@
                   this.$emit('snackbar', 'Remote successfully disabled.')
                 } catch (error) {
                   //
-                  this.error.global = 'Failed to disable remote.';
+                  this.error.global = 'Failed to disable remote.'
                 }
                 this.initialize()
                 setTimeout(() => {
@@ -559,7 +559,7 @@
       },
 
       ucfirst(str) {
-          return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+          return String(str).charAt(0).toUpperCase() + String(str).slice(1)
       }
     }
   }

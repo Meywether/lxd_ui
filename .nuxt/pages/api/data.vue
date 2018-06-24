@@ -206,7 +206,7 @@
           const response = await axios.get(this.loggedUser.sub + '/api/ams/data')
           this.items = response.data.data
         } catch (error) {
-          this.error = 'Could not fetch data from server.';
+          this.error = 'Could not fetch data from server.'
         }
       },
 
@@ -247,11 +247,11 @@
                   //
                   const response = await axios.delete(this.loggedUser.sub + '/api/ams/data', { data: item })
                   //
-                  this.snackbar = true;
-                  this.snackbarText = 'Endpoint successfully deleted.';
+                  this.snackbar = true
+                  this.snackbarText = 'Endpoint successfully deleted.'
                   
                 } catch (error) {
-                  this.error = 'Could not delete endpoint from server.';
+                  this.error = 'Could not delete endpoint from server.'
                 }
               }
             },
@@ -282,10 +282,10 @@
             //
             const response = await axios.post(this.loggedUser.sub + '/api/ams/data', this.editingItem)
             //
-            this.snackbar = true;
-            this.snackbarText = 'Endpoint successfully saved.';
+            this.snackbar = true
+            this.snackbarText = 'Endpoint successfully saved.'
           } catch (error) {
-            this.error = 'Could not save endpoint to server.';
+            this.error = 'Could not save endpoint to server.'
           }
   
           if (this.editingIndex === -1) {

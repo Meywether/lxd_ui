@@ -191,7 +191,7 @@
         }
         
         return this.items.filter(item => {
-          return item.managed === true;
+          return item.managed === true
         })
       }
     },

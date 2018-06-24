@@ -54,16 +54,13 @@
               {{ error }}
             </v-alert>
             <h3>General</h3>
-
             <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the proxy device."></v-text-field>
-
             <h3>Device Settings</h3>
             <v-select :items="['physical','sriov']" v-model="editingItem.dict.nictype" label="Nic Type:" persistent-hint hint="Device type, one of physical or sriov."></v-select>
             <v-select :items="networks" v-model="editingItem.dict.parent" :rules="parentRule" required label="Parent:"></v-select>
             <v-text-field v-model="editingItem.dict.name" label="Name:" placeholder="" hint="Name of the interface inside the container."></v-text-field>
             <v-text-field v-model="editingItem.dict.hwaddr" label="MAC Address:" :rules="macRule" placeholder="" hint="MAC address of the new interface."></v-text-field>
             <v-text-field v-model="editingItem.dict.mtu" label="MTU:" :rules="mtuRule" placeholder="" hint="The MTU of the new interface."></v-text-field>
-
           </v-form>
         </v-card-text>
         <div style="flex: 1 1 auto;"></div>
@@ -210,7 +207,7 @@
             this.getNetworks()
           }
         } catch (error) {
-          this.error = 'Could not fetch data from server.';
+          this.error = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -228,11 +225,11 @@
           this.networks = []
           response.data.data.forEach(item => {
             if (item.managed) {
-              this.networks.push(item.name);
+              this.networks.push(item.name)
             }
-          });
+          })
         } catch (error) {
-          this.networks = [];
+          this.networks = []
         }
       },
 
@@ -262,7 +259,7 @@
       },
 
       async detachItem(item) {
-        this.attachError = false;
+        this.attachError = false
 
         // remove from linked item
         this.$delete(this.linkedItem.devices, item.name)
@@ -292,7 +289,7 @@
       // create or edit item
       editItem (item) {
         this.editingIndex = this.items.indexOf(item)
-        this.editingItem = JSON.parse(JSON.stringify(item));
+        this.editingItem = JSON.parse(JSON.stringify(item))
 
         this.dialog = true
       },
@@ -315,7 +312,7 @@
                 "mtu": this.editingItem.dict.mtu,
                 "parent": this.editingItem.dict.parent
               }
-            };
+            }
 
             // edit
             if (this.editingIndex > -1) {
@@ -344,7 +341,7 @@
               this.initialize()
             }
           } catch (error) {
-            this.error = 'Could not save device to server.';
+            this.error = 'Could not save device to server.'
           }
         }
       },
@@ -377,7 +374,7 @@
                   this.$emit('snackbar', 'Device successfully deleted.')
                 } catch (error) {
                   //
-                  this.error = 'Failed to delete device.';
+                  this.error = 'Failed to delete device.'
                 }
               }
             },
@@ -403,7 +400,7 @@
       },
 
       ucfirst(str) {
-          return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+          return String(str).charAt(0).toUpperCase() + String(str).slice(1)
       }
     }
   }

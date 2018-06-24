@@ -208,18 +208,15 @@
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/operations')
           this.items = response.data.data
         } catch (error) {
-          this.items = [];
-          this.tableNoData = 'No data.';
-          this.error = 'Could not fetch data from server.';
+          this.items = []
+          this.tableNoData = 'No data.'
+          this.error = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
       
       async tableExpand(prop) {
-        this.item = [];
-        if (!prop.expanded) {
-          
-        }
+        this.item = []
         prop.expanded = !prop.expanded
       },
 
@@ -230,17 +227,17 @@
           const response = await axios.delete(this.loggedUser.sub + '/api/lxd/operations/' + item.id)
           
           //
-          this.snackbar = true;
-          this.snackbarColor = 'green';
-          this.snackbarText = 'Operation set to cancelling state.';
+          this.snackbar = true
+          this.snackbarColor = 'green'
+          this.snackbarText = 'Operation set to cancelling state.'
         } catch (error) {
           //
-          this.error = 'Failed to set operation state.';
+          this.error = 'Failed to set operation state.'
         }
       },
 
       ucfirst(str) {
-          return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+          return String(str).charAt(0).toUpperCase() + String(str).slice(1)
       }
     }
   }

@@ -178,51 +178,51 @@
         setTimeout(() => {
           this.items.forEach(item => {
             this.status(item)
-          });
-        }, 100);
+          })
+        }, 100)
       },
 
       export_servers() {
         var contents = []
         this.items.forEach(item => {
-          contents.push({label:item.label, host:item.host, secret:item.secret });
-        });
+          contents.push({label:item.label, host:item.host, secret:item.secret })
+        })
 
-        var element = document.createElement('a');
-        element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(contents, null, 2)));
-        element.setAttribute('download', 'servers.json');
+        var element = document.createElement('a')
+        element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(contents, null, 2)))
+        element.setAttribute('download', 'servers.json')
 
-        element.style.display = 'none';
-        document.body.appendChild(element);
+        element.style.display = 'none'
+        document.body.appendChild(element)
 
-        element.click();
+        element.click()
 
-        document.body.removeChild(element);
+        document.body.removeChild(element)
       },
 
       import_servers(e) {
         if (!window.FileReader) {
           this.error = 'Browser not supported.'
-          return;
+          return
         }
         
-        this.error = '';
+        this.error = ''
 
-        var reader = new FileReader();
+        var reader = new FileReader()
 
         reader.onload = evt => {
-            if (evt.target.readyState != 2) return;
+            if (evt.target.readyState != 2) return
             if (evt.target.error) {
                 this.error = 'Error reading file.'
-                return;
+                return
             }
             try {
-              var items = JSON.parse(evt.target.result);
+              var items = JSON.parse(evt.target.result)
               
               var servers = []
               items.forEach(item => {
-                servers.push({label:item.label || '-', host:item.host || '-', secret:item.secret || '-' });
-              });
+                servers.push({label:item.label || '-', host:item.host || '-', secret:item.secret || '-' })
+              })
 
               if (items.length > 0) {
                 this.items = servers
@@ -238,9 +238,9 @@
             } catch(e) {
               this.error = 'Invalid file.'
             }
-        };
+        }
 
-        reader.readAsText(e.target.files[0]);
+        reader.readAsText(e.target.files[0])
       },
 
       authItem (item) {
@@ -362,6 +362,6 @@
 
 <style>
 input[type="file"] {
-    display: none;
+    display: none
 }
 </style>

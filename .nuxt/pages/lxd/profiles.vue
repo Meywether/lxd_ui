@@ -401,9 +401,9 @@
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/profiles')
           this.items = response.data.data
         } catch (error) {
-          this.items = [];
-          this.tableNoData = 'No data.';
-          this.error = 'Could not fetch data from server.';
+          this.items = []
+          this.tableNoData = 'No data.'
+          this.error = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -421,7 +421,7 @@
           this.resources = response.data.data
 
         } catch (error) {
-          this.resources = {};
+          this.resources = {}
         }
       },
       
@@ -438,7 +438,7 @@
             this.pools.push(item.name)
           })
         } catch (error) {
-          this.pools = [];
+          this.pools = []
         }
       },      
       
@@ -453,7 +453,7 @@
             }
           })
         } catch (error) {
-          this.networks = [];
+          this.networks = []
         }
       },
       
@@ -464,7 +464,7 @@
 
       // create or edit item
       editItem (item) {
-        this.component_key = item.name;
+        this.component_key = item.name
         this.current_name = item.name
         this.editingIndex = this.items.indexOf(item)
 
@@ -504,9 +504,9 @@
               this.$router.replace('/servers')
             }
             
-            this.editingItem = profile.outfix(this.editingItem);
+            this.editingItem = profile.outfix(this.editingItem)
             
-            var item = JSON.parse(JSON.stringify(this.editingItem));
+            var item = JSON.parse(JSON.stringify(this.editingItem))
             
             // remove network if nonoe
             var removeNetwork = false
@@ -541,7 +541,7 @@
               })
             }
             
-            this.editingItem = profile.infix(item);
+            this.editingItem = profile.infix(item)
             
             // remove the network if none
             if (removeNetwork) {
@@ -553,10 +553,10 @@
             }
 
             //
-            this.snackbar = true;
-            this.snackbarText = 'Profile successfully saved.';
+            this.snackbar = true
+            this.snackbarText = 'Profile successfully saved.'
           } catch (error) {
-            this.error = 'Could not save profile to server.';
+            this.error = 'Could not save profile to server.'
           }
   
           if (this.editingIndex === -1) {
@@ -592,12 +592,12 @@
                   const response = await axios.delete(this.loggedUser.sub + '/api/lxd/profiles/'+item.name)
 
                   //
-                  this.snackbar = true;
-                  this.snackbarColor = 'green';
-                  this.snackbarText = 'Profile deleted.';
+                  this.snackbar = true
+                  this.snackbarColor = 'green'
+                  this.snackbarText = 'Profile deleted.'
                 } catch (error) {
                   //
-                  this.error = 'Failed to delete profile.';
+                  this.error = 'Failed to delete profile.'
                 }
               }
             },
@@ -612,7 +612,7 @@
       // show used by
       showUsedBy (item) {
         this.editingIndex = this.items.indexOf(item)
-        this.editingItem = JSON.parse(JSON.stringify(item));
+        this.editingItem = JSON.parse(JSON.stringify(item))
 
         this.used_by = []
         if (this.editingItem.used_by.length > 0) {
@@ -628,9 +628,9 @@
       },
       
       setSnackbar (msg) {
-        this.snackbar = true;
+        this.snackbar = true
         this.snackbarTimeout = 2500
-        this.snackbarText = msg;
+        this.snackbarText = msg
       },
 
       // close item dialog, and reset to default item

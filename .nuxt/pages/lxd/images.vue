@@ -408,8 +408,8 @@
 
           //
         } catch (error) {
-          this.tableNoData = 'No data.';
-          this.error.global = 'Could not fetch data from server.';
+          this.tableNoData = 'No data.'
+          this.error.global = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -426,10 +426,10 @@
           
           this.profiles = []
           response.data.data.forEach(item => {
-            this.profiles.push(item.name);
-          });
+            this.profiles.push(item.name)
+          })
         } catch (error) {
-          this.profiles = [];
+          this.profiles = []
         }
       }, 
       
@@ -446,7 +446,7 @@
             this.pools.push(item.name)
           })
         } catch (error) {
-          this.pools = [];
+          this.pools = []
         }
       },
 
@@ -461,7 +461,7 @@
             }
           })
         } catch (error) {
-          this.networks = [];
+          this.networks = []
         }
       },
       
@@ -487,12 +487,12 @@
           
           //
           if (response.data.error) {
-            this.error.global = response.data.error;
-            this.distros = [];
+            this.error.global = response.data.error
+            this.distros = []
           } else {
             // assign distro list in background
             setTimeout(() => {
-              this.distros = [];
+              this.distros = []
               for (var key in this.items) {
                 this.distros.push(this.items[key].properties.os.toLowerCase())
               }
@@ -500,15 +500,15 @@
             
             //set active distro to first
             setTimeout(() => {
-              this.activeDistro = this.distros[0] ? this.distros[0] : '';
-            }, 10);
+              this.activeDistro = this.distros[0] ? this.distros[0] : ''
+            }, 10)
             
             // show delete button
             this.show_delete = this.items.length > 0 && !this.publicServers.includes(this.activeRemote)
           }
         } catch (error) {
-          this.tableNoData = 'No data.';
-          this.error.global = 'Could not fetch data from server.';
+          this.tableNoData = 'No data.'
+          this.error.global = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -528,7 +528,7 @@
             network: '',
             ephemeral: false,
             remote: this.activeRemote
-          };
+          }
         } else {
           if (this.$refs.formcreate.validate() && this.valid) {
 
@@ -537,9 +537,9 @@
             }
 
             //
-            this.snackbar = true;
-            this.snackbarColor = 'green';
-            this.snackbarText = 'Creating container.';
+            this.snackbar = true
+            this.snackbarColor = 'green'
+            this.snackbarText = 'Creating container.'
             this.query = true
 
             axios.post(this.loggedUser.sub + '/api/lxd/containers', this.newItem).then(response => {
@@ -557,7 +557,7 @@
                   await axios.get(this.loggedUser.sub + '/api/lxd/operations/'+response.data.data.id).then(response => {
                     /* running 103, finished, 200 */
                     if (response.data.data.status_code == 103) {
-                      //console.log('103', response.data.data);
+                      //console.log('103', response.data.data)
                       // 
                       var download_progress = null
                       if (response.data.data.metadata) {
@@ -584,23 +584,23 @@
 
                       //
                       if (this.value >= 0 && this.value < 1) {
-                        this.progress_text = 'Initializing image download.';
+                        this.progress_text = 'Initializing image download.'
                       } else if(this.value < 100) {
-                        this.progress_text = 'Downloading image.';
+                        this.progress_text = 'Downloading image.'
                       } else {
-                        this.progress_text = 'Unpacking filesystem into container.';
+                        this.progress_text = 'Unpacking filesystem into container.'
                       }
                     } else if (response.data.data.status_code == 200) {
-                      //console.log('200', response.data.data);
+                      //console.log('200', response.data.data)
                       this.value = 100
-                      clearInterval(creating_container);
+                      clearInterval(creating_container)
                       //
-                      this.progress_text = 'Container created.';
+                      this.progress_text = 'Container created.'
                       //
-                      this.snackbar = true;
-                      this.snackbarColor = 'green';
-                      this.snackbarText = 'Container successfully created!';
-                      this.progress_text = 'Complete';
+                      this.snackbar = true
+                      this.snackbarColor = 'green'
+                      this.snackbarText = 'Container successfully created!'
+                      this.progress_text = 'Complete'
                       
                       // close dialog and ask to start container
                       this.dialog.create = false
@@ -611,16 +611,16 @@
                         this.progress_text = ''
                       }, 300)
                     } else {
-                      //console.log('not 103/200', response.data.data);
+                      //console.log('not 103/200', response.data.data)
                       this.value = 100
-                      clearInterval(creating_container);
+                      clearInterval(creating_container)
                       //
-                      this.progress_text = 'Container created.';
+                      this.progress_text = 'Container created.'
                       //
-                      this.snackbar = true;
-                      this.snackbarColor = 'green';
-                      this.snackbarText = 'Container successfully created!';
-                      this.progress_text = 'Complete';
+                      this.snackbar = true
+                      this.snackbarColor = 'green'
+                      this.snackbarText = 'Container successfully created!'
+                      this.progress_text = 'Complete'
                       
                       // close dialog and ask to start container
                       this.dialog.create = false
@@ -636,7 +636,7 @@
                     this.launching = false
                     this.dialog.create = false
                     this.error.global = 'Failed to create container.'
-                    this.progress_text = 'Error';
+                    this.progress_text = 'Error'
                   })
                 }, 1000)
               } else {
@@ -672,9 +672,9 @@
                   "force": true,
                   "stateful": false
                 })
-                this.snackbar = true;
-                this.snackbarColor = 'green';
-                this.snackbarText = 'Container started.';
+                this.snackbar = true
+                this.snackbarColor = 'green'
+                this.snackbarText = 'Container started.'
               }
             },
             {
@@ -686,7 +686,7 @@
       },
       
       safe_name() {
-        this.newItem.name = this.newItem.name.replace(".", "-");
+        this.newItem.name = this.newItem.name.replace(".", "-")
       },
 
       // create or edit item
@@ -700,21 +700,21 @@
             axios.post(this.loggedUser.sub + '/api/lxd/images/'+this.copy.fingerprint+'/copy?remote='+this.activeRemote, this.copy).then(response => {
               if (response.data.code === 200) {
                 //
-                this.snackbar = true;
-                this.snackbarText = 'Image copied from '+this.activeRemote+' to '+this.copy.remote+'.';
+                this.snackbar = true
+                this.snackbarText = 'Image copied from '+this.activeRemote+' to '+this.copy.remote+'.'
               } else {
                 //
-                this.snackbar = true;
-                this.snackbarColor = 'red';
-                this.snackbarText = response.data.error;
+                this.snackbar = true
+                this.snackbarColor = 'red'
+                this.snackbarText = response.data.error
               }
             }).catch(error => {
               this.error.global = 'Could not copy image.'
             })
             
             //
-            this.snackbar = true;
-            this.snackbarText = 'Image queued for copy.';
+            this.snackbar = true
+            this.snackbarText = 'Image queued for copy.'
             this.dialog.copy = false
           }
         }
@@ -757,11 +757,11 @@
                   //
                   const response = await axios.delete(this.loggedUser.sub + '/api/lxd/images/'+item.fingerprint+'?remote='+this.activeRemote)
                   //
-                  this.snackbar = true;
-                  this.snackbarText = 'Image successfully deleted.';
+                  this.snackbar = true
+                  this.snackbarText = 'Image successfully deleted.'
                   
                 } catch (error) {
-                  this.error.global = 'Could not delete image from server.';
+                  this.error.global = 'Could not delete image from server.'
                 }
               }
             },
@@ -792,10 +792,10 @@
             //
             const response = await axios.put(this.loggedUser.sub + '/api/lxd/images/'+this.editingItem.fingerprint+'?remote='+this.activeRemote, this.editingItem)
             //
-            this.snackbar = true;
-            this.snackbarText = 'Image successfully updated.';
+            this.snackbar = true
+            this.snackbarText = 'Image successfully updated.'
           } catch (error) {
-            this.error.global = 'Could not update image.';
+            this.error.global = 'Could not update image.'
           }
           
           this.close('edit')
@@ -833,16 +833,16 @@
       },
       
       formatBytes (bytes, decimals) {
-        if(bytes == 0) return '0 Bytes';
+        if(bytes == 0) return '0 Bytes'
         var k = 1024,
             dm = decimals || 2,
             sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-            i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+            i = Math.floor(Math.log(bytes) / Math.log(k))
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
       },
       
       ucfirst(str) {
-          return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+          return String(str).charAt(0).toUpperCase() + String(str).slice(1)
       }
 
     }

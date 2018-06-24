@@ -502,7 +502,7 @@
 
   const container = require('~/components/lxd/container')
 
-  var xterm;
+  var xterm
 
   export default {
     mixins: [helpers],
@@ -529,13 +529,13 @@
       },
       all_stopped: function (){
         var state = this.items.filter(item => {
-          return item.status === 'Stopped';
+          return item.status === 'Stopped'
         })
         return state.length === this.items.length
       },
       all_running: function (){
         var state = this.items.filter(item => {
-          return item.status === 'Running';
+          return item.status === 'Running'
         })
         return state.length === this.items.length
       },
@@ -715,22 +715,22 @@
             this.startPolling()
           }
         } catch (error) {
-          this.items = [];
-          this.tableNoData = 'No data.';
-          this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
+          this.items = []
+          this.tableNoData = 'No data.'
+          this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' }
         }
         this.tableLoading = false
       },
 
       stopPolling() {
-        clearInterval(this.pollId);
+        clearInterval(this.pollId)
       },
 
       startPolling() {
         this.stopPolling()
         this.pollId = setInterval(function () {
           this.initialize()
-        }.bind(this), 10000);
+        }.bind(this), 10000)
       },
 
       async getRemotes () {
@@ -746,8 +746,8 @@
 
           //
         } catch (error) {
-          this.tableNoData = 'No data.';
-          this.error = 'Could not fetch data from server.';
+          this.tableNoData = 'No data.'
+          this.error = 'Could not fetch data from server.'
         }
       },
 
@@ -764,7 +764,7 @@
           this.resources = response.data.data
 
         } catch (error) {
-          this.resources = {};
+          this.resources = {}
         }
       },
 
@@ -780,11 +780,11 @@
 
           this.profiles = []
           response.data.data.forEach(item => {
-            this.profiles.push(item.name);
-          });
+            this.profiles.push(item.name)
+          })
 
         } catch (error) {
-          this.profiles = [];
+          this.profiles = []
         }
       },
 
@@ -799,17 +799,17 @@
             }
           })
         } catch (error) {
-          this.networks = [];
+          this.networks = []
         }
       },
 
       startAll() {
         this.stopPolling()
-        var timer = 0;
+        var timer = 0
         this.items.forEach((item) => {
           if (item.status === 'Stopped') {
             setTimeout(() => {
-              item.status = 'Starting';
+              item.status = 'Starting'
               axios.put(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/state', {
                 "action": 'start',
                 "timeout": 30,
@@ -823,16 +823,16 @@
 
         setTimeout(() => {
           this.startPolling()
-        }, timer);
+        }, timer)
       },
 
       stopAll() {
         this.stopPolling()
-        var timer = 0;
+        var timer = 0
         this.items.forEach((item) => {
           if (item.status === 'Running') {
             setTimeout(() => {
-              item.status = 'Stopping';
+              item.status = 'Stopping'
               axios.put(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/state', {
                 "action": 'stop',
                 "timeout": 30,
@@ -845,16 +845,16 @@
         })
         setTimeout(() => {
           this.startPolling()
-        }, timer);
+        }, timer)
       },
 
       restartAll() {
         this.stopPolling()
-        var timer = 0;
+        var timer = 0
         this.items.forEach((item) => {
           if (item.status === 'Running') {
             setTimeout(() => {
-              item.status = 'Restarting';
+              item.status = 'Restarting'
               axios.put(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/state', {
                 "action": 'restart',
                 "timeout": 30,
@@ -867,7 +867,7 @@
         })
         setTimeout(() => {
           this.startPolling()
-        }, timer);
+        }, timer)
       },
 
       async stateContainer (action, item) {
@@ -875,7 +875,7 @@
         // intercept console
         if (action.action === 'console') {
           this.reconnect = false
-          this.consoleDialog = true;
+          this.consoleDialog = true
           setTimeout(() => {
             this.console(item)
           }, 500)
@@ -937,13 +937,13 @@
           })
 
           //
-          this.snackbar = true;
+          this.snackbar = true
           this.snackbarTimeout = 2500
-          this.snackbarText = action.msg + ' container.';
+          this.snackbarText = action.msg + ' container.'
 
           setTimeout(() => this.initialize(), 2500)
         } catch (error) {
-          this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
+          this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' }
         }
       },
 
@@ -959,14 +959,14 @@
       },
 
       safe_name(name) {
-        return name.replace(".", "-");
+        return name.replace(".", "-")
       },
 
       setSnackbar (msg) {
         //
-        this.snackbar = true;
+        this.snackbar = true
         this.snackbarTimeout = 2500
-        this.snackbarText = msg;
+        this.snackbarText = msg
       },
 
       console (item) {
@@ -1048,7 +1048,7 @@
 
             //
             this.websocket.onmessage = function (msg) {
-              var reader = new FileReader();
+              var reader = new FileReader()
               reader.addEventListener("loadend", () => {
                 msg = reader.result
                 if (previousResponse !== null && previousResponse.trim() === 'exit' && msg.trim() === '') {
@@ -1114,7 +1114,7 @@
             this.$router.replace('/servers')
           }
             
-          this.component_key = item.name;
+          this.component_key = item.name
 
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
@@ -1123,7 +1123,7 @@
           this.$set(this.container, 'info', container.infix(response.data.data))
 
         } catch (error) {
-          this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
+          this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' }
         }
       },
 
@@ -1163,7 +1163,7 @@
               this.error.editing = response.data.error
             } else {
               //
-              this.snackbar = true;
+              this.snackbar = true
               this.snackbarText = 'Container '+this.container.info.name+' configuration saved.'
               this.startPolling()
             }
@@ -1194,7 +1194,7 @@
                 this.snackbarColor = 'red'
                 this.snackbarText = response.data.error
                 setTimeout(() => {
-                  this.snackbarColor = 'green';
+                  this.snackbarColor = 'green'
                 }, 5000)
               }
             }).catch(error => {
@@ -1202,8 +1202,8 @@
             })
 
             //
-            this.snackbar = true;
-            this.snackbarText = 'Container queued for copy.';
+            this.snackbar = true
+            this.snackbarText = 'Container queued for copy.'
             this.copyDialog = false
             setTimeout(() => {
               this.startPolling()
@@ -1354,14 +1354,14 @@
 
       showNetwork (item) {
         this.editingIndex = this.items.indexOf(item)
-        this.container = JSON.parse(JSON.stringify(item));
+        this.container = JSON.parse(JSON.stringify(item))
 
         this.networkDialog = true
       },
       
       showMemory (item) {
         this.editingIndex = this.items.indexOf(item)
-        this.container = JSON.parse(JSON.stringify(item));
+        this.container = JSON.parse(JSON.stringify(item))
 
         this.memoryDialog = true
       },
@@ -1375,19 +1375,19 @@
         }
         setTimeout(() => {
           this.newItem = Object.assign({}, this.defaultItem)
-          this.container = container.empty();
+          this.container = container.empty()
           this.snackbarColor = 'green'
         }, 300)
         this.startPolling()
       },
 
       formatBytes (bytes, decimals) {
-        if(bytes == 0) return '0 Bytes';
+        if(bytes == 0) return '0 Bytes'
         var k = 1024,
             dm = decimals || 2,
             sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-            i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+            i = Math.floor(Math.log(bytes) / Math.log(k))
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
       },
       
       ucfirst(str) {

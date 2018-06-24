@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <main-nav/>
+    <navigation/>
     <nuxt/>
     <prompt/>
     <nag/>
@@ -8,15 +8,11 @@
 </template>
 
 <script>
-  import MainNav from '~/components/MainNav.vue'
+  import navigation from '~/components/navigation.vue'
   
   export default {
     components: {
-      MainNav
+      navigation
     }
   }
 </script>
-
-<style>
-  
-</style>

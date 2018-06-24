@@ -122,7 +122,7 @@
           
           if (response.data.code === 422) {
             this.error = response.data.error
-            return;
+            return
           }
           
           // check listing or file
@@ -130,17 +130,17 @@
             this.items = response.data.data.data
             this.displayPath = this.currentPath
             if (resetSource) {
-              this.source = '';
+              this.source = ''
             }
           } else {
             // reset path to previous
-            this.currentPath = this.currentPath.substring(0, this.currentPath.lastIndexOf('/'));
-            this.source = response.data.data.data;
+            this.currentPath = this.currentPath.substring(0, this.currentPath.lastIndexOf('/'))
+            this.source = response.data.data.data
           }
-          this.type = response.data.data.type;
+          this.type = response.data.data.type
           this.filename = this.type === 'listing' ? filename : this.currentFilePath.substr(this.currentFilePath.lastIndexOf('/') + 1)
         } catch (error) {
-          this.error = 'Could not fetch data from server.';
+          this.error = 'Could not fetch data from server.'
         }
       },
 
@@ -175,12 +175,12 @@
           await this.initialize(this.filename, false)
           
           // as initialize would of got directory listing, set state back to file
-          this.type = 'file';
+          this.type = 'file'
           
           this.$emit('snackbar', 'File saved.')
 
         } catch (error) {
-          this.error = 'Could not save file.';
+          this.error = 'Could not save file.'
         }
       },
       
@@ -207,7 +207,7 @@
                   
                   this.$emit('snackbar', 'File deleted.')
                 } catch (error) {
-                  this.error = 'Could not delete file.';
+                  this.error = 'Could not delete file.'
                 }
               }
             },
@@ -220,7 +220,7 @@
       },
       
       setActiveMenu(activeMenu) {
-        this.active = [];
+        this.active = []
         if (this.type === 'file') {
           this.active[activeMenu] = !this.active[activeMenu]
         }

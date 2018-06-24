@@ -84,10 +84,9 @@
         }
       },
       idmap_limit: function () {
-        return false
-        
+
         if (!this.lxd || !this.lxd.environment || !this.lxd.environment.kernel_version) {
-          return true;
+          return true
         }
 
         // check >= 4.15 kernel
@@ -176,7 +175,7 @@
           const response = await axios.get(this.loggedUser.sub + '/api/server/idmap')
           this.items = response.data.data
         } catch (error) {
-          this.error = 'Could not fetch data from server.';
+          this.error = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -206,7 +205,7 @@
       },
 
       async detachItem(item) {
-        this.attachError = false;
+        this.attachError = false
         
         if (this.attachType === 'containers') {
           this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
@@ -218,7 +217,7 @@
         // remove from linked item
         var replace = "both "+item.id+" "+item.id
         
-        var reg = new RegExp(replace, "g");
+        var reg = new RegExp(replace, "g")
         this.linkedItem.config["raw.idmap"] = this.linkedItem.config["raw.idmap"].replace(reg, '')
         
         // clear if empty
@@ -269,8 +268,8 @@
         setTimeout(() => {
           this.statusChange = false
           this.$emit('initialize')
-          item.status = 'Stopped';
-        }, 2500);
+          item.status = 'Stopped'
+        }, 2500)
       },
       startContainer (item) {
         this.statusChange = true
@@ -283,8 +282,8 @@
         setTimeout(() => {
           this.statusChange = false
           this.$emit('initialize')
-          item.status = 'Running';
-        }, 2500);
+          item.status = 'Running'
+        }, 2500)
       },
 
       openDialog(){
@@ -301,7 +300,7 @@
       },
 
       ucfirst(str) {
-          return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+          return String(str).charAt(0).toUpperCase() + String(str).slice(1)
       }
     }
   }
@@ -309,6 +308,6 @@
 
 <style>
 .btn--disabled .red {
-  background-color: #f44336 !important;
+  background-color: #f44336 !important
 }
 </style>

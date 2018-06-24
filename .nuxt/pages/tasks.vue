@@ -382,7 +382,7 @@
       })
     },
     beforeDestroy: function(){
-      clearInterval(this.pollId);
+      clearInterval(this.pollId)
     },
     watch: {
       dialog (val) {
@@ -402,8 +402,8 @@
           this.items = Object.assign({system: [], user: []}, this.items, response.data.data.tasks)
           this.system_tasks = Object.assign([], this.items, response.data.data.system_tasks)
         } catch (error) {
-          this.tableNoData = 'No data.';
-          this.error = 'Could not fetch data from server.';
+          this.tableNoData = 'No data.'
+          this.error = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -419,19 +419,19 @@
           const response = await axios.get(this.loggedUser.sub + '/api/tasks/' + item.id)
           this.item = response.data.data
         } catch (error) {
-          this.tableNoData = 'No data.';
-          this.error = 'Could not fetch data from server.';
+          this.tableNoData = 'No data.'
+          this.error = 'Could not fetch data from server.'
         }
       },
       
       async tableExpand(prop) {
-        this.item = [];
-        clearInterval(this.pollId);
+        this.item = []
+        clearInterval(this.pollId)
         if (!prop.expanded) {
           this.taskItem(prop.item)
           this.pollId = setInterval(function () {
             this.taskItem(prop.item)
-          }.bind(this), 5000);
+          }.bind(this), 5000)
         }
         prop.expanded = !prop.expanded
       },
@@ -453,17 +453,17 @@
             // check for error, reset values with response
             if (response.data.code === 422) {
               //
-              this.snackbar = true;
-              this.snackbarColor = 'red';
-              this.snackbarText = response.data.error;
+              this.snackbar = true
+              this.snackbarColor = 'red'
+              this.snackbarText = response.data.error
             } else {
               //
-              this.snackbar = true;
-              this.snackbarColor = 'green';
-              this.snackbarText = 'Task instance updated.';
+              this.snackbar = true
+              this.snackbarColor = 'green'
+              this.snackbarText = 'Task instance updated.'
             }
           } catch (error) {
-            this.error = 'Could not update task instance.';
+            this.error = 'Could not update task instance.'
           }
       },
 
@@ -497,17 +497,17 @@
                     // check for error, reset values with response
                     if (response.data.code === 422) {
                       //
-                      this.snackbar = true;
-                      this.snackbarColor = 'red';
-                      this.snackbarText = response.data.error;
+                      this.snackbar = true
+                      this.snackbarColor = 'red'
+                      this.snackbarText = response.data.error
                     } else {
                       //
-                      this.snackbar = true;
-                      this.snackbarColor = 'green';
-                      this.snackbarText = 'Task instance deleted.';
+                      this.snackbar = true
+                      this.snackbarColor = 'green'
+                      this.snackbarText = 'Task instance deleted.'
                     }
                   } catch (error) {
-                    this.error = 'Could not deleted task instance.';
+                    this.error = 'Could not deleted task instance.'
                   }
               }
             },
@@ -534,17 +534,17 @@
             // check for error, reset values with response
             if (response.data.code === 422) {
               //
-              this.snackbar = true;
-              this.snackbarColor = 'red';
-              this.snackbarText = response.data.error;
+              this.snackbar = true
+              this.snackbarColor = 'red'
+              this.snackbarText = response.data.error
             } else {
               //
-              this.snackbar = true;
-              this.snackbarColor = 'green';
-              this.snackbarText = 'Task instance reloaded.';
+              this.snackbar = true
+              this.snackbarColor = 'green'
+              this.snackbarText = 'Task instance reloaded.'
             }
           } catch (error) {
-            this.error = 'Could not reloaded task instance.';
+            this.error = 'Could not reloaded task instance.'
           }
       },    
       
@@ -566,17 +566,17 @@
             // check for error, reset values with response
             if (response.data.code === 422) {
               //
-              this.snackbar = true;
-              this.snackbarColor = 'red';
-              this.snackbarText = response.data.error;
+              this.snackbar = true
+              this.snackbarColor = 'red'
+              this.snackbarText = response.data.error
             } else {
               //
-              this.snackbar = true;
-              this.snackbarColor = 'green';
-              this.snackbarText = 'Task instance stopped.';
+              this.snackbar = true
+              this.snackbarColor = 'green'
+              this.snackbarText = 'Task instance stopped.'
             }
           } catch (error) {
-            this.error = 'Could not stopped task instance.';
+            this.error = 'Could not stopped task instance.'
           }
       },
       
@@ -589,13 +589,13 @@
             //
             const response = await axios.put(this.loggedUser.sub + '/api/tasks', item)
             
-            this.snackbar = true;
-            this.snackbarColor = 'green';
-            this.snackbarText = 'Task run instance executed.';
+            this.snackbar = true
+            this.snackbarColor = 'green'
+            this.snackbarText = 'Task run instance executed.'
             
             this.initialize()
           } catch (error) {
-            this.error = 'Could not add task instance.';
+            this.error = 'Could not add task instance.'
           }
       },
       
@@ -645,11 +645,11 @@
                   //
                   const response = await axios.delete(this.loggedUser.sub + '/api/tasks', { data: item })
                   //
-                  this.snackbar = true;
-                  this.snackbarText = 'Task successfully deleted.';
+                  this.snackbar = true
+                  this.snackbarText = 'Task successfully deleted.'
                   
                 } catch (error) {
-                  this.error = 'Could not delete task from server.';
+                  this.error = 'Could not delete task from server.'
                 }
               }
             },
@@ -670,7 +670,7 @@
           } else {
             // forbid new tasks with the same name as system tasks
             if (this.is_system_task(this.editingItem)) {
-              return false;
+              return false
             }
             this.items[type].push(Object.assign({}, this.editingItem))
           }
@@ -684,10 +684,10 @@
             //
             const response = await axios.post(this.loggedUser.sub + '/api/tasks', this.editingItem)
             //
-            this.snackbar = true;
-            this.snackbarText = 'Task successfully saved.';
+            this.snackbar = true
+            this.snackbarText = 'Task successfully saved.'
           } catch (error) {
-            this.error = 'Could not save task to server.';
+            this.error = 'Could not save task to server.'
           }
           
           // reload data

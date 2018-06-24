@@ -15,10 +15,7 @@
         loggedUser: 'auth/loggedUser',
         loggedToken: 'auth/loggedToken',
       })
-    },
-    mounted: function () {},
-    data: () => ({}),
-    methods: {}
+    }
   }
 </script>
 
