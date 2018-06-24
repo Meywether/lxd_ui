@@ -269,7 +269,7 @@
             this.getNetworks()
           }
         } catch (error) {
-          this.error = 'Could not fetch data from server.';
+          this.error = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -336,18 +336,18 @@
           this.networks = []
           response.data.data.forEach(item => {
             if (item.managed) {
-              this.networks.push(item.name);
+              this.networks.push(item.name)
             }
-          });
+          })
         } catch (error) {
-          this.networks = [];
+          this.networks = []
         }
       },
 
       // create or edit item
       editItem (item) {
         this.editingIndex = this.items.indexOf(item)
-        this.editingItem = JSON.parse(JSON.stringify(item));
+        this.editingItem = JSON.parse(JSON.stringify(item))
 
         // set name
         this.editingItem.name = this.editingItem.dict.name
@@ -399,7 +399,7 @@
               this.initialize()
             }
           } catch (error) {
-            this.error = 'Could not save device to server.';
+            this.error = 'Could not save device to server.'
           }
         }
       },
@@ -432,7 +432,7 @@
                   this.$emit('snackbar', 'Device successfully deleted.')
                 } catch (error) {
                   //
-                  this.error = 'Failed to delete device.';
+                  this.error = 'Failed to delete device.'
                 }
               }
             },
@@ -458,7 +458,7 @@
       },
             
       ucfirst(str) {
-          return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+          return String(str).charAt(0).toUpperCase() + String(str).slice(1)
       }
     }
   }

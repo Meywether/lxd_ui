@@ -55,9 +55,7 @@
               {{ error }}
             </v-alert>
             <h3>General</h3>
-
             <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the USB device."></v-text-field>
-            
             <h3>Device Settings</h3>
             <v-text-field v-model="editingItem.dict.vendorid" required :rules="vendorRule" label="Vendor ID:" placeholder="" hint="The vendor id of the USB device."></v-text-field>
             <v-text-field v-model="editingItem.dict.productid" :rules="productRule"  label="Product ID:" placeholder="" hint="The product id of the USB device."></v-text-field>
@@ -217,7 +215,7 @@
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/devices/usb')
           this.items = response.data.data
         } catch (error) {
-          this.error = 'Could not fetch data from server.';
+          this.error = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -248,7 +246,7 @@
       },
 
       async detachItem(item) {
-        this.attachError = false;
+        this.attachError = false
 
         // remove from linked item
         this.$delete(this.linkedItem.devices, item.name)
@@ -278,7 +276,7 @@
       // create or edit item
       editItem (item) {
         this.editingIndex = this.items.indexOf(item)
-        this.editingItem = JSON.parse(JSON.stringify(item));
+        this.editingItem = JSON.parse(JSON.stringify(item))
 
         this.dialog = true
       },
@@ -302,7 +300,7 @@
                 gid: this.editingItem.dict.gid,
                 mode: this.editingItem.dict.mode
               }
-            };
+            }
 
             // edit
             if (this.editingIndex > -1) {
@@ -331,7 +329,7 @@
               this.initialize()
             }
           } catch (error) {
-            this.error = 'Could not save device to server.';
+            this.error = 'Could not save device to server.'
           }
         }
       },
@@ -364,7 +362,7 @@
                   this.$emit('snackbar', 'Device successfully deleted.')
                 } catch (error) {
                   //
-                  this.error = 'Failed to delete device.';
+                  this.error = 'Failed to delete device.'
                 }
               }
             },
@@ -390,7 +388,7 @@
       },
 
       ucfirst(str) {
-          return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+          return String(str).charAt(0).toUpperCase() + String(str).slice(1)
       }
     }
   }

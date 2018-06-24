@@ -14,10 +14,10 @@
               <v-flex tag="h1" class="display mb-2">
                 <v-layout row wrap>
                   <v-flex xs12 sm6>
-                    Routes - Web Forwards
+                    Web Proxy
                   </v-flex>
                   <v-flex xs12 sm6>
-                    <v-btn small color="success" @click="dialog = true" style="float:right">New Forward</v-btn>
+                    <v-btn small color="success" @click="dialog = true" style="float:right">New Proxy</v-btn>
                   </v-flex>
                 </v-layout>
               </v-flex>
@@ -25,14 +25,15 @@
                 <v-alert type="error" :value="error">
                   {{ error }}
                 </v-alert>
-                <p>Web forwards allow you to route HTTP/S traffic to containers or external upstreams.</p>
+                <p>The web proxy allow you to route HTTP/S traffic to containers or external upstreams.</p>
                 <v-data-table :headers="tableHeaders" :items="items" hide-actions class="elevation-1" :loading="tableLoading">
                   <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                   <template slot="items" slot-scope="props">
                     <td><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.label }}</a></td>
-                    <td>{{ props.item.ip }}</td>
-                    <td>{{ props.item.port }}</td>
                     <td><ul><li style="list-style-type: none;" v-for="domain in props.item.ownDomain" :key="domain.name">{{ domain.name }}</li></ul></td>
+                    <td>
+                      <span v-for="upstream in props.item.ownUpstream" :key="upstream.id">{{ upstream.ip }}:{{ upstream.port }}<br></span>
+                    </td>
                     <td>
                       <span v-if="props.item.ssl_type === 'letsencrypt'">
                         <v-icon color="amber darken-3">https</v-icon> 
@@ -64,7 +65,7 @@
             <v-btn icon @click.native="dialog = false" dark>
               <v-icon>close</v-icon>
             </v-btn>
-            <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Web Forward</v-toolbar-title>
+            <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Web Proxy</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-btn dark flat @click.native="save()">Save</v-btn>
@@ -74,7 +75,7 @@
             <v-card flat>
               <v-card-text>
                 <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-text-field v-model="editingItem.label" :rules="labelRule" label="Label:" placeholder="" required hint="Enter a label for the web forward."></v-text-field>
+                  <v-text-field v-model="editingItem.label" :rules="labelRule" label="Label:" placeholder="" required hint="Enter a label for the web proxy."></v-text-field>
                   <h3 style="margin-top:15px">Domain/s</h3>
                   <v-layout row wrap>
                     <v-flex xs11>
@@ -167,19 +168,13 @@
       items: [],
       
       tableLoading: true,
-      tableNoData: 'You have not added any web forwards.',
+      tableNoData: 'You have not added any web proxys.',
       tableHeaders: [
         { text: 'Label', value: 'label' },
-        { text: 'IP', value: 'ip' },
-        { text: 'Port', value: 'port' },
-        { text: 'Domains', value: 'ownDomain' },
+        { text: 'Domain/s', value: 'ownDomain' },
+        { text: 'Upstream/s', value: 'ownUpstream' },
         { text: 'SSL', value: 'ssl_type' },
         { text: 'Actions', value: 'name', sortable: false, align: 'right' }
-      ],
-      itemActions: [
-        { title: 'Start' },
-        { title: 'Stop' },
-        { title: 'Delete' }
       ],
 
       // dialog
@@ -260,7 +255,7 @@
           }
 
           //
-          const response = await axios.get(this.loggedUser.sub + '/api/routes/web-forwards')
+          const response = await axios.get(this.loggedUser.sub + '/api/routes/web-proxy')
           this.items = response.data.data
         } catch (error) {
           this.tableNoData = 'No data.';
@@ -322,8 +317,8 @@
             color: 'red darken-3',
             closable: false,
           },
-          title: 'Delete web forward?',
-          text: 'Are you sure you want to delete the <b>'+item.label+'</b> web forward?',
+          title: 'Delete web proxy?',
+          text: 'Are you sure you want to delete the <b>'+item.label+'</b> web proxy?',
           buttons: [
             {
               title: 'Yes',
@@ -341,13 +336,13 @@
                   }
 
                   //
-                  const response = await axios.delete(this.loggedUser.sub + '/api/routes/web-forwards', { data: item })
+                  const response = await axios.delete(this.loggedUser.sub + '/api/routes/web-proxy', { data: item })
                   //
                   this.snackbar = true;
-                  this.snackbarText = 'Web forward successfully deleted.';
+                  this.snackbarText = 'Web proxy successfully deleted.';
                   
                 } catch (error) {
-                  this.error = 'Could not delete web forward from server.';
+                  this.error = 'Could not delete web proxy from server.';
                 }
               }
             },
@@ -384,12 +379,12 @@
             }
 
             //
-            const response = await axios.post(this.loggedUser.sub + '/api/routes/web-forwards', this.editingItem)
+            const response = await axios.post(this.loggedUser.sub + '/api/routes/web-proxy', this.editingItem)
             //
             this.snackbar = true;
-            this.snackbarText = 'Web forward successfully saved.';
+            this.snackbarText = 'Web proxy successfully saved.';
           } catch (error) {
-            this.error = 'Could not save web forward to server.';
+            this.error = 'Could not save web proxy to server.';
           }
           
           // reload data

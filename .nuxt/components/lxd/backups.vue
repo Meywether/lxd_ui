@@ -217,29 +217,29 @@
             method: 'GET'
           }).then(response => {
             if (response.data.data.exists) {
-              window.open(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name + '/backups/'+item.name.substr(item.name.lastIndexOf('/') + 1)+'/export?hash='+response.data.data.hash, '_blank');
+              window.open(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name + '/backups/'+item.name.substr(item.name.lastIndexOf('/') + 1)+'/export?hash='+response.data.data.hash, '_blank')
             } else {
               this.$emit('snackbar', 'Exporting backup to accessable location.')
             }
             /*
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', item.name.substr(item.name.lastIndexOf('/') + 1)+'.tar.gz');
-            document.body.appendChild(link);
-            link.click();
+            const url = window.URL.createObjectURL(new Blob([response.data]))
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute('download', item.name.substr(item.name.lastIndexOf('/') + 1)+'.tar.gz')
+            document.body.appendChild(link)
+            link.click()
             */
-          });
+          })
           
           /*
           const response = await axios.get()
           this.items = response.data.data
           
-          var element = document.createElement('iframe');
-          element.style.display = 'none';
-          element.setAttribute('src', response.data.data);
-         // element.setAttribute('download', 'servers.json');
-          document.body.appendChild(element);
+          var element = document.createElement('iframe')
+          element.style.display = 'none'
+          element.setAttribute('src', response.data.data)
+          element.setAttribute('download', 'servers.json')
+          document.body.appendChild(element)
           */
 
           this.$emit('snackbar', 'Exporting backup.')

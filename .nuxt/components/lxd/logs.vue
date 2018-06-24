@@ -98,7 +98,7 @@
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/'+this.linkedItem.name+'/logs')
           this.items = response.data.data
         } catch (error) {
-          this.error = 'Could not fetch data from server.';
+          this.error = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -112,7 +112,7 @@
             const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/'+this.linkedItem.name+'/logs/'+prop.item.name)
             this.$set(this.items[index], 'data', response.data.data)
           } catch (error) {
-            this.error = 'Could not fetch data from server.';
+            this.error = 'Could not fetch data from server.'
           }
         }
         prop.expanded = !prop.expanded
@@ -146,7 +146,7 @@
                   this.$emit('snackbar', 'Log successfully deleted.')
                 } catch (error) {
                   //
-                  this.error = 'Failed to delete log.';
+                  this.error = 'Failed to delete log.'
                 }
               }
             },

@@ -322,7 +322,7 @@
         handler: function (val) {
           for (var prop in val) { 
             if (val[prop] === '' || val[prop] === null) {
-              delete val[prop];
+              delete val[prop]
             }
           }
         },
@@ -346,9 +346,9 @@
 
           this.items = response.data.data
         } catch (error) {
-          this.items = [];
-          this.tableNoData = 'No data.';
-          this.error.global = 'Could not fetch data from server.';
+          this.items = []
+          this.tableNoData = 'No data.'
+          this.error.global = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -356,7 +356,7 @@
       // create or edit item
       editItem (item) {
         this.editingIndex = this.items.indexOf(item)
-        this.editingItem = JSON.parse(JSON.stringify(item));
+        this.editingItem = JSON.parse(JSON.stringify(item))
 
         this.dialog.editing = true
       },
@@ -364,7 +364,7 @@
       // create or volumes 
       editVolumes (item) {
         this.editingIndex = this.items.indexOf(item)
-        this.editingItem = JSON.parse(JSON.stringify(item));
+        this.editingItem = JSON.parse(JSON.stringify(item))
 
         this.dialog.volumes = true
       },  
@@ -372,7 +372,7 @@
       // show used by
       showUsedBy (item) {
         this.editingIndex = this.items.indexOf(item)
-        this.editingItem = JSON.parse(JSON.stringify(item));
+        this.editingItem = JSON.parse(JSON.stringify(item))
 
         this.editingItem.info.used_by_structured = []
         if (this.editingItem.info.used_by.length > 0) {
@@ -430,11 +430,11 @@
                 this.items.push(Object.assign({}, this.editingItem))
               }
               //
-              this.snackbar = true;
-              this.snackbarText = 'Storage pool successfully saved.';
+              this.snackbar = true
+              this.snackbarText = 'Storage pool successfully saved.'
             }
           } catch (error) {
-            this.error.global = 'Could not save storage pool to server.'+error;
+            this.error.global = 'Could not save storage pool to server.'+error
           }
 
           if (!this.error.editing && this.editingIndex === -1) {
@@ -472,12 +472,12 @@
                   const response = await axios.delete(this.loggedUser.sub + '/api/lxd/storage/'+item.info.name)
 
                   //
-                  this.snackbar = true;
-                  this.snackbarColor = 'green';
-                  this.snackbarText = 'Storage pool deleted.';
+                  this.snackbar = true
+                  this.snackbarColor = 'green'
+                  this.snackbarText = 'Storage pool deleted.'
                 } catch (error) {
                   //
-                  this.error.global = 'Failed to delete storage pool.';
+                  this.error.global = 'Failed to delete storage pool.'
                 }
               }
             },
@@ -503,7 +503,7 @@
       },
       
       ucfirst(str) {
-          return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+          return String(str).charAt(0).toUpperCase() + String(str).slice(1)
       },
 
       disk_used (item) {
@@ -511,12 +511,12 @@
       },
 
       formatBytes (bytes, decimals) {
-        if(bytes == 0) return '0 Bytes';
+        if(bytes == 0) return '0 Bytes'
         var k = 1024,
             dm = decimals || 2,
             sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-            i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+            i = Math.floor(Math.log(bytes) / Math.log(k))
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
       }
     }
   }

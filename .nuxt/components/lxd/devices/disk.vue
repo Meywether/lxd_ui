@@ -138,6 +138,8 @@
 
       attachType: '',
       items: [],
+      pools: [],
+      
       editingIndex: -1,
       editingItem: {
         id: -1,
@@ -171,8 +173,6 @@
           "propagation": "None"
         }
       },
-      
-      pools: [],
 
       // container/profile
       linkedItem: {},
@@ -228,7 +228,7 @@
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/devices/disk')
           this.items = response.data.data
         } catch (error) {
-          this.error = 'Could not fetch data from server.';
+          this.error = 'Could not fetch data from server.'
         }
         
         this.tableLoading = false
@@ -245,7 +245,7 @@
             this.pools.push(item.name)
           })
         } catch (error) {
-          this.pools = [];
+          this.pools = []
         }
       },
 
@@ -271,9 +271,6 @@
           "type": item.type,
           ...item.dict
         })
-        
-        // attach root of host to root of container (else it be nobody)
-        // this.$set(this.linkedItem.config, "raw.idmap", "both 1000 1000\nboth 0 0")
 
         //
         const response = await axios.patch(this.loggedUser.sub + '/api/lxd/'+this.attachType+'/' + this.linkedItem.name, {
@@ -286,16 +283,13 @@
       },
 
       async detachItem(item) {
-        this.attachError = false;
+        this.attachError = false
         
         // remove from linked item
         this.$delete(this.linkedItem.devices, item.name)
         
         this.linkedItem = Object.assign({}, container.outfix(this.linkedItem))
-        
-        // remove root of host to root of container
-        // delete this.linkedItem.config["raw.idmap"];
-        
+
         // profile outfix
         if (this.attachType === 'profiles') {
           this.linkedItem = Object.assign({}, profile.outfix(this.linkedItem))
@@ -331,7 +325,7 @@
       // create or edit item
       editItem (item) {
         this.editingIndex = this.items.indexOf(item)
-        this.editingItem = JSON.parse(JSON.stringify(item));
+        this.editingItem = JSON.parse(JSON.stringify(item))
 
         this.dialog = true
       },
@@ -377,7 +371,7 @@
               this.initialize()
             }
           } catch (error) {
-            this.error = 'Could not save device to server.';
+            this.error = 'Could not save device to server.'
           }
         }
       },
@@ -410,7 +404,7 @@
                   this.$emit('snackbar', 'Device successfully deleted.')
                 } catch (error) {
                   //
-                  this.error = 'Failed to delete device.';
+                  this.error = 'Failed to delete device.'
                 }
               }
             },
@@ -436,7 +430,7 @@
       },
             
       ucfirst(str) {
-          return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+          return String(str).charAt(0).toUpperCase() + String(str).slice(1)
       }
     }
   }

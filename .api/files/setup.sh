@@ -39,7 +39,7 @@ install_web() {
     # Install Nginx
     sudo apt-get -yq install nginx
     #
-    # setup initial nginx config, will be overwritten by nginx task
+    # setup initial nginx config, will be overwritten by nginx.setup task
     echo -e "
 server {
     listen 88 default_server;
@@ -111,7 +111,6 @@ install_project() {
     # checkout master
     git checkout master
 
-    #
     # add tasks cron job
     crontab -l | grep -q "do cd $webroot && /usr/bin/php task.php"  && echo 'Tasks cron task already exists' || crontab -l | { cat; echo -e "@reboot while sleep 1; do cd $webroot && /usr/bin/php task.php ; done >/dev/null 2>&1"; } | crontab -
 
@@ -209,7 +208,7 @@ AUTOLOAD=\".api/\"
 server=\"network-connections\",\"processes\",\"logins\"
 api=\"data\",\"email\"
 lxd=\"containers\",\"images\",\"operations\",\"profiles\",\"networks\",\"devices\",\"certificates\",\"storage\",\"ssh-keys\"
-routes=\"web\",\"port\"
+proxy=\"web\"
 tasks=\"user\",\"system\"
 
 " > $webroot/config.ini
@@ -220,7 +219,6 @@ tasks=\"user\",\"system\"
     
     #
     chmod 0777 .plinker -R
-    
     
     echo -e "
 \033[1;32mProject installed!\033[0m

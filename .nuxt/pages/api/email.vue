@@ -407,7 +407,7 @@
             this.$router.replace('/servers')
           }
 
-          var response;
+          var response
           
           //
           response = await axios.get(this.loggedUser.sub + '/api/ams/email/template')
@@ -417,7 +417,7 @@
           response = await axios.get(this.loggedUser.sub + '/api/ams/email/provider')
           this.items.provider = response.data.data
         } catch (error) {
-          this.error = 'Could not fetch data from server.';
+          this.error = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -474,11 +474,11 @@
                   //
                   const response = await axios.delete(this.loggedUser.sub + '/api/ams/email/' + type, { data: item })
                   //
-                  this.snackbar = true;
-                  this.snackbarText = 'Email '+type+' successfully deleted.';
+                  this.snackbar = true
+                  this.snackbarText = 'Email '+type+' successfully deleted.'
                   
                 } catch (error) {
-                  this.error = 'Could not delete email '+type+' from server.';
+                  this.error = 'Could not delete email '+type+' from server.'
                 }
               }
             },
@@ -510,10 +510,10 @@
             //
             const response = await axios.post(this.loggedUser.sub + '/api/ams/email/' + type, this.editingItem[type])
             //
-            this.snackbar = true;
-            this.snackbarText = 'Email '+type+' successfully saved.';
+            this.snackbar = true
+            this.snackbarText = 'Email '+type+' successfully saved.'
           } catch (error) {
-            this.error = 'Could not save email '+type+' to server.';
+            this.error = 'Could not save email '+type+' to server.'
           }
   
           if (this.editingIndex[type] === -1) {
@@ -540,9 +540,9 @@
       // set snackbar invoked from component test-email
       setSnackbar (msg) {
         //
-        this.snackbar = true;
+        this.snackbar = true
         this.snackbarTimeout = 2500
-        this.snackbarText = msg;
+        this.snackbarText = msg
       }
 
     }

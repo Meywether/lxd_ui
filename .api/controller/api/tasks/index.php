@@ -165,7 +165,7 @@ class Index extends \Base\Controller
             $item = json_decode($f3->get('BODY'), true);
             
             if (empty($item) || !is_numeric($item['id'])) {
-               $f3->response->json([
+                $f3->response->json([
                     'error' => 'Invalid DELETE body, expecting item',
                     'code'  => 422,
                     'data'  => []
@@ -174,13 +174,13 @@ class Index extends \Base\Controller
             
             // dont allow system task delete
             if (!empty($item['system']) || in_array($item['name'], $this->system_tasks)) {
-               $f3->response->json([
+                $f3->response->json([
                     'error' => 'System tasks should not be removed.',
                     'code'  => 400,
                     'data'  => []
                 ]); 
             }
-            
+
             $client->tasks->removeById($item['id']);
 
             $f3->response->json([
