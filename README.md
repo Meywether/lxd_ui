@@ -21,16 +21,13 @@ Here is just some of the features:
 ## :arrow_forward: Install
 
 Installing the project is easy, it should be done on a **clean ubuntu server**!
-
+## Will be updated soon!
 ```
 # switch into root user!
 sudo su
 
 # update package lists
 apt update
-
-# install wget
-apt install wget
 
 
 ```
