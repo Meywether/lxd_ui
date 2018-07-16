@@ -1,14 +1,8 @@
-# Conext - LXD Control Panel
+# - LXD Control Panel
+# - Attention this repo is a fork of the original repo made by lcherone! 
 
 <img src="https://i.imgur.com/gHhwGG4.png" alt="Screen" title="Screen" align="right" />
 
-<!--[![Build Status](https://travis-ci.org/lcherone/Conext.svg?branch=master)](https://travis-ci.org/lcherone/Conext)-->
-[![Build Status](https://scrutinizer-ci.com/g/lcherone/Conext/badges/build.png?b=master)](https://scrutinizer-ci.com/g/lcherone/Conext/build-status/master)
-[![StyleCI](https://github.styleci.io/repos/133640681/shield?branch=master)](https://github.styleci.io/repos/133640681)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/lcherone/Conext/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/lcherone/Conext/?branch=master)
-[![Packagist Version](https://img.shields.io/packagist/v/lcherone/conext.svg?style=flat-square)](https://github.com/lcherone/conext/releases)
-[![Packagist Downloads](https://img.shields.io/packagist/dt/lcherone/conext.svg?style=flat-square)](https://packagist.org/packages/lcherone/conext)
-[![Packagist Downloads](https://img.shields.io/liberapay/receives/lcherone.svg)](https://liberapay.com/lcherone)
 
 A full-featured decentralized LXD server control panel with sugar!
 
@@ -38,7 +32,7 @@ apt update
 # install wget
 apt install wget
 
-wget https://gist.githubusercontent.com/lcherone/d7e5ba660bc20d738132ccb1a453459d/raw/757e1f6a02a79336d6a00b516019b81944e56106/install.sh && bash install.sh
+
 ```
 
 Once complete, you will be able to go to the panel at `http://IP:88`, and then add the server, with the provided key during install.
@@ -62,17 +56,7 @@ cd /var/www/html && git pull
 chown www-data:www-data ./ -R
 ```
 
-## :lock: Security
 
-Please see [security](https://github.com/lcherone/Conext/wiki/Security) wiki page for details.
-
-## :construction: Contributing
-
-Please see [CONTRIBUTING](https://github.com/lcherone/Conext/blob/master/CONTRIBUTING.md) for details.
-
-## :office: Bespoke System
-
-If you would like a bespoke system created at very competitive rates then contact me via my website @ [https://cherone.co.uk](https://cherone.co.uk) or if you use [Upwork](https://www.upwork.com/o/profiles/users/~01ff0ec055a5895e8f/), though that.
 
 ## :heart: Developer Support
 
@@ -86,7 +70,7 @@ If you want to show your appreciation or you make money where this is used, plea
 
 ## :copyright: License
 
-The MIT License (MIT). Please see [License File](https://github.com/lcherone/Conext/blob/master/LICENSE) for more information.
+The MIT License (MIT). 
 
 ```
 MIT License
